@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SLI interactive demos</title>
+<meta name="description" content="Eight interactive demos for Lectures 5 to 8 of Solids, Liquids and Interfaces, Department of Chemistry, Imperial College London.">
+<meta name="author" content="Aleksandar P. Ivanov, Department of Chemistry, Imperial College London">
+<meta name="color-scheme" content="light dark">
+<meta name="license" content="https://creativecommons.org/licenses/by-nc-nd/4.0/">
+<meta name="robots" content="index, follow, noai, noimageai">
+<link rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/">
+<style>
+  :root{
+    --bg:#F2F5F8; --panel:#FFFFFF; --line:#D3DDE6; --ink:#0F1E2B; --ink-2:#44586A;
+    --muted:#6B7680; --blue:#3273B5; --teal:#00968F;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0A1119; --panel:#101D2A; --line:#25394C; --ink:#E7EEF5; --ink-2:#A6BACB;
+      --muted:#8798A8; --blue:#5FA0DC; --teal:#2FB9B0;
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:16px/1.55 "IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Helvetica,Arial,sans-serif}
+  .wrap{max-width:860px;margin:0 auto;padding:40px 20px 56px}
+  .eyebrow{font-size:11.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);font-weight:500}
+  h1{font-family:"Source Serif 4",Georgia,"Times New Roman",serif;font-weight:600;
+     font-size:clamp(26px,4vw,36px);margin:6px 0 10px;letter-spacing:-.01em}
+  .lede{color:var(--ink-2);max-width:62ch;margin:0 0 30px}
+  h2{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
+     font-weight:500;margin:28px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+  ul{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+  li a{display:block;padding:14px 16px;border:1px solid var(--line);border-radius:8px;
+       background:var(--panel);text-decoration:none;color:inherit;transition:border-color .12s,transform .12s}
+  li a:hover{border-color:var(--blue);transform:translateY(-1px)}
+  li a:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+  .code{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:12px;color:var(--teal);font-weight:600}
+  .name{font-family:"Source Serif 4",Georgia,serif;font-size:18px;font-weight:600;margin:2px 0 3px}
+  .desc{font-size:13.5px;color:var(--ink-2);margin:0}
+  footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--line);
+         font-size:13px;color:var(--muted);max-width:64ch}
+  footer a{color:var(--blue)}
+  footer p{margin:0 0 8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Imperial College London &middot; Department of Chemistry</div>
+  <h1>Solids, Liquids and Interfaces</h1>
+  <p class="lede">Eight interactive demos for Lectures 5 to 8, on spatially variant systems and
+  transport in solution. Each one runs entirely in the browser, needs no network connection once
+  loaded, and can be driven live from a lecture theatre or explored alone.</p>
+
+  <h2>Lecture 5 &middot; Ions in solution</h2>
+  <ul>
+    <li><a href="l5-1-ionic-atmosphere.html"><span class="code">5.1</span>
+      <div class="name">Ionic atmosphere and the Debye length</div>
+      <p class="desc">Raise the ionic strength a hundredfold and the atmosphere shrinks only tenfold.</p></a></li>
+    <li><a href="l5-2-coulomb-thermal.html"><span class="code">5.2</span>
+      <div class="name">Coulomb against thermal energy</div>
+      <p class="desc">Why salts dissolve in water as free ions and in hexane not at all.</p></a></li>
+  </ul>
+
+  <h2>Lecture 6 &middot; Non-ideality in electrolyte solutions</h2>
+  <ul>
+    <li><a href="l6-1-activity-models.html"><span class="code">6.1</span>
+      <div class="name">Three models against the measurements</div>
+      <p class="desc">Which assumption fails first, and what the extra range costs.</p></a></li>
+    <li><a href="l6-2-free-water.html"><span class="code">6.2</span>
+      <div class="name">Counting the free water</div>
+      <p class="desc">How the activity coefficient gets above 1, and the lithium to potassium ordering.</p></a></li>
+  </ul>
+
+  <h2>Lecture 7 &middot; Transport I: migration and conductivity</h2>
+  <ul>
+    <li><a href="l7-1-ion-race.html"><span class="code">7.1</span>
+      <div class="name">The ion race</div>
+      <p class="desc">The hydrodynamic radius, the two roles of charge, and the Grotthuss anomaly.</p></a></li>
+    <li><a href="l7-2-extrapolation.html"><span class="code">7.2</span>
+      <div class="name">Extrapolating to the limiting value</div>
+      <p class="desc">Why the law of independent migration is needed rather than merely available.</p></a></li>
+  </ul>
+
+  <h2>Lecture 8 &middot; Transport II: diffusion and thermal gradients</h2>
+  <ul>
+    <li><a href="l8-1-diffusion-clock.html"><span class="code">8.1</span>
+      <div class="name">The diffusion clock</div>
+      <p class="desc">A thousandfold increase in distance costs a millionfold increase in time.</p></a></li>
+    <li><a href="l8-2-thermophoresis-mst.html"><span class="code">8.2</span>
+      <div class="name">Thermophoresis and an MST titration</div>
+      <p class="desc">How a depletion measurement becomes a dissociation constant.</p></a></li>
+  </ul>
+
+  <footer>
+    <p>Dr Aleksandar P. Ivanov, Department of Chemistry, Imperial College London.
+    Every number in these demos is checked against the module coursebook.
+    <a href="javascript-test.html">Test whether scripts run here</a>.</p>
+    <p>&copy; 2026 A. P. Ivanov. Licensed under
+    <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" rel="license">CC BY-NC-ND 4.0</a>.
+    Embedded typefaces under the <a href="OFL.txt">SIL Open Font License 1.1</a>.</p>
+  </footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<base target="_parent">
+<title>Does this Canvas run JavaScript?</title>
+<style>
+  body{margin:0;font:16px/1.5 system-ui,-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;
+       background:#F2F5F8;color:#0F1E2B}
+  .box{max-width:52ch;margin:28px auto;padding:22px 24px;border-radius:10px;border:1px solid #D3DDE6;background:#fff}
+  h1{margin:0 0 10px;font-size:20px}
+  .verdict{font-size:19px;font-weight:600;padding:14px 16px;border-radius:8px;margin:14px 0}
+  .yes{background:rgba(0,150,143,.12);color:#00706B;border:1px solid #00968F}
+  .no{background:rgba(207,69,32,.10);color:#A33616;border:1px solid #CF4520}
+  dl{margin:14px 0 0;font-size:13.5px;color:#44586A}
+  dt{font-weight:600;margin-top:8px}
+  dd{margin:2px 0 0;font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;word-break:break-all}
+  p{margin:10px 0 0;font-size:14px;color:#44586A}
+</style>
+</head>
+<body>
+<div class="box">
+  <h1>Does this Canvas run JavaScript?</h1>
+  <noscript>
+    <div class="verdict no">No. Scripts are blocked here.</div>
+    <p>This is the default in Canvas: JavaScript inside files uploaded to Files does not
+       execute unless an administrator has switched it on for the account, sub-account or
+       course. The interactive demo cannot work until that changes, or until the file is
+       served from somewhere outside Canvas.</p>
+  </noscript>
+  <div id="live"></div>
+</div>
+<script>
+  var framed = (window.self !== window.top);
+  document.getElementById("live").innerHTML =
+    '<div class="verdict yes">Yes. Scripts are running here.</div>' +
+    '<p>The interactive demo will work in this location.</p>' +
+    '<dl>' +
+    '<dt>Served from</dt><dd>' + location.origin + '</dd>' +
+    '<dt>Full address</dt><dd>' + location.href + '</dd>' +
+    '<dt>Inside an iframe</dt><dd>' + (framed ? 'yes' : 'no') + '</dd>' +
+    '<dt>Canvas element supported</dt><dd>' + (!!document.createElement('canvas').getContext ? 'yes' : 'no') + '</dd>' +
+    '</dl>';
+</script>
+</body>
+</html>

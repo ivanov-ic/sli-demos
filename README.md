@@ -5,7 +5,7 @@ Interfaces*, Department of Chemistry, Imperial College London.
 
 Each demo is a single HTML file with no dependencies at all: no scripts, stylesheets, images
 or fonts are fetched from anywhere. Open one from a web address, from a USB stick, or from a
-folder on a lecture-theatre machine and it behaves the same.
+folder on a lecture-theatre machine, and it behaves the same.
 
 | | Demo | Lecture |
 |---|---|---|
@@ -21,36 +21,6 @@ folder on a lecture-theatre machine and it behaves the same.
 `javascript-test.html` is a two-kilobyte page that reports whether scripts are allowed to run
 wherever it is opened. Use it to check a virtual learning environment before blaming a demo.
 
-## Embedding in Canvas
-
-Canvas blocks JavaScript inside files uploaded to its own Files area, so the demos have to be
-served from here and pulled in with an iframe. On a Canvas page, switch to HTML view and paste:
-
-```html
-<iframe src="https://USERNAME.github.io/sli-demos/l5-1-ionic-atmosphere.html"
-        width="100%" height="1550" style="border:1px solid #ddd;border-radius:6px"
-        title="Ionic atmosphere explorer" allowfullscreen></iframe>
-```
-
-Save from HTML view. Switching back to the rich editor first strips the iframe attributes.
-Each page detects that it is inside a frame and trims its layout to suit; 1550 px is enough
-at the widths a Canvas content column normally gets.
-
-## Crawlers and machine reading
-
-`robots.txt` asks ordinary search engines to index these pages and asks the crawlers
-that gather text for training generative models to leave them alone. Every page also
-carries `<meta name="robots" content="index, follow, noai, noimageai">` in its head.
-
-Two things to know. Both are requests rather than controls: a crawler that ignores
-them is not prevented from reading anything. And robots.txt is only ever read from the
-root of a host, so on a project page at `USERNAME.github.io/sli-demos/` the file in
-this repository is never fetched. To make it bite, copy it into a repository named
-`USERNAME.github.io`, which serves the root of that host, or use a custom domain. The
-`meta` tag in each page works either way, which is why it is there as well.
-
-To keep the demos out of search results entirely, change `index, follow` to
-`noindex, nofollow` in the head of each page.
 
 ## Licence
 

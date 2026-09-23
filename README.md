@@ -38,17 +38,3 @@ want to adapt a demo rather than use it as it stands, or use one commercially, p
 The typefaces embedded in each HTML file are licensed separately under the SIL Open Font
 License 1.1 and are not covered by the licence above. See [OFL.txt](OFL.txt). IBM Plex Sans
 and IBM Plex Mono, Copyright IBM Corp. Source Serif 4, from the Adobe Source Serif project.
-
-### Why one licence covers the code too
-
-Each demo is a single self-contained page: the physics, the prose, the layout and the
-script that draws it are one artefact, and there is no sensible line between the worked
-example and the code that evaluates it. Splitting the repository into a content licence
-and a software licence would create a boundary that neither of them could describe.
-
-Creative Commons advises against CC licences for software, on the grounds that they carry
-no patent grant and say nothing about source against binary form. Neither point bites
-here: nothing is compiled, nothing is linked against, and no patent is in play. What would
-bite is the reverse choice, because no open-source licence can express these terms at all.
-Non-commercial use and no-derivatives both fail the Open Source Definition by design, so
-every licence approved by the Open Source Initiative is more permissive than intended.

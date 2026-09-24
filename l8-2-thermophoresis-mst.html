@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <base target="_parent">
-<title>Thermophoresis and MST</title>
+<title>Thermophoresis and an MST titration</title>
 <meta name="description" content="A laser-heated spot building a Soret steady state, an MST titration fitting a dissociation constant, and letters written into the solution.">
 <meta name="author" content="Aleksandar P. Ivanov, Department of Chemistry, Imperial College London">
 <meta name="color-scheme" content="light dark">
@@ -179,6 +179,7 @@
     background:var(--panel-2); color:var(--ink-2); border:1px solid var(--line); transition:background .12s, color .12s, border-color .12s;
   }
   .seg button:hover, .btn:hover{border-color:var(--blue); color:var(--ink)}
+  .btn:disabled{opacity:.45; cursor:default; border-color:var(--line); color:var(--ink-2)}
   .seg button[aria-pressed="true"]{background:var(--deep); border-color:var(--deep); color:var(--panel); font-weight:500}
   .sub{font-size:12px; color:var(--muted)}
   .lc{text-transform:none !important}
@@ -328,9 +329,9 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     </div>
 
     <div class="ctl" id="ctlTitr" hidden>
-      <label for="kd"><span>True <em>K</em><sub>d</sub></span> <span class="val" id="kdVal">100 nmol dm<sup>&minus;3</sup></span></label>
+      <label for="kd"><span>True <em>K</em><sub>d</sub></span> <span class="val" id="kdVal">10.0 nmol dm<sup>&minus;3</sup></span></label>
       <input autocomplete="off" type="range" id="kd" min="0" max="1000" value="500" step="1">
-      <label for="lig" style="margin-top:4px"><span>Unlabelled partner</span> <span class="val" id="ligVal">100 nmol dm<sup>&minus;3</sup></span></label>
+      <label for="lig" style="margin-top:4px"><span>Unlabelled partner</span> <span class="val" id="ligVal">10.0 nmol dm<sup>&minus;3</sup></span></label>
       <input autocomplete="off" type="range" id="lig" min="0" max="1000" value="500" step="1">
     </div>
 
@@ -367,9 +368,9 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
         <p class="cap" id="traceCap">Fluorescence from the hottest part of the heated region, as a fraction of its value before the laser came on. The simulated cell is closed and finite, and the reading averages over the hot core rather than its very centre, so the trace settles a little closer to 1 than the ideal ratio, and further from it as |<em>S</em><sub>T</sub>&Delta;<em>T</em>| grows.</p>
         <div class="canvas-box" id="traceBox"><canvas role="img" id="trace" aria-label="Fluorescence in the heated spot against time"></canvas></div>
         <div class="readouts" style="margin-top:10px; grid-template-columns:repeat(3,minmax(0,1fr))">
-          <div class="ro"><div class="k">Now</div><div class="v" id="roNow">&mdash;</div><div class="n">of the starting value</div></div>
-          <div class="ro hi"><div class="k">Steady state</div><div class="v" id="roSS">&mdash;</div><div class="n">e<sup>&minus;S<sub>T</sub>&Delta;T</sup></div></div>
-          <div class="ro"><div class="k" id="kDep">Depletion</div><div class="v" id="roDep">&mdash;</div><div class="n">per cent</div></div>
+          <div class="ro"><div class="k">Now</div><div class="v" id="roNow">&ndash;</div><div class="n">of the starting value</div></div>
+          <div class="ro hi"><div class="k">Steady state</div><div class="v" id="roSS">&ndash;</div><div class="n">e<sup>&minus;S<sub>T</sub>&Delta;T</sup></div></div>
+          <div class="ro"><div class="k" id="kDep">Depletion</div><div class="v" id="roDep">&ndash;</div><div class="n">per cent</div></div>
         </div>
       </div>
 
@@ -502,8 +503,12 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     return ST_FREE + f*(ST_BOUND-ST_FREE);
   }
   function plateau(st){ return Math.exp(-st*dT()); }
-  // long enough to settle whatever the diffusion coefficient: several spot-diffusion times
-  function tEnd(){ return Math.max(30, Math.ceil(6*22*22/Dv()/10)*10); }
+  // long enough to settle whatever the diffusion coefficient: several spot-diffusion times,
+  // and longer again for strong enrichment, which has to draw solute in from the whole cell
+  function tEnd(){
+    var enrich = Math.max(0, -stEffective()*dT());
+    return Math.max(30, Math.ceil(6*22*22/Dv()*(1 + 2*enrich)/10)*10);
+  }
   // a titration only carries information if bound and free differ by more than the scatter
   function titrSignal(){ return Math.abs(plateau(ST_BOUND) - plateau(ST_FREE)) > 0.018; }
   function niceStep(range, n){
@@ -954,7 +959,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
   $("kd").addEventListener("input", function(){ S.kd = +this.value; clearIfDone(); paint(); });
   $("lig").addEventListener("input", function(){ S.lig = +this.value; clearIfDone(); paint(); });
   $("letters").addEventListener("input", function(){
-    S.letters = this.value || "SLI"; buildField(); resetField(); paint();
+    S.letters = this.value || "SLI"; buildField(); resetField(); $("clock").textContent = "0.0 s"; paint();
   });
   $("run").addEventListener("click", function(){ S.running ? stop() : start(); });
   $("ex83").addEventListener("click", function(){

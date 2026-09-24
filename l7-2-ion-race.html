@@ -179,6 +179,7 @@
     background:var(--panel-2); color:var(--ink-2); border:1px solid var(--line); transition:background .12s, color .12s, border-color .12s;
   }
   .seg button:hover, .btn:hover{border-color:var(--blue); color:var(--ink)}
+  .btn:disabled{opacity:.45; cursor:default; border-color:var(--line); color:var(--ink-2)}
   .seg button[aria-pressed="true"]{background:var(--deep); border-color:var(--deep); color:var(--panel); font-weight:500}
   .sub{font-size:12px; color:var(--muted)}
   .lc{text-transform:none !important}
@@ -389,7 +390,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
   <footer>
     <span>Drift speed, eqn 7.9 &middot; mobility, eqn 7.10 &middot; &lambda;&deg; = |z|<em>u</em><em>F</em>, eqn 7.11</span>
     <span>Stokes radii from the mobilities with &eta; = 8.90 &times; 10<sup>&minus;4</sup> Pa s</span>
-    <span>&lambda;&deg; values from Table 7.1</span>
+    <span>&lambda;&deg; values from Table 7.1, except Rb<sup>+</sup>, which is |<em>z</em>|<em>uF</em> from its mobility in Problem 7.4</span>
   <span>© 2026 A. P. Ivanov. <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" rel="license" target="_blank">CC BY-NC-ND 4.0</a></span>
   </footer>
 </div>
@@ -480,7 +481,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
 
   var ETA = 8.90e-4;         // Pa s, water at 298 K
 
-  // lam is the tabulated 10^4 lambda-degree / (S m^2 mol^-1), Table 7.1
+  // lam is the tabulated 10^4 lambda-degree / (S m^2 mol^-1), Table 7.1; Rb+ from its mobility in Problem 7.4
   var IONS = [
     {id:"H",  html:"H<sup>+</sup>",  txt:"H⁺",  z:1, lam:349.8, rc:null, colour:"plum",  hop:true},
     {id:"Rb", html:"Rb<sup>+</sup>", txt:"Rb⁺", z:1, lam:77.8,  rc:152,  colour:"gold"},
@@ -491,7 +492,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     {id:"Li", html:"Li<sup>+</sup>", txt:"Li⁺", z:1, lam:38.7,  rc:76,   colour:"ink"}
   ];
   // Stokes radii as the coursebook rounds them, a = |z|e / 6-pi-eta-u
-  var RS_BOOK = {H:26, Rb:118, K:125, Ca:309, Zn:349, Na:184, Li:238};
+  var RS_BOOK = {H:26, Rb:118, K:125, Ca:310, Zn:349, Na:184, Li:238};
   IONS.forEach(function(I){
     I.u = I.lam*1e-4/(I.z*FARADAY);                  // m^2 s^-1 V^-1
     I.rs = RS_BOOK[I.id];                            // picometres
@@ -660,7 +661,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       var rPm = radiusPm(I);
       var hot = (I.id === "Zn" || I.id === "K");
       html += '<tr class="'+(hot?"h":"")+'"><td><span class="swatch" style="background:var(--'+(I.colour==="ink"?"ink":I.colour)+')"></span>' + I.html + "</td>" +
-        "<td>" + (I.rc === null ? "&mdash;" : I.rc) + "</td>" +
+        "<td>" + (I.rc === null ? "&ndash;" : I.rc) + "</td>" +
         "<td>" + num(stokesShown(I),0) + "</td>" +
         "<td>" + num(mobility(I)*1e8,2) + "</td>" +
         "<td>" + num(lamShown(I),1) + "</td>" +
@@ -691,7 +692,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     var note;
     if(!S.grot){
       note = "With the proton made to swim as an ordinary H₃O⁺ of radius 100 pm its mobility drops to " +
-        num(H.uSwim*1e8,2) + " × 10⁻⁸, about a quarter of what is measured. Running the Stokes calculation backwards on the real value gives a radius of " +
+        num(H.uSwim*1e8,2) + " × 10⁻⁸ m² s⁻¹ V⁻¹, about a quarter of what is measured. Running the Stokes calculation backwards on the real value gives a radius of " +
         num(H.rs,0) + " pm, which is smaller than an atom and therefore not a radius at all. That is the evidence for Grotthuss hopping.";
     } else if(S.shell){
       note = "Lithium is the smallest of the alkali metal cations and therefore holds the most water, so it moves as the largest of the three and comes last. The radius that matters in Stokes’ law is the one drawn here, not the crystallographic one.";

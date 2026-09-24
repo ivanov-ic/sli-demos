@@ -179,6 +179,7 @@
     background:var(--panel-2); color:var(--ink-2); border:1px solid var(--line); transition:background .12s, color .12s, border-color .12s;
   }
   .seg button:hover, .btn:hover{border-color:var(--blue); color:var(--ink)}
+  .btn:disabled{opacity:.45; cursor:default; border-color:var(--line); color:var(--ink-2)}
   .seg button[aria-pressed="true"]{background:var(--deep); border-color:var(--deep); color:var(--panel); font-weight:500}
   .sub{font-size:12px; color:var(--muted)}
   .lc{text-transform:none !important}
@@ -362,12 +363,12 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
         <h2>The count, at this molality</h2>
         <p class="cap" id="tblCap"></p>
         <div class="readouts" style="margin-top:0; grid-template-columns:repeat(auto-fit,minmax(122px,1fr))">
-          <div class="ro"><div class="k">Water locked up</div><div class="v" id="roLock">&mdash;</div><div class="n">mol out of 55.5</div></div>
-          <div class="ro"><div class="k">Free water left</div><div class="v" id="roFree">&mdash;</div><div class="n" id="roFreeN">mol</div></div>
-          <div class="ro hi"><div class="k">Effective molality</div><div class="v" id="roEff">&mdash;</div><div class="n">mol per kilogram of <em>free</em> water</div></div>
-          <div class="ro"><div class="k">Hydration factor</div><div class="v" id="roFac">&mdash;</div><div class="n">55.5 / (55.5 &minus; <em>hm</em>)</div></div>
-          <div class="ro"><div class="k"><span class="lc">Measured &gamma;<sub>&plusmn;</sub></span></div><div class="v" id="roGam">&mdash;</div><div class="n">Robinson and Stokes</div></div>
-          <div class="ro"><div class="k"><span class="lc">&gamma;<sub>&plusmn;</sub> &divide; factor</span></div><div class="v" id="roRat">&mdash;</div><div class="n">what is left once the count is divided out</div></div>
+          <div class="ro"><div class="k">Water locked up</div><div class="v" id="roLock">&ndash;</div><div class="n">mol out of 55.5</div></div>
+          <div class="ro"><div class="k">Free water left</div><div class="v" id="roFree">&ndash;</div><div class="n" id="roFreeN">mol</div></div>
+          <div class="ro hi"><div class="k">Effective molality</div><div class="v" id="roEff">&ndash;</div><div class="n">mol per kilogram of <em>free</em> water</div></div>
+          <div class="ro"><div class="k">Hydration factor</div><div class="v" id="roFac">&ndash;</div><div class="n">55.5 / (55.5 &minus; <em>hm</em>)</div></div>
+          <div class="ro"><div class="k"><span class="lc">Measured &gamma;<sub>&plusmn;</sub></span></div><div class="v" id="roGam">&ndash;</div><div class="n">Robinson and Stokes</div></div>
+          <div class="ro"><div class="k"><span class="lc">&gamma;<sub>&plusmn;</sub> &divide; factor</span></div><div class="v" id="roRat">&ndash;</div><div class="n">what is left once the count is divided out</div></div>
         </div>
       </div>
 
@@ -394,7 +395,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
 
   <footer>
     <span>Section 6.4, and the note on good practice that goes with Fig. 6.2</span>
-    <span>The ordering Li<sup>+</sup> &gt; Na<sup>+</sup> &gt; K<sup>+</sup> is a hydration effect, not an electrostatic one</span>
+    <span>The ordering Li<sup>+</sup> &gt; Na<sup>+</sup> &gt; K<sup>+</sup> is a hydration effect</span>
   <span>© 2026 A. P. Ivanov. <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" rel="license" target="_blank">CC BY-NC-ND 4.0</a></span>
   </footer>
 </div>
@@ -660,13 +661,13 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
 
     $("roLock").textContent = num(st.lock,1);
     $("roFree").textContent = num(st.free,1);
-    $("roFreeN").textContent = num(100-pct,0) + " per cent of the original";
-    $("roEff").textContent = isFinite(st.meff) ? num(st.meff,2) : "—";
-    $("roFac").textContent = isFinite(st.factor) ? num(st.factor,2) : "—";
+    $("roFreeN").textContent = "mol, " + num(100-pct,0) + " per cent of the original";
+    $("roEff").textContent = isFinite(st.meff) ? num(st.meff,2) : "–";
+    $("roFac").textContent = isFinite(st.factor) ? num(st.factor,2) : "–";
 
     var gm = gammaAt(s, st.m);
-    $("roGam").textContent = gm === null ? "—" : num(gm,3);
-    $("roRat").textContent = (gm === null || !isFinite(st.factor)) ? "—" : num(gm/st.factor,3);
+    $("roGam").textContent = gm === null ? "–" : num(gm,3);
+    $("roRat").textContent = (gm === null || !isFinite(st.factor)) ? "–" : num(gm/st.factor,3);
 
     $("barC").style.width = (st.lockC/W_TOT*100) + "%";
     $("barA").style.width = (st.lockA/W_TOT*100) + "%";
@@ -691,14 +692,14 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     if(st.lock >= W_TOT-1){
       note = "The count has run out of water altogether, which is the signal that this crude picture has been pushed past where it means anything. Real solutions never get there, because the salt stops dissolving first.";
     } else if(pct > 50){
-      note = "More than half the water has stopped being solvent, so the ions are crowded into a fraction of the volume the molality suggests and the count pushes the activity up. " +
+      note = "More than half the water has stopped being solvent, so the ions share a fraction of the solvent the molality assumes and the count pushes the activity up. " +
         (gm === null ? "There is no measured value at this molality to test that against."
           : (gm > 1 ? "For " + s.html + " the measured γ± is indeed above 1 here."
                     : "Yet the measured γ± for " + s.html + " is " + num(gm,3) + ", still below 1, so these hydration numbers ask more of " + s.cation + " than it actually holds."));
     } else if(st.m < 0.4){
       note = "At low molality the count removes almost nothing, the free water is essentially all the water, and γ± is governed by the Debye–Hückel screening of Section 6.3 rather than by hydration.";
     } else {
-      note = "Switch between the three salts at fixed molality. Nothing electrostatic distinguishes them, since Li⁺, Na⁺ and K⁺ all carry one charge. What separates them is how much water each takes out of service.";
+      note = "Switch between the three salts at fixed molality. Nothing in the limiting law distinguishes them, since Li⁺, Na⁺ and K⁺ all carry one charge. What separates them is how much water each takes out of service.";
     }
     $("eqNote").textContent = note;
 
@@ -734,7 +735,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     setSalt(S.salt);
     sync();
   }
-  $("p5").addEventListener("click", function(){ apply({salt:"LiCl", m:500, hc:5, ha:1}); });
+  $("p5").addEventListener("click", function(){ $("crossNote").textContent = ""; apply({salt:"LiCl", m:500, hc:5, ha:1}); });
   $("pcross").addEventListener("click", function(){
     var sc = salt(), c = crossing(sc);
     var last = sc.m.length-1;
@@ -742,7 +743,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       apply({salt:S.salt, m: Math.round(sc.m[last]*100/5)*5, hc:S.hc, ha:S.ha});
       $("crossNote").innerHTML = S.salt === "NaCl"
         ? "NaCl reaches " + num(sc.g[last],3) + " at " + num(sc.m[last],1) + " mol kg<sup>&minus;1</sup>, its most concentrated point here, and passes 1 only just beyond, close to saturation at about 6.1 mol kg<sup>&minus;1</sup>."
-        : sc.html + " stays below &gamma;<sub>&plusmn;</sub> = 1 all the way to saturation, at about 4.8 mol kg<sup>&minus;1</sup>. This is its most concentrated measured point.";
+        : sc.html + " stays below &gamma;<sub>&plusmn;</sub> = 1 all the way to saturation, at about 4.8 mol kg<sup>&minus;1</sup>. The slider is now at 4.5 mol kg<sup>&minus;1</sup>, its most concentrated measured point.";
     } else {
       apply({salt:S.salt, m: Math.round(c*100/5)*5, hc:S.hc, ha:S.ha});
       var hi = 0; while(sc.m[hi] < c) hi++;

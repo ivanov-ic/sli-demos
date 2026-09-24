@@ -179,6 +179,7 @@
     background:var(--panel-2); color:var(--ink-2); border:1px solid var(--line); transition:background .12s, color .12s, border-color .12s;
   }
   .seg button:hover, .btn:hover{border-color:var(--blue); color:var(--ink)}
+  .btn:disabled{opacity:.45; cursor:default; border-color:var(--line); color:var(--ink-2)}
   .seg button[aria-pressed="true"]{background:var(--deep); border-color:var(--deep); color:var(--panel); font-weight:500}
   .sub{font-size:12px; color:var(--muted)}
   .lc{text-transform:none !important}
@@ -378,12 +379,12 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
   </section>
 
   <section class="readouts">
-    <div class="ro"><div class="k">Force</div><div class="v" id="roF">&mdash;</div><div class="n" id="roFn">pN</div></div>
-    <div class="ro"><div class="k">Potential energy <em>V</em></div><div class="v" id="roV">&mdash;</div><div class="n">kJ mol<sup>&minus;1</sup></div></div>
-    <div class="ro hi"><div class="k">|<em>V</em>| / <em>k</em><sub>B</sub><em>T</em></div><div class="v" id="roR">&mdash;</div><div class="n" id="roRn">&nbsp;</div></div>
-    <div class="ro"><div class="k">Verdict</div><div class="v" style="font-size:15px; margin-top:6px"><span class="pill free" id="roPill">&mdash;</span></div><div class="n">Bjerrum counts a pair as bound at 2<em>k</em><sub>B</sub><em>T</em></div></div>
-    <div class="ro"><div class="k">Bjerrum length <em>l</em><sub>B</sub></div><div class="v" id="roB">&mdash;</div><div class="n" id="roBn">nm, where |<em>V</em>| = <em>k</em><sub>B</sub><em>T</em> for two singly charged ions</div></div>
-    <div class="ro"><div class="k">|<em>V</em>| = <em>k</em><sub>B</sub><em>T</em> at</div><div class="v" id="roX">&mdash;</div><div class="n" id="roXn">nm for this pair of charges</div></div>
+    <div class="ro"><div class="k">Force</div><div class="v" id="roF">&ndash;</div><div class="n" id="roFn">pN</div></div>
+    <div class="ro"><div class="k">Potential energy <em>V</em></div><div class="v" id="roV">&ndash;</div><div class="n">kJ mol<sup>&minus;1</sup></div></div>
+    <div class="ro hi"><div class="k">|<em>V</em>| / <em>k</em><sub>B</sub><em>T</em></div><div class="v" id="roR">&ndash;</div><div class="n" id="roRn">&nbsp;</div></div>
+    <div class="ro"><div class="k">Verdict</div><div class="v" style="font-size:15px; margin-top:6px"><span class="pill free" id="roPill">&ndash;</span></div><div class="n">Bjerrum counts a pair as bound at 2<em>k</em><sub>B</sub><em>T</em></div></div>
+    <div class="ro"><div class="k">Bjerrum length <em>l</em><sub>B</sub></div><div class="v" id="roB">&ndash;</div><div class="n" id="roBn">nm, where |<em>V</em>| = <em>k</em><sub>B</sub><em>T</em> for two singly charged ions</div></div>
+    <div class="ro"><div class="k">|<em>V</em>| = <em>k</em><sub>B</sub><em>T</em> at</div><div class="v" id="roX">&ndash;</div><div class="n" id="roXn">nm for this pair of charges</div></div>
   </section>
 
   <section class="work">
@@ -690,11 +691,11 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     var Fp = Math.abs(s.F)*1e12;
     $("roF").textContent = fmtF(Fp);
     $("roFn").innerHTML = "pN, " + (s.attract ? "attractive" : "repulsive");
-    $("roV").textContent = (Math.abs(s.Vmol) >= 1000 ? sci(s.Vmol,2) : num(s.Vmol, Math.abs(s.Vmol)<10?2:1));
+    $("roV").textContent = (Math.abs(s.Vmol) >= 1000 ? sci(s.Vmol,2) : num(s.Vmol, Math.abs(s.Vmol)<10?2:1)).replace("-","−");
     $("roR").textContent = s.ratio >= 1000 ? sci(s.ratio,2) : (s.ratio<10 ? num(s.ratio,2) : num(s.ratio,1));
     $("roRn").textContent = "at " + num(s.r,2) + " nm in " + SOLVENTS[S.eps].name;
     $("roB").textContent = fmtLB(s.lB);
-    $("roX").textContent = num(s.cross, s.cross<10?2:1);
+    $("roX").textContent = fmtLB(s.cross);
 
     var pill = $("roPill");
     if(s.ratio >= 2){ pill.className = "pill bound"; pill.textContent = s.attract ? "effectively bound" : "strongly kept apart"; }

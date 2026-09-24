@@ -179,6 +179,7 @@
     background:var(--panel-2); color:var(--ink-2); border:1px solid var(--line); transition:background .12s, color .12s, border-color .12s;
   }
   .seg button:hover, .btn:hover{border-color:var(--blue); color:var(--ink)}
+  .btn:disabled{opacity:.45; cursor:default; border-color:var(--line); color:var(--ink-2)}
   .seg button[aria-pressed="true"]{background:var(--deep); border-color:var(--deep); color:var(--panel); font-weight:500}
   .sub{font-size:12px; color:var(--muted)}
   .lc{text-transform:none !important}
@@ -352,7 +353,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
         <button type="button" class="btn" id="showBtn">Show the answer</button>
         <button type="button" class="btn" id="resetBtn">Reset</button>
       </div>
-      <div class="sub" id="hint"></div>
+      <div class="sub" id="hint">The line can also be dragged directly on the chart</div>
     </div>
   </section>
 
@@ -362,7 +363,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       <p class="cap" id="plotCap"></p>
       <div class="canvas-box" id="plotBox"><canvas role="img" id="plot" aria-label="Molar conductivity against the square root of concentration, with a line the user can drag"></canvas></div>
       <div class="legend">
-        <span class="key"><span class="dot" style="background:var(--ink)"></span>measured points</span>
+        <span class="key"><span class="dot" style="background:var(--ink)"></span><span id="ptsKey">measured points</span></span>
         <span class="key"><span class="bar" style="border-color:var(--red)"></span>your line</span>
         <span class="key"><span class="dot" style="background:var(--teal)"></span>the accepted limiting value</span>
       </div>
@@ -381,10 +382,10 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
         <h2 id="scoreTitle">Where your line meets the axis</h2>
         <p class="cap" id="scoreCap"></p>
         <div class="readouts" style="margin-top:0; grid-template-columns:repeat(2,minmax(0,1fr))">
-          <div class="ro"><div class="k" id="k1">Your intercept</div><div class="v" id="v1">&mdash;</div><div class="n" id="n1">S cm<sup>2</sup> mol<sup>&minus;1</sup></div></div>
-          <div class="ro hi"><div class="k" id="k2">Accepted value</div><div class="v" id="v2">&mdash;</div><div class="n" id="n2">S cm<sup>2</sup> mol<sup>&minus;1</sup></div></div>
-          <div class="ro"><div class="k" id="k3">Out by</div><div class="v" id="v3">&mdash;</div><div class="n" id="n3">per cent</div></div>
-          <div class="ro"><div class="k" id="k4">Your slope <em>K</em></div><div class="v" id="v4">&mdash;</div><div class="n" id="n4">S cm<sup>2</sup> mol<sup>&minus;1</sup> / (mol dm<sup>&minus;3</sup>)<sup>1/2</sup></div></div>
+          <div class="ro"><div class="k" id="k1">Your intercept</div><div class="v" id="v1">&ndash;</div><div class="n" id="n1">S cm<sup>2</sup> mol<sup>&minus;1</sup></div></div>
+          <div class="ro hi"><div class="k" id="k2">Accepted value</div><div class="v" id="v2">&ndash;</div><div class="n" id="n2">S cm<sup>2</sup> mol<sup>&minus;1</sup></div></div>
+          <div class="ro"><div class="k" id="k3">Out by</div><div class="v" id="v3">&ndash;</div><div class="n" id="n3">per cent</div></div>
+          <div class="ro"><div class="k" id="k4">Your slope <em>K</em></div><div class="v" id="v4">&ndash;</div><div class="n" id="n4">S cm<sup>2</sup> mol<sup>&minus;1</sup> / (mol dm<sup>&minus;3</sup>)<sup>1/2</sup></div></div>
         </div>
         <div class="verdict" id="verdict"></div>
       </div>
@@ -406,7 +407,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
 
   <footer>
     <span>Kohlrausch's law, eqn 7.5 &middot; independent migration, eqn 7.6 &middot; Ostwald dilution law, eqn 7.8</span>
-    <span>KCl points are Shedlovsky's measurements at 298 K; the acetic acid curve follows from the Ostwald law with <em>K</em><sub>a</sub> = 1.80 &times; 10<sup>&minus;5</sup>, the value before activity correction in Example 7.3</span>
+    <span>KCl points are Shedlovsky's measurements at 298 K; the acetic acid curve follows from the Ostwald law with <em>K</em><sub>a</sub> = 1.80 &times; 10<sup>&minus;5</sup>, the value of the Fig. 7.1 curve and of Self-test 7.3, before any activity correction</span>
   <span>© 2026 A. P. Ivanov. <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" rel="license" target="_blank">CC BY-NC-ND 4.0</a></span>
   </footer>
 </div>
@@ -528,8 +529,8 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     lam0:149.8
   };
   // acetic acid from the Ostwald dilution law with Ka = 1.80e-5 and Lam0 = 390.7.
-  // 1.80e-5 is the concentration-based value of Example 7.3, which is what a curve with no
-  // activity correction must use; it reproduces the book's 16.2 at 0.0100 and 5.20 at 0.100.
+  // 1.80e-5 is the concentration-based value used for the book's Fig. 7.1 curve and in Self-test 7.3
+  // (Example 7.3 rounds to 1.79e-5); it reproduces the book's 16.2 at 0.0100 and 5.20 at 0.100.
   var KA = 1.80e-5, LAM0_HA = 390.7;
   function alpha(c){ return (-KA + Math.sqrt(KA*KA + 4*KA*c))/(2*c); }
   var HAC = {c:[], L:[], lam0:LAM0_HA};
@@ -688,7 +689,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       var y = i*lh;
       var on = Math.abs(used[k]||0) > 0 || S.mode !== "build";
       var w = (W-padL-padR)*LAM[k]/maxV;
-      g.fillStyle = (used[k] ? TH.teal : TH.blue);
+      g.fillStyle = (S.mode === "build" && used[k]) ? TH.teal : TH.blue;
       g.globalAlpha = (S.mode === "build" && !used[k]) ? 0.30 : 0.85;
       g.fillRect(padL, y+2, Math.max(1,w), Math.max(2, lh-5));
       g.globalAlpha = 1;
@@ -737,6 +738,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     $("cardBuild").hidden = !build;
     $("ctlLine").hidden = build;
     $("ctlTarget").hidden = !build;
+    $("ptsKey").innerHTML = S.mode === "weak" ? "Ostwald-law values, <em>K</em><sub>a</sub> = 1.80 &times; 10<sup>&minus;5</sup>" : "measured points, Shedlovsky";
 
     if(build){
       var t = TARGETS[S.target], tally = ionTally(), total = buildSum();
@@ -763,7 +765,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       $("scoreCap").innerHTML = "Adding whole electrolytes, each of which can be measured, until only the ions of " + t.html + " are left.";
       $("k1").textContent = "Running total"; $("v1").textContent = num(total,1);
       $("k2").innerHTML = 'Target <span class="lc">Λ°<sub>m</sub></span>'; $("v2").textContent = num(t.lam,1);
-      $("k3").textContent = "Out by"; $("v3").textContent = t.lam ? num(Math.abs(total-t.lam)/t.lam*100,1) : "—";
+      $("k3").textContent = "Out by"; $("v3").textContent = t.lam ? num(Math.abs(total-t.lam)/t.lam*100,1) : "–";
       $("k4").textContent = "Electrolytes used";
       $("v4").textContent = SALTS.filter(function(s){ return S.coef[s.n] !== 0; }).length;
       $("n4").textContent = "each one measurable on its own";

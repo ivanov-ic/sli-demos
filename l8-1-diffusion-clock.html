@@ -179,6 +179,7 @@
     background:var(--panel-2); color:var(--ink-2); border:1px solid var(--line); transition:background .12s, color .12s, border-color .12s;
   }
   .seg button:hover, .btn:hover{border-color:var(--blue); color:var(--ink)}
+  .btn:disabled{opacity:.45; cursor:default; border-color:var(--line); color:var(--ink-2)}
   .seg button[aria-pressed="true"]{background:var(--deep); border-color:var(--deep); color:var(--panel); font-weight:500}
   .sub{font-size:12px; color:var(--muted)}
   .lc{text-transform:none !important}
@@ -369,7 +370,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       <div class="card">
         <h2 id="stopTitle">Time to cross</h2>
         <p class="cap" id="stopCap"></p>
-        <div class="clockbig" id="stopwatch">&mdash;</div>
+        <div class="clockbig" id="stopwatch">&ndash;</div>
         <div style="overflow-x:auto; margin-top:10px">
           <table class="tg">
             <thead><tr><th>Distance</th><th>What it is</th><th><span class="lc">t = x<sup>2</sup>/2D</span></th></tr></thead>
@@ -515,7 +516,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
   function peclet(){ return S.conv ? driftV()*S.target/D() : 0; }
 
   function fmtT(s){
-    if(!isFinite(s)) return "—";
+    if(!isFinite(s)) return "–";
     if(s < 1e-6) return num(s*1e9,0) + " ns";
     if(s < 1e-3) return num(s*1e6,1) + " µs";
     if(s < 1) return num(s*1e3,1) + " ms";
@@ -708,7 +709,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     if(S.conv && pe >= 3){
       note = "With the solvent moving, the swarm is carried bodily downstream while it spreads. The Péclet number compares the two, and once it is well above 1 the diffusive part only matters in the thin unstirred layer next to a surface. That layer is where the electrochemistry of Lectures 12 to 15 happens.";
     } else if(S.spec === "ecoli"){
-      note = "A bacterium would need nearly a fortnight, " + fmtT(tCross(1e-3)) + ", to diffuse a millimetre. Real bacteria cover that in a minute or two, because they swim. Once a body is much bigger than a molecule, diffusion stops being a way of getting anywhere.";
+      note = "A bacterium would need about twelve days (" + fmtT(tCross(1e-3)) + ") to diffuse a millimetre. Real bacteria cover that in a minute or two, because they swim. Once a body is much bigger than a molecule, diffusion stops being a way of getting anywhere.";
     } else {
       note = "Diffusion is extremely efficient over cellular distances and hopeless over laboratory ones. The square root is the whole reason: to spread twice as far takes four times as long.";
     }

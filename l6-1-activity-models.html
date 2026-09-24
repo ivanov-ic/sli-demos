@@ -179,6 +179,7 @@
     background:var(--panel-2); color:var(--ink-2); border:1px solid var(--line); transition:background .12s, color .12s, border-color .12s;
   }
   .seg button:hover, .btn:hover{border-color:var(--blue); color:var(--ink)}
+  .btn:disabled{opacity:.45; cursor:default; border-color:var(--line); color:var(--ink-2)}
   .seg button[aria-pressed="true"]{background:var(--deep); border-color:var(--deep); color:var(--panel); font-weight:500}
   .sub{font-size:12px; color:var(--muted)}
   .lc{text-transform:none !important}
@@ -302,7 +303,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
   <header class="top">
     <div>
       <div class="eyebrow">Solids, Liquids and Interfaces &middot; Lecture 6 &middot; Demo 6.1</div>
-      <h1>Three models against the measurements</h1>
+      <h1>Activity coefficient models</h1>
     </div>
   </header>
   <p class="point">The limiting law has no fitted parameter and eventually fails. Everything that works further out buys its accuracy with a parameter somebody had to fit.</p>
@@ -315,7 +316,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
         <button type="button" data-v="CaCl2">CaCl<sub>2</sub> &nbsp;2:1</button>
         <button type="button" data-v="MgSO4">MgSO<sub>4</sub> &nbsp;2:2</button>
       </div>
-      <div class="sub" id="saltNote">|z<sub>+</sub>z<sub>&minus;</sub>| = 1, so <em>I</em> = <em>m</em></div>
+      <div class="sub" id="saltNote">|z<sub>+</sub>z<sub>&minus;</sub>| = 1, so <em>I</em> = <em>m</em>/<em>m</em>&deg;</div>
     </div>
 
     <div class="ctl">
@@ -325,9 +326,9 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     </div>
 
     <div class="ctl">
-      <label for="probe">Probe the models at <span class="val" id="probeVal">0.100 mol kg<sup>&minus;1</sup></span></label>
+      <label for="probe">Probe the models at <span class="val" id="probeVal"><em>I</em> = 0.100</span></label>
       <input autocomplete="off" type="range" id="probe" min="0" max="1000" value="667" step="1">
-      <div class="sub">Ionic strength on the molality scale</div>
+      <div class="sub">Ionic strength from molalities, <em>I</em> = &frac12;&Sigma;<em>z</em><sub><em>i</em></sub><sup>2</sup><em>m</em><sub><em>i</em></sub>/<em>m</em>&deg;</div>
     </div>
 
     <div class="ctl">
@@ -394,7 +395,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
   <footer>
     <span>Limiting law, eqn 6.7 &middot; extended law, eqn 6.8 &middot; Davies, eqn 6.9</span>
     <span><em>A</em> = 0.509 and <em>B</em> = 3.28 nm<sup>&minus;1</sup> for water at 298 K</span>
-    <span>Ionic strength here is on the molality scale, as Section 5.2.4 requires</span>
+    <span>Ionic strength here is built from molalities, with <em>m</em>&deg; = 1 mol kg<sup>&minus;1</sup>, as Section 5.2.4 requires</span>
   <span>© 2026 A. P. Ivanov. <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" rel="license" target="_blank">CC BY-NC-ND 4.0</a></span>
   </footer>
 </div>
@@ -485,20 +486,21 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
 
   var A = 0.509, B = 3.28;   // nm^-1
 
-  // Mean ionic activity coefficients in water at 298 K, Robinson and Stokes.
-  // m is molality in mol kg^-1; I is built from the charge type.
+  // Mean ionic activity coefficients in water at 298 K, as in the coursebook's Table D1 and D2:
+  // KCl from Hamer and Wu (1972), CaCl2 from Staples and Nuttall (1977) where the book gives them.
+  // m is molality in mol kg^-1; I = Ifac m/m° is a pure number.
   var SALTS = {
     KCl:   {label:"KCl", html:"KCl", zz:1, Ifac:1, nu:"1:1", limit:0.01,
             m:[0.001,0.002,0.005,0.01,0.02,0.05,0.1,0.2,0.5],
-            g:[0.966,0.952,0.927,0.902,0.869,0.816,0.770,0.718,0.649]},
+            g:[0.965,0.952,0.927,0.902,0.870,0.817,0.770,0.718,0.649]},
     CaCl2: {label:"CaCl2", html:"CaCl<sub>2</sub>", zz:2, Ifac:3, nu:"2:1", limit:0.003,
             m:[0.001,0.002,0.005,0.01,0.02,0.05,0.1,0.2],
-            g:[0.888,0.851,0.789,0.732,0.669,0.584,0.518,0.472]},
+            g:[0.888,0.851,0.787,0.729,0.664,0.577,0.518,0.472]},
     MgSO4: {label:"MgSO4", html:"MgSO<sub>4</sub>", zz:4, Ifac:4, nu:"2:2", limit:0.001,
-            // 0.005 mol kg^-1 (listed as 0.53) is withheld: it breaks the smooth trend of its
-            // neighbours and matches the classic CuSO4 value. Restore it from a primary source.
-            m:[0.001,0.01,0.02,0.05,0.1],
-            g:[0.70,0.40,0.32,0.22,0.15]}
+            // No measured points, as in the coursebook's Fig. 6.1: they are withdrawn until a
+            // primary source for dilute MgSO4 is confirmed. Restore them here when it is.
+            m:[],
+            g:[]}
   };
 
   var DEF = {salt:"KCl", a:30, probe:667, probeI:0.1, xmax:80, LL:true, EX:true, DV:true};
@@ -507,7 +509,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
 
   function salt(){ return SALTS[S.salt]; }
   function aNm(){ return S.a/100; }
-  function probeI(){ return S.probeI; }   // held exactly, 0.001 to 1 mol kg^-1
+  function probeI(){ return S.probeI; }   // held exactly, 0.001 to 1
 
   function LL(I, zz){ return -A*zz*Math.sqrt(I); }
   function EX(I, zz, a){ var r = Math.sqrt(I); return -A*zz*r/(1 + B*a*r); }
@@ -522,6 +524,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
   // The endpoints are included, so probing a measured point returns that point.
   function measuredAt(I){
     var d = dataPoints(), x = Math.sqrt(I), tol = 1e-9;
+    if(!d.length) return null;
     var xLo = Math.sqrt(d[0].I), xHi = Math.sqrt(d[d.length-1].I);
     if(x < xLo - tol || x > xHi + tol) return null;
     if(x <= xLo) return d[0].lg;
@@ -568,7 +571,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     for(var y=0; y>=yMin-1e-9; y-=step){
       var yy = Y(y);
       g.beginPath(); g.moveTo(L,yy); g.lineTo(L+pw,yy); g.stroke();
-      g.fillStyle = TH.muted; g.fillText(y.toFixed(2), L-8, yy);
+      g.fillStyle = TH.muted; g.fillText(y.toFixed(2).replace("-","−").replace("−0.00","0.00"), L-8, yy);
     }
     g.textAlign="center"; g.textBaseline="top";
     var xstep = xMax > 0.5 ? 0.2 : 0.1;
@@ -626,7 +629,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     g.strokeStyle = TH.line; g.lineWidth = 1; g.strokeRect(L,T,pw,ph);
     sans(g,12,500); g.fillStyle = TH["ink-2"];
     g.textAlign="center"; g.textBaseline="bottom";
-    g.fillText("(I / mol kg⁻¹)¹ᐟ²", L+pw/2, H-5);
+    g.fillText("√I", L+pw/2, H-5);
     g.save(); g.translate(13, T+ph/2); g.rotate(-Math.PI/2);
     g.textAlign="center"; g.textBaseline="top"; g.fillText("log₁₀ γ±", 0, 0); g.restore();
   }
@@ -663,7 +666,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     [-lim*0.66, 0, lim*0.66].forEach(function(v){
       var y = Y(v);
       g.beginPath(); g.moveTo(L,y); g.lineTo(L+pw,y); g.stroke();
-      g.fillStyle = TH.muted; g.fillText(v.toFixed(2), L-7, y);
+      g.fillStyle = TH.muted; g.fillText(v.toFixed(2).replace("-","−").replace("−0.00","0.00"), L-7, y);
     });
     g.strokeStyle = TH["ink-2"]; g.lineWidth = 1.4;
     g.beginPath(); g.moveTo(L,Y(0)); g.lineTo(L+pw,Y(0)); g.stroke();
@@ -691,10 +694,14 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     series(function(I){ return LL(I,s.zz); }, TH.red, S.LL);
     series(function(I){ return EX(I,s.zz,aNm()); }, TH.blue, S.EX);
     series(function(I){ return DV(I,s.zz); }, TH.teal, S.DV);
+    if(!d.length){
+      sans(g,12,500);
+      tag(g, "No measured points for " + s.label.replace("SO4","SO₄") + " to compare against", L+pw/2, T+ph*0.28, "center", "middle", TH.muted, TH.panel);
+    }
 
     g.strokeStyle = TH.line; g.lineWidth = 1; g.strokeRect(L,T,pw,ph);
     sans(g,11.5,500); g.fillStyle = TH["ink-2"];
-    g.textAlign="center"; g.textBaseline="bottom"; g.fillText("(I / mol kg⁻¹)¹ᐟ²", L+pw/2, H-4);
+    g.textAlign="center"; g.textBaseline="bottom"; g.fillText("√I", L+pw/2, H-4);
     g.save(); g.translate(11, T+ph/2); g.rotate(-Math.PI/2);
     g.textAlign="center"; g.textBaseline="top"; g.fillText("Δ log₁₀ γ±", 0, 0); g.restore();
   }
@@ -712,20 +719,24 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     function sgn(x){ var t = f3(x); return (t === "0.000" || t.charAt(0) === "−") ? t : "+" + t; }
     var html = "";
     rows.forEach(function(r){
-      var err = (meas === null) ? "&mdash;" : sgn(r.v-meas);
+      var err = (meas === null) ? "&ndash;" : sgn(r.v-meas);
       html += '<tr class="'+(r.on?"":"off")+'"><td><span class="swatch" style="background:'+r.c+'"></span>'+r.n+"</td>" +
               "<td>"+f3(r.v)+"</td><td>"+Math.pow(10,r.v).toFixed(3)+"</td><td>"+err+"</td></tr>";
     });
     html += "<tr><td><span class=\"swatch\" style=\"background:var(--ink)\"></span>Measured</td><td>" +
-            (meas===null?"&mdash;":f3(meas)) + "</td><td>" +
-            (meas===null?"&mdash;":Math.pow(10,meas).toFixed(3)) + "</td><td>&mdash;</td></tr>";
+            (meas===null?"&ndash;":f3(meas)) + "</td><td>" +
+            (meas===null?"&ndash;":Math.pow(10,meas).toFixed(3)) + "</td><td>&ndash;</td></tr>";
     $("tbody").innerHTML = html;
 
-    $("tblCap").innerHTML = meas === null
-      ? "At I = " + sig3(I) + " mol kg<sup>&minus;1</sup>, which is outside the range of the measured points for " + s.html + ", so there is nothing to compare against."
-      : "At I = " + sig3(I) + " mol kg<sup>&minus;1</sup>, which for " + s.html + " is a molality of " + sig3(I/s.Ifac) + " mol kg<sup>&minus;1</sup>. The measured value is interpolated between neighbouring points.";
+    var onPoint = dataPoints().some(function(p){ return Math.abs(p.I - I) < 1e-9*Math.max(1,I); });
+    $("tblCap").innerHTML = !s.m.length
+      ? "At I = " + sig3(I) + ", a molality of " + sig3(I/s.Ifac) + " mol kg<sup>&minus;1</sup> for " + s.html + ". The coursebook gives no measured points for " + s.html + " at present, so there is nothing to compare against."
+      : meas === null
+      ? "At I = " + sig3(I) + ", which is outside the range of the measured points for " + s.html + ", so there is nothing to compare against."
+      : "At I = " + sig3(I) + ", which for " + s.html + " is a molality of " + sig3(I/s.Ifac) + " mol kg<sup>&minus;1</sup>. " +
+        (onPoint ? "This is a measured point." : "The measured value is interpolated between neighbouring points.");
 
-    $("mainCap").innerHTML = "Measured points for " + s.html + ", a " + s.nu + " electrolyte, so |z<sub>+</sub>z<sub>&minus;</sub>| = " + s.zz +
+    $("mainCap").innerHTML = (s.m.length ? "Measured points for " : "Models only for ") + s.html + ", a " + s.nu + " electrolyte, so |z<sub>+</sub>z<sub>&minus;</sub>| = " + s.zz +
       (s.zz === 1 ? ". This is the reference case every other charge type is compared against."
                   : " and every model is " + s.zz + " times as steep as for a 1:1 salt.");
 
@@ -736,11 +747,11 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
 
     var note;
     if(S.salt === "MgSO4"){
-      note = "The 2:2 salt is the hard case. At the lowest point shown it sits below even the limiting law, because magnesium and sulfate associate into ion pairs, which is chemistry the theory knows nothing about. Everywhere above that the law overshoots instead, and by I = 0.4 mol kg\u207b\u00b9 it is predicting a coefficient three times too small. Fitting a repairs the overshoot and does nothing about the association.";
+      note = "The 2:2 salt is the hard case. The coursebook shows no measured points for MgSO\u2084 until a primary source for dilute solutions is confirmed, so only the three models are drawn. They already part company at a lower ionic strength than for either other salt, because every expression is four times as steep. Measured 2:2 coefficients also carry an effect none of the three models contains: magnesium and sulfate associate into ion pairs, which is chemistry the theory knows nothing about.";
     } else if(S.salt === "CaCl2"){
       note = "Doubling one charge doubles |z₊ z₋| and with it the slope of every curve. Notice that the limiting law is already visibly wrong at an ionic strength where the 1:1 salt is still fine.";
     } else {
-      note = "Drag a and watch the extended law swing. The fitted parameter has no independent measurement behind it, which is the price of the extra range. Davies fixes both constants instead. The coursebook calls it serviceable to about I = 0.5 mol kg⁻¹; for KCl the residual panel shows it leaving the ±0.02 band a little above I = 0.2, and by 0.5 it is about 13 per cent high in γ±, which is what serviceable means in practice.";
+      note = "Drag a and watch the extended law swing. The fitted parameter has no independent measurement behind it, which is the price of the extra range. Davies fixes both constants instead. The coursebook calls it serviceable to about I = 0.5; for KCl the residual panel shows it leaving the ±0.02 band a little above I = 0.2, and by 0.5 it is about 13 per cent high in γ±, which is what serviceable means in practice.";
     }
     $("eqNote").textContent = note;
 
@@ -751,7 +762,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
   var setSalt = group("salt", function(d){
     S.salt = d.v;
     var s = salt();
-    $("saltNote").innerHTML = "|z<sub>+</sub>z<sub>&minus;</sub>| = " + s.zz + ", so <em>I</em> = " + (s.Ifac===1?"":s.Ifac) + "<em>m</em>";
+    $("saltNote").innerHTML = "|z<sub>+</sub>z<sub>&minus;</sub>| = " + s.zz + ", so <em>I</em> = " + (s.Ifac===1?"":s.Ifac) + "<em>m</em>/<em>m</em>&deg;";
     sync();
   });
   $("asize").addEventListener("input", function(){ S.a = +this.value; sync(); });
@@ -764,7 +775,8 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
   function sync(){
     $("aVal").textContent = num(aNm(),2) + " nm";
     $("baVal").textContent = "Ba = " + num(B*aNm(),2) + (Math.abs(B*aNm()-1) < 0.12 ? ", close to the value of 1 often assumed" : "");
-    $("probeVal").innerHTML = sig3(probeI()) + " mol kg<sup>&minus;1</sup>";
+    $("probeVal").innerHTML = "<em>I</em> = " + sig3(probeI());
+    $("fitBtn").disabled = !salt().m.length;
     $("xmaxVal").innerHTML = "&radic;<em>I</em> = " + num(S.xmax/100,2);
     paint();
   }
@@ -775,7 +787,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     $("mLL").checked = S.LL; $("mEx").checked = S.EX; $("mDv").checked = S.DV;
     setSalt(S.salt);
     var s = salt();
-    $("saltNote").innerHTML = "|z<sub>+</sub>z<sub>&minus;</sub>| = " + s.zz + ", so <em>I</em> = " + (s.Ifac===1?"":s.Ifac) + "<em>m</em>";
+    $("saltNote").innerHTML = "|z<sub>+</sub>z<sub>&minus;</sub>| = " + s.zz + ", so <em>I</em> = " + (s.Ifac===1?"":s.Ifac) + "<em>m</em>/<em>m</em>&deg;";
     sync();
   }
   function sliderForI(I){ return Math.round((Math.log10(I)+3)/3*1000); }

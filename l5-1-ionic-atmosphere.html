@@ -181,6 +181,8 @@
   .seg button:hover, .btn:hover{border-color:var(--blue); color:var(--ink)}
   .seg button[aria-pressed="true"]{background:var(--deep); border-color:var(--deep); color:var(--panel); font-weight:500}
   .sub{font-size:12px; color:var(--muted)}
+  .lc{text-transform:none !important}
+  .ro .k em, .ro .k sub, .ro .k sup, .ctl > label em, .ctl > .lab em{text-transform:none}
   .toggles{display:flex; flex-wrap:wrap; gap:10px 16px; align-items:center}
   .tog{display:flex; align-items:center; gap:7px; font-size:13px; color:var(--ink-2); cursor:pointer}
   input[type=checkbox]{width:16px; height:16px; accent-color:var(--teal); cursor:pointer}
@@ -325,7 +327,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
         <button type="button" data-fov="fit" aria-pressed="false">Follow &lambda;<sub>D</sub></button>
       </div>
       <div class="toggles" style="margin-top:3px">
-        <label class="tog"><input autocomplete="off" type="checkbox" id="motion"> Thermal motion</label>
+        <label class="tog"><input autocomplete="off" type="checkbox" id="motion" checked> Thermal motion</label>
         <label class="tog"><input autocomplete="off" type="checkbox" id="scaleObj" checked> Scale objects</label>
       </div>
     </div>
@@ -347,7 +349,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     <div class="card">
       <h2>A snapshot of the solution</h2>
       <p class="cap" id="cloudCap"></p>
-      <div class="canvas-box" id="cloudBox"><canvas id="cloud" aria-label="Central cation surrounded by a cloud of ions, with the Debye length drawn as a shaded shell"></canvas></div>
+      <div class="canvas-box" id="cloudBox"><canvas role="img" id="cloud" aria-label="Central cation surrounded by a cloud of ions, with the Debye length drawn as a shaded shell"></canvas></div>
       <div class="legend">
         <span class="key"><span class="dot" style="background:var(--red)"></span>cation</span>
         <span class="key"><span class="dot" style="background:var(--blue)"></span>anion</span>
@@ -360,22 +362,22 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       <div class="card">
         <h2>Potential around the central ion</h2>
         <p class="cap">Screening multiplies the bare 1/<em>r</em> by e<sup>&minus;r/&lambda;<sub>D</sub></sup>. The shaded gap is what the atmosphere removes.</p>
-        <div class="canvas-box chart-box"><canvas id="phi" aria-label="Electrostatic potential against distance, bare Coulomb compared with the screened potential"></canvas></div>
+        <div class="canvas-box chart-box"><canvas role="img" id="phi" aria-label="Electrostatic potential against distance, bare Coulomb compared with the screened potential"></canvas></div>
       </div>
       <div class="card">
         <h2>How &lambda;<sub>D</sub> depends on ionic strength</h2>
         <p class="cap">Both axes are logarithmic, so the inverse square root is a straight line of slope &minus;1/2.</p>
-        <div class="canvas-box chart-box"><canvas id="lam" aria-label="Debye length against ionic strength on logarithmic axes"></canvas></div>
+        <div class="canvas-box chart-box"><canvas role="img" id="lam" aria-label="Debye length against ionic strength on logarithmic axes"></canvas></div>
       </div>
     </div>
   </section>
 
   <section class="readouts" id="ro">
     <div class="ro"><div class="k">Ionic strength <em>I</em></div><div class="v" id="roI">&mdash;</div><div class="n">mol dm<sup>&minus;3</sup></div></div>
-    <div class="ro hi"><div class="k">Debye length &lambda;<sub>D</sub></div><div class="v" id="roL">&mdash;</div><div class="n" id="roLn">nm</div></div>
-    <div class="ro"><div class="k">Bjerrum length <em>l</em><sub>B</sub></div><div class="v" id="roB">&mdash;</div><div class="n">nm. Set by solvent and temperature only, never by concentration.</div></div>
+    <div class="ro hi"><div class="k">Debye length <span class="lc">&lambda;<sub>D</sub></span></div><div class="v" id="roL">&mdash;</div><div class="n" id="roLn">nm</div></div>
+    <div class="ro"><div class="k">Bjerrum length <span class="lc"><em>l</em><sub>B</sub></span></div><div class="v" id="roB">&mdash;</div><div class="n">nm. Set by solvent and temperature only, never by concentration.</div></div>
     <div class="ro"><div class="k">Mean ion separation</div><div class="v" id="roS">&mdash;</div><div class="n">nm, from the total number density of ions</div></div>
-    <div class="ro"><div class="k">&lambda;<sub>D</sub> over a protein's radius, 2 nm</div><div class="v" id="roP">&mdash;</div><div class="n" id="roPn">&nbsp;</div></div>
+    <div class="ro"><div class="k"><span class="lc">&lambda;<sub>D</sub></span> over a protein's radius, <span class="lc">2 nm</span></div><div class="v" id="roP">&mdash;</div><div class="n" id="roPn">&nbsp;</div></div>
     <div class="ro pin" id="pinCard"><div class="k">Against the pinned state</div><div class="v" id="roPin">&mdash;</div><div class="n" id="roPinN">Pin a state, then move the concentration slider.</div></div>
   </section>
 
@@ -410,7 +412,8 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
   };
 
   var DEFAULTS = {slider:600, type:"11", T:298, eps:78.4, fov:"20"};
-  var S = {slider:600, c:0.01, type:"11", T:298, eps:78.4, fov:"20", motion:false, scaleObj:true, pin:null};
+  var MOTION_DEFAULT = !(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  var S = {slider:600, c:0.01, type:"11", T:298, eps:78.4, fov:"20", motion:MOTION_DEFAULT, scaleObj:true, pin:null};
   function cFromSlider(v){ return Math.pow(10, -5 + 5*(v/1000)); }
 
   // ---------- number formatting ----------
@@ -503,12 +506,19 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     g.fillText(text, bx, by);
   }
 
+  // DOM writes only when the text actually changes, so the animation does not force layout
+  var _txt = {};
+  function setText(id, t){ if(_txt[id] !== t){ _txt[id] = t; document.getElementById(id).textContent = t; } }
+  function setHTML(id, t){ if(_txt[id] !== t){ _txt[id] = t; document.getElementById(id).innerHTML = t; } }
+
   // ---------- ion pool ----------
+  var POOLMAX = 3500;           // most ions drawn at once; beyond this a thinner slice is shown
   var POOL = [];
+  var ANION = new Uint8Array(POOLMAX), COLKEY = "";
   (function(){
     var s = 20260921;
     function rnd(){ s = (s*1664525 + 1013904223) % 4294967296; return s/4294967296; }
-    for(var i=0;i<2600;i++) POOL.push({x:rnd(), y:rnd(), u:rnd(), vx:(rnd()-0.5), vy:(rnd()-0.5)});
+    for(var i=0;i<POOLMAX;i++) POOL.push({x:rnd(), y:rnd(), u:rnd(), vx:(rnd()-0.5), vy:(rnd()-0.5)});
   })();
 
   // ---------- the cloud ----------
@@ -518,18 +528,18 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     if(W < 8 || H < 8) return;
 
     var fovNm = (S.fov === "fit") ? Math.max(6*st.lamD, 0.9) : parseFloat(S.fov);
-    document.getElementById("fovVal").textContent = (fovNm>=10?fovNm.toFixed(0):fovNm.toFixed(fovNm<1?2:1)) + " nm";
+    setText("fovVal", (fovNm>=10?fovNm.toFixed(0):fovNm.toFixed(fovNm<1?2:1)) + " nm");
     var scale = Math.min(W,H)/fovNm;                 // px per nm
     var viewW = W/scale, viewH = H/scale;            // nm
     var cx = W/2, cy = H/2;
 
-    // how deep a slab must be to hold a workable number of ions
-    var target = 340;
-    var slab = target/(st.n*viewW*viewH);
-    slab = Math.max(0.35, Math.min(slab, 4000));
-    var N = Math.round(st.n*viewW*viewH*slab);
-    N = Math.max(0, Math.min(N, POOL.length));
-    if(N > 0) slab = N/(st.n*viewW*viewH);          // the depth the drawn ions really correspond to
+    // The view is a box as deep as the field of view is wide, so the number of ions
+    // drawn is the number really in that volume and rises in step with the concentration.
+    // Only if that exceeds the pool is a thinner slice of the same box drawn instead.
+    var depth = fovNm;
+    var Nbox = st.n*viewW*viewH*depth;              // expected number in the box
+    var N = Math.min(Math.round(Nbox), POOL.length);
+    var slab = N < Math.round(Nbox) ? N/(st.n*viewW*viewH) : depth;
 
     g.fillStyle = TH["panel-2"]; g.fillRect(0,0,W,H);
 
@@ -541,14 +551,6 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       grad.addColorStop(0.55,"rgba(0,150,143,0.09)");
       grad.addColorStop(1, "rgba(0,150,143,0.19)");
       g.fillStyle = grad; g.beginPath(); g.arc(cx,cy,rp,0,6.2832); g.fill();
-      g.strokeStyle = TH.teal; g.lineWidth = 1.4; g.setLineDash([5,4]);
-      g.beginPath(); g.arc(cx,cy,rp,0,6.2832); g.stroke(); g.setLineDash([]);
-      if(rp > 26){
-        g.strokeStyle = TH.teal; g.lineWidth = 1.4;
-        g.beginPath(); g.moveTo(cx,cy); g.lineTo(cx+rp*0.707, cy-rp*0.707); g.stroke();
-        mono(g,12,500); g.fillStyle = TH.teal; g.textAlign="left"; g.textBaseline="bottom";
-        g.fillText("λᴅ = "+nm(st.lamD)+" nm", cx+rp*0.30, cy-rp*0.36);
-      }
     }
 
     // ions
@@ -557,27 +559,51 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     var kT = KB*S.T;
     var rIon = Math.max(1.5, Math.min(0.13*scale, 11));
     var jitter = S.motion ? PHASE : 0;
-    for(var i=0;i<N;i++){
-      var p = POOL[i];
-      var px = p.x, py = p.y;
-      if(S.motion){
-        px = px + 0.012*Math.sin(jitter*1.7 + p.vx*12);
-        py = py + 0.012*Math.cos(jitter*1.3 + p.vy*12);
-        px = px - Math.floor(px); py = py - Math.floor(py);
+    // The charge of each ion is decided from its resting position, once per state, so no
+    // ion changes sign as it moves and nothing is recomputed from frame to frame.
+    var key = [st.c, S.type, S.T, S.eps, viewW.toFixed(4), viewH.toFixed(4), N].join("|");
+    if(key !== COLKEY){
+      COLKEY = key;
+      for(var i0=0;i0<N;i0++){
+        var q = POOL[i0];
+        var r = Math.hypot((q.x-0.5)*viewW, (q.y-0.5)*viewH);
+        if(r < 0.30) r = 0.30+0.25*q.u;
+        var psi = phiScr(r, st);
+        var wA = Math.exp(Math.max(-6, Math.min(6,  tt.za*EC*psi/kT)));   // anion, z negative -> favoured
+        var wC = Math.exp(Math.max(-6, Math.min(6, -tt.zc*EC*psi/kT)));
+        ANION[i0] = (q.u < fCount*wA/(fCount*wA + (1-fCount)*wC)) ? 1 : 0;
       }
-      var X = (px-0.5)*viewW, Y = (py-0.5)*viewH;      // nm from centre, where it is drawn
-      var rD = Math.hypot(X,Y);
-      if(rD < 0.30){ var kD = (0.30+0.25*p.u)/(rD||1e-6); X*=kD; Y*=kD; }
-      // the charge is decided once, from the resting position, so no ion changes sign as it moves
-      var r = Math.hypot((p.x-0.5)*viewW, (p.y-0.5)*viewH);
-      if(r < 0.30) r = 0.30+0.25*p.u;
-      var psi = phiScr(r, st);
-      var wA = Math.exp(Math.max(-6, Math.min(6,  tt.za*EC*psi/kT)));   // anion, z negative -> favoured
-      var wC = Math.exp(Math.max(-6, Math.min(6, -tt.zc*EC*psi/kT)));
-      var pA = fCount*wA/(fCount*wA + (1-fCount)*wC);
-      var isAnion = p.u < pA;
-      g.fillStyle = isAnion ? TH.blue : TH.red;
-      g.beginPath(); g.arc(cx + X*scale, cy + Y*scale, rIon, 0, 6.2832); g.fill();
+    }
+    [1,0].forEach(function(which){
+      g.fillStyle = which ? TH.blue : TH.red;
+      for(var i=0;i<N;i++){
+        if(ANION[i] !== which) continue;
+        var p = POOL[i];
+        var px = p.x, py = p.y;
+        if(S.motion){                    // a small excursion about the resting place; no wrapping
+          px += 0.012*Math.sin(jitter*1.7 + p.vx*12);
+          py += 0.012*Math.cos(jitter*1.3 + p.vy*12);
+        }
+        var X = (px-0.5)*viewW, Y = (py-0.5)*viewH;      // nm from centre, where it is drawn
+        var rD = Math.hypot(X,Y);
+        if(rD < 0.30){ var kD = (0.30+0.25*p.u)/(rD||1e-6); X*=kD; Y*=kD; }
+        var sx = cx + X*scale, sy = cy + Y*scale;
+        g.beginPath(); g.arc(sx, sy, rIon, 0, 6.2832); g.fill();
+      }
+    });
+
+    // the atmosphere's edge goes on top of the ions, so it stays visible in a crowded solution
+    if(rp > 0.6){
+      g.strokeStyle = TH.teal; g.lineWidth = 1.8; g.setLineDash([5,4]);
+      g.beginPath(); g.arc(cx,cy,rp,0,6.2832); g.stroke(); g.setLineDash([]);
+      if(rp > 26){
+        g.strokeStyle = TH.teal; g.lineWidth = 1.6;
+        g.beginPath(); g.moveTo(cx,cy); g.lineTo(cx+rp*0.707, cy-rp*0.707); g.stroke();
+        mono(g,12,500);
+        var big = rp > Math.min(W,H)*0.42;        // circle reaches the edges: keep the label near the centre
+        tag(g, "λᴅ = "+nm(st.lamD)+" nm" + (rp > Math.hypot(W,H)/2 ? ", beyond the frame" : ""),
+            big ? cx+18 : cx+rp*0.30, big ? cy-24 : cy-rp*0.36, "left", "bottom", TH.teal, TH["panel-2"]);
+      }
     }
 
     // scale objects
@@ -594,7 +620,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       var rCol = 50*scale;
       if(rCol > 3){
         if(rCol < Math.min(W,H)*0.40){
-          var pxc = 16 + rCol, pyc = H - rCol - 16;
+          var pxc = W - 16 - rCol, pyc = H - rCol - 16;
           g.beginPath(); g.arc(pxc,pyc,rCol,0,6.2832); g.stroke();
           tag(g, "colloid, radius 50 nm", pxc, pyc, "center", "middle", TH.muted, TH["panel-2"]);
           g.strokeStyle = TH.muted; g.setLineDash([3,3]);
@@ -632,9 +658,35 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     mono(g,12,500);
     tag(g, (barNm<1?barNm.toFixed(1):barNm.toFixed(0))+" nm", bx, by-7, "left", "bottom", TH["ink-2"], TH["panel-2"]);
 
-    document.getElementById("cloudCap").innerHTML =
-      N + (N===1?" ion":" ions") + " in view, the number found in a slab " + (slab<1?slab.toFixed(2):(slab<100?slab.toFixed(1):slab.toFixed(0))) +
-      " nm deep. Each is coloured as if it sat in the plane of the central ion, so the picture shows how the balance of charge changes with distance. Counter-ions crowd in close, and the cloud carries a net charge opposite to the central ion.";
+    // counts to three significant figures, grouped with a thin space in the SI manner
+    function cnt(x){
+      if(x < 1) return x.toPrecision(2);
+      if(x < 10) return x.toFixed(1);
+      var r = Number(x.toPrecision(3));
+      return String(Math.round(r)).replace(/\B(?=(\d{3})+(?!\d))/g, "\u2009");
+    }
+    function len(x){ return x < 1 ? x.toFixed(2) : (x < 100 ? x.toFixed(1) : x.toFixed(0)); }
+    var box = len(viewW) + " × " + len(viewH) + " × " + len(depth) + " nm";
+    var head;
+    if(N < Math.round(Nbox)){
+      head = "A " + box + " box of this solution holds about " + cnt(Nbox) + " ions. That is too many to draw, so the " +
+             cnt(N) + " shown are the ones in a slice " + len(slab) + " nm deep.";
+    } else if(Nbox < 0.5){
+      head = "A " + box + " box of this solution holds on average " + cnt(Nbox) + " ions besides the central one, so most of the time there is nothing here but the central ion and " + (S.eps === 78.4 ? "water" : "solvent") + ".";
+    } else if(Nbox < 10){
+      head = "A " + box + " box of this solution holds on average " + cnt(Nbox) + " ions besides the central one, so " + N + (N===1 ? " is" : " are") + " drawn.";
+    } else {
+      head = "A " + box + " box of this solution holds about " + cnt(Nbox) + " ions besides the central one, and that is what is drawn.";
+    }
+    var floored = S.fov === "fit" && 6*st.lamD < 0.9;
+    var tail = N < Math.round(Nbox)
+      ? " The number in the box still rises in proportion to the concentration; the number drawn stays at " + cnt(N) + " and the slice gets thinner."
+      : (S.fov === "fit"
+        ? (floored ? " The box has reached its smallest size, 0.9 nm, and no longer follows λ<sub>D</sub>."
+                   : " The box follows λ<sub>D</sub>, and it holds fewer ions the more concentrated the solution, because λ<sub>D</sub>³ shrinks faster than the concentration grows.")
+        : " Change the concentration and the count changes in proportion.");
+    setHTML("cloudCap", head + tail +
+      " Each ion is coloured as if it sat in the plane of the central ion, so the picture shows how the balance of charge changes with distance: counter-ions crowd in close, and the cloud carries a net charge opposite to the central ion.");
   }
 
   // ---------- phi(r) chart ----------
@@ -697,6 +749,9 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     } else if(st.lamD <= rMin){
       mono(g,11.5,500); g.fillStyle = TH.teal; g.textAlign="left"; g.textBaseline="top";
       g.fillText("← λᴅ = " + nm(st.lamD) + " nm, inside ionic contact", L+4, T+2);
+    } else {
+      mono(g,11.5,500); g.fillStyle = TH.teal; g.textAlign="right"; g.textBaseline="top";
+      g.fillText("λᴅ = " + nm(st.lamD) + " nm, off the axis →", L+pw-4, T+2);
     }
     // kT/e line
     if(st.kTe > bot && st.kTe < top){
@@ -724,8 +779,10 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
 
     // inline key, placed where the curves are not
     mono(g,11,500);
-    tag(g, "bare 1/r", L+10, T+ph-24, "left", "top", TH.muted);
-    tag(g, "screened", L+10, T+ph-11, "left", "top", TH.blue);
+    var kx = L+10, kw = g.measureText("bare 1/r").width + 8;
+    if(st.lamD > rMin && st.lamD < rMax && X(st.lamD) > kx-6 && X(st.lamD) < kx+kw) kx = X(st.lamD) + 10;
+    tag(g, "bare 1/r", kx, T+ph-24, "left", "top", TH.muted);
+    tag(g, "screened", kx, T+ph-11, "left", "top", TH.blue);
   }
 
   // ---------- lambda(I) chart ----------
@@ -832,9 +889,11 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       document.getElementById("roPin").textContent = "×" + ratio(rI) + " → ×" + ratio(rL);
       var same = Math.abs(S.eps-S.pin.eps) < 1e-9 && S.T === S.pin.T;
       var extra = Math.sqrt(S.eps*S.T/(S.pin.eps*S.pin.T));
-      document.getElementById("roPinN").innerHTML = "I is " + ratio(rI) + " times the pinned value and λ<sub>D</sub> is " + ratio(rL) + " times it. " +
+      document.getElementById("roPinN").innerHTML = "Pinned at I = " + conc(S.pin.I) + " mol dm<sup>−3</sup>, λ<sub>D</sub> = " + nm(S.pin.lamD) + " nm. " +
+        (Math.abs(rI-1) < 1e-9 && Math.abs(rL-1) < 1e-9 ? "Now move the concentration." :
+        "I is now " + ratio(rI) + " times that and λ<sub>D</sub> " + ratio(rL) + " times. " +
         (same ? "The second number is the square root of the reciprocal of the first."
-              : "The solvent or the temperature has changed since the pin, so λ<sub>D</sub> also carries the factor (ε<sub>r</sub><em>T</em> now over ε<sub>r</sub><em>T</em> at the pin)<sup>1/2</sup> = " + ratio(extra) + ".");
+              : "The solvent or the temperature has changed since the pin, so λ<sub>D</sub> also carries the factor (ε<sub>r</sub><em>T</em> now over ε<sub>r</sub><em>T</em> at the pin)<sup>1/2</sup> = " + ratio(extra) + "."));
     }
 
     var cs = conc(st.c);
@@ -858,15 +917,24 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     var dr = diffRel(S.T);
     document.getElementById("tempNote").innerHTML =
       "&epsilon;<sub>r</sub> is held fixed as this moves, though in water it falls as the liquid is warmed. "
-      + "Thermal motion runs at <b>&times;" + dr.toFixed(2) + "</b> its 298 K rate, "
-      + "from <em>D</em> = <em>k</em><sub>B</sub><em>T</em>/6&pi;&eta;<em>a</em> with the viscosity of water falling as well.";
+      + (S.motion ? "Thermal motion runs at " : "Thermal motion, when switched on, runs at ") + "<b>&times;" + dr.toFixed(2) + "</b> its 298 K rate, "
+      + "from <em>D</em> = <em>k</em><sub>B</sub><em>T</em>/6&pi;&eta;<em>a</em> using the viscosity of water at this temperature.";
     document.getElementById("epsVal").textContent = S.eps.toFixed(1);
     document.getElementById("ztypeNote").innerHTML = "Ionic strength <em>I</em> = " + (st.t.Ifac===1?"":st.t.Ifac) + "<em>c</em>";
   }
   function update(){ syncLabels(); drawAll(); }
 
   var PHASE = 0, tPrev = 0;
+  var onScreen = true;
+  if(window.IntersectionObserver) new IntersectionObserver(function(es){
+    onScreen = es[0].isIntersecting;
+    if(onScreen && S.motion && raf === null){ tPrev = 0; raf = requestAnimationFrame(loop); }
+  }).observe(document.getElementById("cloudBox"));
+  document.addEventListener("visibilitychange", function(){
+    if(!document.hidden && S.motion && raf === null){ tPrev = 0; raf = requestAnimationFrame(loop); }
+  });
   function loop(ts){
+    if(S.motion && (!onScreen || document.hidden)){ tPrev = 0; raf = null; return; }
     if(S.motion){
       if(!tPrev) tPrev = ts;
       var dt = Math.min(120, ts - tPrev); tPrev = ts;
@@ -900,6 +968,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
 
   document.getElementById("motion").addEventListener("change", function(){
     S.motion = this.checked;
+    syncLabels();
     if(S.motion && raf === null) raf = requestAnimationFrame(loop);
     if(!S.motion) update();
   });
@@ -916,12 +985,14 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     S.type = "11";
     [].forEach.call(document.querySelectorAll("#ztype button"), function(x){ x.setAttribute("aria-pressed", String(x.dataset.z==="11")); });
     setSliderFromConc(0.15); S.T = 298; tempEl.value = 298; S.eps = 78.4; epsEl.value = 78.4;
-    S.fov = "4"; [].forEach.call(document.querySelectorAll("#fov button"), function(x){ x.setAttribute("aria-pressed", String(x.dataset.fov==="4")); });
+    S.fov = "20"; [].forEach.call(document.querySelectorAll("#fov button"), function(x){ x.setAttribute("aria-pressed", String(x.dataset.fov==="20")); });
     update();
   });
   document.getElementById("preset-dil").addEventListener("click", function(){
-    setSliderFromConc(1e-3);
-    S.fov = "20"; [].forEach.call(document.querySelectorAll("#fov button"), function(x){ x.setAttribute("aria-pressed", String(x.dataset.fov==="20")); });
+    S.type = "11";
+    [].forEach.call(document.querySelectorAll("#ztype button"), function(x){ x.setAttribute("aria-pressed", String(x.dataset.z==="11")); });
+    setSliderFromConc(1e-3); S.T = 298; tempEl.value = 298; S.eps = 78.4; epsEl.value = 78.4;
+    S.fov = "100"; [].forEach.call(document.querySelectorAll("#fov button"), function(x){ x.setAttribute("aria-pressed", String(x.dataset.fov==="100")); });
     update();
   });
   document.getElementById("pinBtn").addEventListener("click", function(){
@@ -933,15 +1004,16 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
   document.getElementById("resetBtn").addEventListener("click", function(){
     S.slider = DEFAULTS.slider; S.c = cFromSlider(DEFAULTS.slider);
     S.type = DEFAULTS.type; S.T = DEFAULTS.T; S.eps = DEFAULTS.eps; S.fov = DEFAULTS.fov;
-    S.pin = null; S.motion = false; S.scaleObj = true; PHASE = 0; tPrev = 0;
+    S.pin = null; S.motion = MOTION_DEFAULT; S.scaleObj = true; PHASE = 0; tPrev = 0;
     concEl.value = S.slider; tempEl.value = S.T; epsEl.value = S.eps;
-    document.getElementById("motion").checked = false;
+    document.getElementById("motion").checked = S.motion;
     document.getElementById("scaleObj").checked = true;
     [].forEach.call(document.querySelectorAll("#ztype button"), function(x){ x.setAttribute("aria-pressed", String(x.dataset.z===DEFAULTS.type)); });
     [].forEach.call(document.querySelectorAll("#fov button"), function(x){ x.setAttribute("aria-pressed", String(x.dataset.fov===DEFAULTS.fov)); });
     document.getElementById("roPin").textContent = "—";
     document.getElementById("roPinN").textContent = "Pin a state, then move the concentration slider.";
     update();
+    if(S.motion && raf === null) raf = requestAnimationFrame(loop);
   });
 
   var ro = new ResizeObserver(function(){ drawAll(); });
@@ -949,7 +1021,9 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
   window.addEventListener("resize", drawAll);
 
   if(document.fonts && document.fonts.ready) document.fonts.ready.then(drawAll);
+  document.getElementById("motion").checked = S.motion;
   update();
+  if(S.motion) raf = requestAnimationFrame(loop);
 })();
 </script>
 </body>

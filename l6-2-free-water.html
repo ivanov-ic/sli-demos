@@ -183,7 +183,7 @@
   .seg button[aria-pressed="true"]{background:var(--deep); border-color:var(--deep); color:var(--panel); font-weight:500}
   .sub{font-size:12px; color:var(--muted)}
   .lc{text-transform:none !important}
-  .ro .k em, .ro .k sub, .ro .k sup, .ctl > label em, .ctl > .lab em, table th em{text-transform:none}
+  .ro .k em, .ro .k sub, .ro .k sup, .ctl > label em, .ctl > .lab em, .ctl > label sub, .ctl > .lab sub, .ctl > label sup, .ctl > .lab sup, table th em{text-transform:none}
   .wide{grid-column:span 2}
   @media (max-width:520px){.wide{grid-column:1/-1}}
   .toggles{display:flex; flex-wrap:wrap; gap:10px 16px; align-items:center}
@@ -238,6 +238,7 @@
     .chart-box{min-height:250px}
   }
   @media (max-width:560px){
+    .work .eq{white-space:pre-wrap; overflow-wrap:anywhere; font-size:12.5px}
     .wrap{padding-inline:16px}
     #cloudBox{min-height:320px}
     .controls{padding:13px 14px 15px}
@@ -292,7 +293,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
 <div class="wrap">
   <header class="top">
     <div>
-      <div class="eyebrow">Solids, Liquids and Interfaces &middot; Lecture 6 &middot; Demo 6.2</div>
+      <div class="eyebrow">Solids, Liquids and Interfaces &middot; Lecture 6 &middot; Interactive demo L6.2</div>
       <h1>Counting the free water</h1>
     </div>
   </header>
@@ -742,7 +743,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     if(c === null){
       apply({salt:S.salt, m: Math.round(sc.m[last]*100/5)*5, hc:S.hc, ha:S.ha});
       $("crossNote").innerHTML = S.salt === "NaCl"
-        ? "NaCl reaches " + num(sc.g[last],3) + " at " + num(sc.m[last],1) + " mol kg<sup>&minus;1</sup>, its most concentrated point here, and passes 1 only just beyond, close to saturation at about 6.1 mol kg<sup>&minus;1</sup>."
+        ? "NaCl reaches " + num(sc.g[last],3) + " at " + num(sc.m[last],1) + " mol kg<sup>&minus;1</sup>, its most concentrated point here and just short of saturation, so it comes close to 1 without passing it."
         : sc.html + " stays below &gamma;<sub>&plusmn;</sub> = 1 all the way to saturation, at about 4.8 mol kg<sup>&minus;1</sup>. The slider is now at 4.5 mol kg<sup>&minus;1</sup>, its most concentrated measured point.";
     } else {
       apply({salt:S.salt, m: Math.round(c*100/5)*5, hc:S.hc, ha:S.ha});

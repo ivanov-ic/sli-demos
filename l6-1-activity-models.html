@@ -183,7 +183,7 @@
   .seg button[aria-pressed="true"]{background:var(--deep); border-color:var(--deep); color:var(--panel); font-weight:500}
   .sub{font-size:12px; color:var(--muted)}
   .lc{text-transform:none !important}
-  .ro .k em, .ro .k sub, .ro .k sup, .ctl > label em, .ctl > .lab em, table th em{text-transform:none}
+  .ro .k em, .ro .k sub, .ro .k sup, .ctl > label em, .ctl > .lab em, .ctl > label sub, .ctl > .lab sub, .ctl > label sup, .ctl > .lab sup, table th em{text-transform:none}
   .wide{grid-column:span 2}
   @media (max-width:520px){.wide{grid-column:1/-1}}
   .toggles{display:flex; flex-wrap:wrap; gap:10px 16px; align-items:center}
@@ -238,6 +238,7 @@
     .chart-box{min-height:250px}
   }
   @media (max-width:560px){
+    .work .eq{white-space:pre-wrap; overflow-wrap:anywhere; font-size:12.5px}
     .wrap{padding-inline:16px}
     #cloudBox{min-height:320px}
     .controls{padding:13px 14px 15px}
@@ -302,7 +303,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
 <div class="wrap">
   <header class="top">
     <div>
-      <div class="eyebrow">Solids, Liquids and Interfaces &middot; Lecture 6 &middot; Demo 6.1</div>
+      <div class="eyebrow">Solids, Liquids and Interfaces &middot; Lecture 6 &middot; Interactive demo L6.1</div>
       <h1>Activity coefficient models</h1>
     </div>
   </header>
@@ -316,7 +317,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
         <button type="button" data-v="CaCl2">CaCl<sub>2</sub> &nbsp;2:1</button>
         <button type="button" data-v="MgSO4">MgSO<sub>4</sub> &nbsp;2:2</button>
       </div>
-      <div class="sub" id="saltNote">|z<sub>+</sub>z<sub>&minus;</sub>| = 1, so <em>I</em> = <em>m</em>/<em>m</em>&deg;</div>
+      <div class="sub" id="saltNote">|z<sub>+</sub>z<sub>&minus;</sub>| = 1, so <em>I</em> = <em>m</em>/<em>m</em><sup>&#8854;</sup></div>
     </div>
 
     <div class="ctl">
@@ -328,7 +329,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     <div class="ctl">
       <label for="probe">Probe the models at <span class="val" id="probeVal"><em>I</em> = 0.100</span></label>
       <input autocomplete="off" type="range" id="probe" min="0" max="1000" value="667" step="1">
-      <div class="sub">Ionic strength from molalities, <em>I</em> = &frac12;&Sigma;<em>z</em><sub><em>i</em></sub><sup>2</sup><em>m</em><sub><em>i</em></sub>/<em>m</em>&deg;</div>
+      <div class="sub">Ionic strength from molalities, <em>I</em> = &frac12;&Sigma;<em>z</em><sub><em>i</em></sub><sup>2</sup><em>m</em><sub><em>i</em></sub>/<em>m</em><sup>&#8854;</sup></div>
     </div>
 
     <div class="ctl">
@@ -378,7 +379,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       </div>
       <div class="card">
         <h2>Model minus measurement</h2>
-        <p class="cap">Zero is agreement. Where a line leaves the grey band, that model has stopped working.</p>
+        <p class="cap">Zero is agreement. The narrow dark band, &plusmn;0.005, is roughly the scatter of the measurements, so a line outside it is a real disagreement. The wide band, &plusmn;0.02, marks a model that is still useful.</p>
         <div class="canvas-box" id="resBox"><canvas role="img" id="res" aria-label="Residuals of each model against the measured values"></canvas></div>
       </div>
     </div>
@@ -395,7 +396,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
   <footer>
     <span>Limiting law, eqn 6.7 &middot; extended law, eqn 6.8 &middot; Davies, eqn 6.9</span>
     <span><em>A</em> = 0.509 and <em>B</em> = 3.28 nm<sup>&minus;1</sup> for water at 298 K</span>
-    <span>Ionic strength here is built from molalities, with <em>m</em>&deg; = 1 mol kg<sup>&minus;1</sup>, as Section 5.2.4 requires</span>
+    <span>Ionic strength here is built from molalities, with <em>m</em><sup>&#8854;</sup> = 1 mol kg<sup>&minus;1</sup>, as Section 5.2.4 requires</span>
   <span>© 2026 A. P. Ivanov. <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" rel="license" target="_blank">CC BY-NC-ND 4.0</a></span>
   </footer>
 </div>
@@ -488,7 +489,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
 
   // Mean ionic activity coefficients in water at 298 K, as in the coursebook's Table D1 and D2:
   // KCl from Hamer and Wu (1972), CaCl2 from Staples and Nuttall (1977) where the book gives them.
-  // m is molality in mol kg^-1; I = Ifac m/m° is a pure number.
+  // m is molality in mol kg^-1; I = Ifac m/m⊖ is a pure number.
   var SALTS = {
     KCl:   {label:"KCl", html:"KCl", zz:1, Ifac:1, nu:"1:1", limit:0.01,
             m:[0.001,0.002,0.005,0.01,0.02,0.05,0.1,0.2,0.5],
@@ -622,7 +623,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     }
     if(xl < xMax){
       mono(g,10.5,500);
-      tag(g, "limiting law reliable to I " + (S.salt === "CaCl2" ? "≈ 0.003 (between the book's 1:1 and 2:2 limits)" : "= " + s.limit),
+      tag(g, "limiting law reliable to I " + (S.salt === "CaCl2" ? "≈ 0.003" : "= " + s.limit),
           X(xl)+5, T+6, "left", "top", TH.blue, TH.panel);
     }
 
@@ -660,6 +661,9 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     // the band inside which a model is doing its job
     g.fillStyle = "rgba(107,118,128,0.14)";
     g.fillRect(L, Y(0.02), pw, Math.max(1, Y(-0.02)-Y(0.02)));
+    // and the narrower band of the scatter in the measurements themselves
+    g.fillStyle = "rgba(107,118,128,0.22)";
+    g.fillRect(L, Y(0.005), pw, Math.max(1, Y(-0.005)-Y(0.005)));
 
     g.strokeStyle = TH.grid; g.lineWidth = 1;
     mono(g,10.5); g.textAlign="right"; g.textBaseline="middle";
@@ -749,9 +753,9 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     if(S.salt === "MgSO4"){
       note = "The 2:2 salt is the hard case. The coursebook shows no measured points for MgSO\u2084 until a primary source for dilute solutions is confirmed, so only the three models are drawn. They already part company at a lower ionic strength than for either other salt, because every expression is four times as steep. Measured 2:2 coefficients also carry an effect none of the three models contains: magnesium and sulfate associate into ion pairs, which is chemistry the theory knows nothing about.";
     } else if(S.salt === "CaCl2"){
-      note = "Doubling one charge doubles |z₊ z₋| and with it the slope of every curve. Notice that the limiting law is already visibly wrong at an ionic strength where the 1:1 salt is still fine.";
+      note = "Doubling one charge doubles |z₊ z₋| and with it the slope of every curve. Notice that the limiting law is already visibly wrong at an ionic strength where the 1:1 salt is still fine. Its range of reliability, about I = 0.003, lies between the book's limits for 1:1 and 2:2 electrolytes.";
     } else {
-      note = "Drag a and watch the extended law swing. The fitted parameter has no independent measurement behind it, which is the price of the extra range. Davies fixes both constants instead. The coursebook calls it serviceable to about I = 0.5; for KCl the residual panel shows it leaving the ±0.02 band a little above I = 0.2, and by 0.5 it is about 13 per cent high in γ±, which is what serviceable means in practice.";
+      note = "Drag a and watch the extended law swing. The fitted parameter has no independent measurement behind it, which is the price of the extra range. Davies fixes both constants instead. Section 6.3.6 says it works reasonably well up to about I = 0.5; for KCl the residual panel shows it leaving the ±0.02 band a little above I = 0.2, and by 0.5 it is about 13 per cent high in γ±, which is what reasonably well means in practice.";
     }
     $("eqNote").textContent = note;
 
@@ -762,7 +766,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
   var setSalt = group("salt", function(d){
     S.salt = d.v;
     var s = salt();
-    $("saltNote").innerHTML = "|z<sub>+</sub>z<sub>&minus;</sub>| = " + s.zz + ", so <em>I</em> = " + (s.Ifac===1?"":s.Ifac) + "<em>m</em>/<em>m</em>&deg;";
+    $("saltNote").innerHTML = "|z<sub>+</sub>z<sub>&minus;</sub>| = " + s.zz + ", so <em>I</em> = " + (s.Ifac===1?"":s.Ifac) + "<em>m</em>/<em>m</em><sup>&#8854;</sup>";
     sync();
   });
   $("asize").addEventListener("input", function(){ S.a = +this.value; sync(); });
@@ -787,7 +791,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     $("mLL").checked = S.LL; $("mEx").checked = S.EX; $("mDv").checked = S.DV;
     setSalt(S.salt);
     var s = salt();
-    $("saltNote").innerHTML = "|z<sub>+</sub>z<sub>&minus;</sub>| = " + s.zz + ", so <em>I</em> = " + (s.Ifac===1?"":s.Ifac) + "<em>m</em>/<em>m</em>&deg;";
+    $("saltNote").innerHTML = "|z<sub>+</sub>z<sub>&minus;</sub>| = " + s.zz + ", so <em>I</em> = " + (s.Ifac===1?"":s.Ifac) + "<em>m</em>/<em>m</em><sup>&#8854;</sup>";
     sync();
   }
   function sliderForI(I){ return Math.round((Math.log10(I)+3)/3*1000); }

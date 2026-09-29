@@ -236,6 +236,7 @@
     .chart-box{min-height:250px}
   }
   @media (max-width:560px){
+    .work .eq{white-space:pre-wrap; overflow-wrap:anywhere; font-size:12.5px}
     .wrap{padding-inline:16px}
     #cloudBox{height:340px}
     .controls{padding:13px 14px 15px}
@@ -280,7 +281,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
 <div class="wrap">
   <header class="top">
     <div>
-      <div class="eyebrow">Solids, Liquids and Interfaces &middot; Lecture 5 &middot; Demo 5.2</div>
+      <div class="eyebrow">Solids, Liquids and Interfaces &middot; Lecture 5 &middot; Interactive demo L5.2</div>
       <h1>Ionic atmosphere explorer</h1>
     </div>
   </header>
@@ -296,11 +297,11 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     <div class="ctl">
       <div class="lab">Charge type</div>
       <div class="seg" id="ztype" role="group" aria-label="Charge type">
-        <button type="button" data-z="11" aria-pressed="true">1:1 &nbsp;NaCl</button>
+        <button type="button" data-z="11" aria-pressed="true">1:1 &nbsp;NaCl, KCl</button>
         <button type="button" data-z="21" aria-pressed="false">2:1 &nbsp;CaCl<sub>2</sub></button>
         <button type="button" data-z="22" aria-pressed="false">2:2 &nbsp;MgSO<sub>4</sub></button>
       </div>
-      <div class="sub" id="ztypeNote">Ionic strength <em>I</em> = <em>c</em>/<em>c</em>&deg;</div>
+      <div class="sub" id="ztypeNote">Ionic strength <em>I</em> = <em>c</em>/<em>c</em><sup>&#8854;</sup></div>
     </div>
 
     <div class="ctl">
@@ -374,7 +375,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
   </section>
 
   <section class="readouts" id="ro">
-    <div class="ro"><div class="k">Ionic strength <em>I</em></div><div class="v" id="roI">&ndash;</div><div class="n">no unit, from <em>c</em><sub><em>i</em></sub>/<em>c</em>&deg; with <em>c</em>&deg; = 1 mol dm<sup>&minus;3</sup></div></div>
+    <div class="ro"><div class="k">Ionic strength <em>I</em></div><div class="v" id="roI">&ndash;</div><div class="n">no unit, from <em>c</em><sub><em>i</em></sub>/<em>c</em><sup>&#8854;</sup> with <em>c</em><sup>&#8854;</sup> = 1 mol dm<sup>&minus;3</sup></div></div>
     <div class="ro hi"><div class="k">Debye length <span class="lc">&lambda;<sub>D</sub></span></div><div class="v" id="roL">&ndash;</div><div class="n" id="roLn">nm</div></div>
     <div class="ro"><div class="k">Bjerrum length <span class="lc"><em>l</em><sub>B</sub></span></div><div class="v" id="roB">&ndash;</div><div class="n">nm. Set by solvent and temperature only, never by concentration.</div></div>
     <div class="ro"><div class="k">Mean ion separation</div><div class="v" id="roS">&ndash;</div><div class="n">nm, from the total number density of ions</div></div>
@@ -389,9 +390,9 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
   </section>
 
   <footer>
-    <span>&lambda;<sub>D</sub> = (&epsilon;<sub>r</sub>&epsilon;<sub>0</sub><em>k</em><sub>B</sub><em>T</em> / 2<em>N</em><sub>A</sub><em>e</em><sup>2</sup><em>c</em>&deg;<em>I</em>)<sup>1/2</sup>, eqn 5.7</span>
+    <span>&lambda;<sub>D</sub> = (&epsilon;<sub>r</sub>&epsilon;<sub>0</sub><em>k</em><sub>B</sub><em>T</em> / 2<em>N</em><sub>A</sub><em>e</em><sup>2</sup><em>c</em><sup>&#8854;</sup><em>I</em>)<sup>1/2</sup>, eqn 5.7</span>
     <span>In water at 298 K this is 0.304 nm / <em>I</em><sup>1/2</sup>, eqn 5.8</span>
-    <span>Ionic strength here is built from amount concentrations, <em>I</em> = &frac12;&Sigma;<em>z</em><sub><em>i</em></sub><sup>2</sup><em>c</em><sub><em>i</em></sub>/<em>c</em>&deg;, as Section 5.2.4 requires.</span>
+    <span>Ionic strength here is built from amount concentrations, <em>I</em> = &frac12;&Sigma;<em>z</em><sub><em>i</em></sub><sup>2</sup><em>c</em><sub><em>i</em></sub>/<em>c</em><sup>&#8854;</sup>, as Section 5.2.4 requires.</span>
   <span>© 2026 A. P. Ivanov. <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" rel="license" target="_blank">CC BY-NC-ND 4.0</a></span>
   </footer>
 </div>
@@ -413,7 +414,9 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
   };
 
   var DEFAULTS = {slider:600, type:"11", T:298, eps:78.4, fov:"20"};
-  var MOTION_DEFAULT = !(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  // Thermal motion is always on at load and after Reset (Alex, 28 Sept 2026), even where the
+  // operating system asks for reduced motion; the checkbox turns it off.
+  var MOTION_DEFAULT = true;
   var S = {slider:600, c:0.01, type:"11", T:298, eps:78.4, fov:"20", motion:MOTION_DEFAULT, scaleObj:true, pin:null};
   function cFromSlider(v){ return Math.pow(10, -5 + 5*(v/1000)); }
 
@@ -446,7 +449,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     var t = TYPES[S.type];
     var c = S.c;
     var I = c * t.Ifac;
-    var Im3 = I*1000;                                  // c° I in mol m^-3, with c° = 1000 mol m^-3
+    var Im3 = I*1000;                                  // c⊖ I in mol m^-3, with c⊖ = 1000 mol m^-3
     var lamD = Math.sqrt(S.eps*E0*KB*S.T/(2*NA*EC*EC*Im3)) * 1e9;   // nm
     var lB = EC*EC/(FOURPIE0*S.eps*KB*S.T) * 1e9;      // nm
     var nTot = (t.nc + t.na)*c*NA*1000 / 1e27;         // ions per nm^3
@@ -923,7 +926,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     document.getElementById("roPn").textContent = st.lamD < 2
       ? "Thinner than the protein's radius. Two such proteins feel almost nothing until their surfaces are within about λD of each other, as in Example 5.2."
       : (st.lamD < 4
-        ? "Longer than the radius but shorter than the protein is wide. Neighbours interact over part of a protein's size."
+        ? "Thicker than the protein's radius but thinner than its diameter. Neighbours interact over part of a protein's size."
         : "Wider than the protein itself, so charged particles still see each other at a distance.");
 
     if(S.pin){
@@ -939,11 +942,11 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     }
 
     var cs = conc(st.c);
-    document.getElementById("eqI").textContent = "I = ½ Σ zᵢ² cᵢ/c°  =  " + st.t.eq(cs) + "  =  " + conc(st.I);
+    document.getElementById("eqI").textContent = "I = ½ Σ zᵢ² cᵢ/c⊖  =  " + st.t.eq(cs) + "  =  " + conc(st.I);
     document.getElementById("eqNote").innerHTML = st.t.Ifac === 1
       ? "For a 1:1 electrolyte the ionic strength is numerically equal to the concentration in mol dm<sup>−3</sup>, which is exactly why the distinction is easy to miss. Switch to CaCl<sub>2</sub> or MgSO<sub>4</sub> and they part company."
       : "Every ionic species in the solution enters the sum, each weighted by the square of its charge. A " + st.t.label +
-        " salt at concentration <em>c</em> therefore has <em>I</em> = " + st.t.Ifac + "<em>c</em>/<em>c</em>°, and the atmosphere is correspondingly thinner than a 1:1 salt at the same concentration.";
+        " salt at concentration <em>c</em> therefore has <em>I</em> = " + st.t.Ifac + "<em>c</em>/<em>c</em><sup>⊖</sup>, and the atmosphere is correspondingly thinner than a 1:1 salt at the same concentration.";
   }
 
   // ---------- drive ----------
@@ -962,7 +965,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       + (S.motion ? "Thermal motion runs at " : "Thermal motion, when switched on, runs at ") + "<b>&times;" + dr.toFixed(2) + "</b> its 298 K rate, "
       + "from <em>D</em> = <em>k</em><sub>B</sub><em>T</em>/6&pi;&eta;<em>a</em> using the viscosity of water at this temperature.";
     document.getElementById("epsVal").textContent = S.eps.toFixed(1);
-    document.getElementById("ztypeNote").innerHTML = "Ionic strength <em>I</em> = " + (st.t.Ifac===1?"":st.t.Ifac) + "<em>c</em>/<em>c</em>°";
+    document.getElementById("ztypeNote").innerHTML = "Ionic strength <em>I</em> = " + (st.t.Ifac===1?"":st.t.Ifac) + "<em>c</em>/<em>c</em><sup>⊖</sup>";
   }
   function update(){ syncLabels(); drawAll(); }
 

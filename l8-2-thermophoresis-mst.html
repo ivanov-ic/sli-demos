@@ -183,7 +183,7 @@
   .seg button[aria-pressed="true"]{background:var(--deep); border-color:var(--deep); color:var(--panel); font-weight:500}
   .sub{font-size:12px; color:var(--muted)}
   .lc{text-transform:none !important}
-  .ro .k em, .ro .k sub, .ro .k sup, .ctl > label em, .ctl > .lab em, table th em{text-transform:none}
+  .ro .k em, .ro .k sub, .ro .k sup, .ctl > label em, .ctl > .lab em, .ctl > label sub, .ctl > .lab sub, .ctl > label sup, .ctl > .lab sup, table th em{text-transform:none}
   .wide{grid-column:span 2}
   @media (max-width:520px){.wide{grid-column:1/-1}}
   .toggles{display:flex; flex-wrap:wrap; gap:10px 16px; align-items:center}
@@ -238,6 +238,7 @@
     .chart-box{min-height:250px}
   }
   @media (max-width:560px){
+    .work .eq{white-space:pre-wrap; overflow-wrap:anywhere; font-size:12.5px}
     .wrap{padding-inline:16px}
     #cloudBox{min-height:320px}
     .controls{padding:13px 14px 15px}
@@ -298,7 +299,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
 <div class="wrap">
   <header class="top">
     <div>
-      <div class="eyebrow">Solids, Liquids and Interfaces &middot; Lecture 8 &middot; Demo 8.2</div>
+      <div class="eyebrow">Solids, Liquids and Interfaces &middot; Lecture 8 &middot; Interactive demo L8.2</div>
       <h1>Thermophoresis and an MST titration</h1>
     </div>
   </header>
@@ -883,7 +884,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
           ? ".  With this little heating, bound and free give the same reading to within the scatter, so there is nothing to fit"
           : ".  Fitting the twelve points returns Kd = " + sig3(Kfit) + " nmol dm⁻³ against a true " + sig3(kdNm()) +
             ", out by " + num(Math.abs(Kfit-kdNm())/kdNm()*100,1) + " per cent");
-      $("eqNote").textContent = "Binding buries surface area, rearranges the hydration water and usually changes the effective charge. Any of those shifts Sᴛ, and the shift is what the fluorescence reports. The method does not say which of the three did it.";
+      $("eqNote").innerHTML = "Binding buries surface area, rearranges the hydration water and usually changes the effective charge. Any of those shifts <em>S</em><sub>T</sub>, and the shift is what the fluorescence reports. The method does not say which of the three did it.";
     } else if(S.mode === "duhr"){
       $("sideTitle").innerHTML = "Steady state against &Delta;<em>T</em>";
       $("sideCap").innerHTML = "The same exponential applies pixel by pixel across the pattern.";
@@ -939,7 +940,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       ? "One partner is labelled and held fixed while the other is titrated in"
       : (v === "duhr" ? "Shape the heated region into letters and watch the solute obey it"
                       : "A laser warms a spot and the solute redistributes until diffusion balances it");
-    $("hint").textContent = v === "duhr" ? "Flip the sign of Sᴛ to invert the writing" : "";
+    $("hint").innerHTML = v === "duhr" ? "Flip the sign of <em>S</em><sub>T</sub> to invert the writing" : "";
   }
   var setMode = group("mode", function(d){
     S.mode = d.v; stop();
@@ -973,6 +974,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     S.st = 50; S.dT = Math.round(Math.log(2)/0.05*10);   // 139, that is 13.9 K
     $("st").value = S.st; $("dT").value = S.dT;
     buildField(); resetField(); $("clock").textContent = "0.0 s"; paint(); start();
+    $("hint").innerHTML = "At 13.9 K the ideal ratio e<sup>&minus;<em>S</em><sub>T</sub>&Delta;<em>T</em></sup> in the Steady state readout is 0.50, which is the Self-test answer. The simulated trace settles nearer 0.55, closer to 1 for the reason given under the trace.";
   });
   $("resetBtn").addEventListener("click", function(){
     stop();

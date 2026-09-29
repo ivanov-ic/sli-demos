@@ -183,7 +183,7 @@
   .seg button[aria-pressed="true"]{background:var(--deep); border-color:var(--deep); color:var(--panel); font-weight:500}
   .sub{font-size:12px; color:var(--muted)}
   .lc{text-transform:none !important}
-  .ro .k em, .ro .k sub, .ro .k sup, .ctl > label em, .ctl > .lab em, table th em{text-transform:none}
+  .ro .k em, .ro .k sub, .ro .k sup, .ctl > label em, .ctl > .lab em, .ctl > label sub, .ctl > .lab sub, .ctl > label sup, .ctl > .lab sup, table th em{text-transform:none}
   .wide{grid-column:span 2}
   @media (max-width:520px){.wide{grid-column:1/-1}}
   .toggles{display:flex; flex-wrap:wrap; gap:10px 16px; align-items:center}
@@ -238,6 +238,7 @@
     .chart-box{min-height:250px}
   }
   @media (max-width:560px){
+    .work .eq{white-space:pre-wrap; overflow-wrap:anywhere; font-size:12.5px}
     .wrap{padding-inline:16px}
     #cloudBox{min-height:320px}
     .controls{padding:13px 14px 15px}
@@ -302,7 +303,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
 <div class="wrap">
   <header class="top">
     <div>
-      <div class="eyebrow">Solids, Liquids and Interfaces &middot; Lecture 7 &middot; Demo 7.2</div>
+      <div class="eyebrow">Solids, Liquids and Interfaces &middot; Lecture 7 &middot; Interactive demo L7.2</div>
       <h1>The ion race</h1>
     </div>
   </header>
@@ -337,12 +338,12 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     <div class="ctl">
       <div class="lab">What to draw</div>
       <div class="toggles">
-        <label class="tog"><input autocomplete="off" type="checkbox" id="shell"> Add the hydration shell</label>
+        <label class="tog"><input autocomplete="off" type="checkbox" id="bare"> Remove the hydration shells</label>
       </div>
       <div class="toggles">
         <label class="tog"><input autocomplete="off" type="checkbox" id="grot" checked> <span>Let H<sup>+</sup> hop</span></label>
       </div>
-      <div class="sub" id="drawNote">Ions are drawn at their crystallographic radii</div>
+      <div class="sub" id="drawNote">Ions are drawn at their Stokes radii: the ion plus the water it carries</div>
     </div>
   </section>
 
@@ -352,7 +353,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       <p class="cap" id="raceCap">Lanes are ordered by mobility. Sizes are to a common scale for the ions, not to the scale of the track.</p>
       <div class="canvas-box" id="raceBox"><canvas role="img" id="race" aria-label="Seven ions drifting along lanes under an applied field"></canvas></div>
       <div class="legend">
-        <span class="key"><span class="dot" style="background:var(--muted); opacity:.5"></span>hydration shell, drawn to scale when switched on</span>
+        <span class="key"><span class="dot" style="background:var(--muted); opacity:.5"></span>hydration shell, drawn to scale</span>
         <span class="key"><span class="bar" style="border-color:var(--ink-2)"></span>finish line</span>
       </div>
     </div>
@@ -497,28 +498,38 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     I.u = I.lam*1e-4/(I.z*FARADAY);                  // m^2 s^-1 V^-1
     I.rs = RS_BOOK[I.id];                            // picometres
   });
-  // what the proton would do if it had to swim as H3O+ of radius 100 pm
+  // Stokes' law for a sphere of radius r picometres
+  function uStokes(z, rPm){ return z*EC/(6*Math.PI*ETA*rPm*1e-12); }
+  // With the hydration shells removed every ion moves as a bare sphere of its crystallographic radius.
+  IONS.forEach(function(I){ if(I.rc) I.uBare = uStokes(I.z, I.rc); });
+  // What the proton would do if it had to swim as H3O+ (Section 7.6.4): bare, radius 100 pm; with its
+  // shell, taken to carry as much water as Li+, the most heavily hydrated alkali metal ion (238 pm).
   var H = IONS[0];
-  H.uSwim = EC/(6*Math.PI*ETA*100e-12);
-  H.rcSwim = 100;
+  H.rcSwim = 100; H.rsSwim = 238;
 
-  var DEF = {field:10, dist:100, speed:1, shell:false, grot:true};
-  var S = {field:10, dist:100, speed:1, shell:false, grot:true, t:0, running:false};
+  var DEF = {field:10, dist:100, speed:1, bare:false, grot:true};
+  var S = {field:10, dist:100, speed:1, bare:false, grot:true, t:0, running:false};
 
   function fieldVcm(){ return S.field/10; }
-  function mobility(I){ return (I.hop && !S.grot) ? I.uSwim : I.u; }
+  function swimRadius(){ return S.bare ? H.rcSwim : H.rsSwim; }
+  function mobility(I){
+    if(I.hop) return S.grot ? I.u : uStokes(I.z, swimRadius());
+    return S.bare ? I.uBare : I.u;
+  }
+  function hypothetical(I){ return I.hop ? !S.grot : S.bare; }
   function speedUm(I){ return mobility(I)*fieldVcm()*100*1e6; }   // micrometres per second
   function finishTime(I){ return S.dist/speedUm(I); }
+  // the radius the ion moves with, which is the one drawn
   function radiusPm(I){
-    if(I.hop) return S.grot ? null : I.rcSwim;      // swimming H3O+: 100 pm, bare or "hydrated"
-    return S.shell ? I.rs : I.rc;
+    if(I.hop) return S.grot ? null : swimRadius();
+    return S.bare ? I.rc : I.rs;
   }
-  function stokesShown(I){ return (I.hop && !S.grot) ? I.rcSwim : I.rs; }
+  function stokesShown(I){ return radiusPm(I) === null ? I.rs : radiusPm(I); }
   function fmtT(t){ return t < 1 ? t.toPrecision(2) : num(t, t<10?1:0); }
   // lambda-degree must follow the mobility being shown: with hopping switched off
   // the proton is a Stokes sphere, so its conductivity is |z|uF, not the measured value
   function lamShown(I){
-    return (I.hop && !S.grot) ? I.z*mobility(I)*FARADAY*1e4 : I.lam;
+    return hypothetical(I) ? I.z*mobility(I)*FARADAY*1e4 : I.lam;
   }
   function ordered(by){
     return IONS.slice().sort(function(a,b){
@@ -539,7 +550,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     var lh = (H2-padT-padB)/n;
     // pixels per picometre for the ion glyphs, small enough that the largest shell fits its lane
     var PMPX = Math.min(0.070, (lh*0.5 - 1)/349);
-    var x0 = padL + (S.shell ? Math.ceil(349*PMPX) : 8), x1 = W-padR;
+    var x0 = padL + (S.bare ? Math.ceil(152*PMPX) : Math.ceil(349*PMPX)), x1 = W-padR;
 
     // finish line
     g.strokeStyle = TH["ink-2"]; g.lineWidth = 2;
@@ -571,9 +582,11 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       if(I.hop && S.grot){
         drawChain(g, x0, x1, y, lh, x, I);
       } else {
-        var rPm = radiusPm(I);
-        var core = Math.max(3.5, (I.hop ? I.rcSwim : I.rc)*PMPX);
-        if(S.shell && rPm*PMPX > core + 1){
+        var rPm = radiusPm(I), bareR = I.hop ? I.rcSwim : I.rc;
+        // with the shells on the ion is drawn at its Stokes radius; where that is smaller than the
+        // bare ion (K+, Rb+) the ion itself is drawn that small, since that is the sphere that moves
+        var core = Math.max(3.5, Math.min(bareR, rPm)*PMPX);
+        if(!S.bare && rPm*PMPX > core + 1){
           var shell = rPm*PMPX;
           g.fillStyle = TH[I.colour]; g.globalAlpha = 0.18;
           g.beginPath(); g.arc(x, y, shell, 0, 6.2832); g.fill(); g.globalAlpha = 1;
@@ -671,16 +684,18 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     $("tbody").innerHTML = html;
 
     $("tblCap").innerHTML = "In a field of " + num(fieldVcm(),1) + " V cm<sup>&minus;1</sup> over " + S.dist +
-      " &micro;m, with <em>u</em> in 10<sup>&minus;8</sup> m<sup>2</sup> s<sup>&minus;1</sup> V<sup>&minus;1</sup> and 10<sup>4</sup>&lambda;&deg; in S m<sup>2</sup> mol<sup>&minus;1</sup>. Rows are in order of mobility. The highlighted pair, K<sup>+</sup> and Zn<sup>2+</sup>, swap order between the two bar charts below, and so do Rb<sup>+</sup> and Ca<sup>2+</sup>." +
-      (S.grot ? "" : " With hopping switched off the proton's entries are what a Stokes sphere of radius 100 pm would give, not the measured values; the bar charts below keep Table 7.1 throughout.");
+      " &micro;m, with <em>u</em> / (10<sup>&minus;8</sup> m<sup>2</sup> s<sup>&minus;1</sup> V<sup>&minus;1</sup>) and 10<sup>4</sup>&lambda;&deg; / (S m<sup>2</sup> mol<sup>&minus;1</sup>). Rows are in order of mobility. The two doubly charged ions, Ca<sup>2+</sup> and Zn<sup>2+</sup>, move more slowly than K<sup>+</sup> and Rb<sup>+</sup> but carry more current, so they swap places with them between the two bar charts below." +
+      (S.bare ? " With the shells removed, the r<sub>Stokes</sub>, <em>u</em>, &lambda;&deg; and speed columns are what a bare sphere of the crystallographic radius would give." : "") +
+      (S.grot ? "" : " With hopping switched off, the proton's entries are for a swimming H<sub>3</sub>O<sup>+</sup> of radius " + swimRadius() + " pm.") +
+      ((S.bare || !S.grot) ? " The bar charts keep the measured values throughout." : "");
 
-    $("drawNote").textContent = S.shell
-      ? "Ions are drawn at their Stokes radii, which is the ion plus the water it carries"
-      : "Ions are drawn at their crystallographic radii";
+    $("drawNote").textContent = S.bare
+      ? "Ions are drawn, and move, at their crystallographic radii, as if they carried no water"
+      : "Ions are drawn at their Stokes radii: the ion plus the water it carries";
 
-    $("raceCap").innerHTML = S.shell
-      ? "Switching the shell on reverses the visible size order of Li<sup>+</sup>, Na<sup>+</sup> and K<sup>+</sup>. Li<sup>+</sup>, the smallest bare alkali-metal ion, is now the largest of the three, and it comes last. Zn<sup>2+</sup>, smaller still when bare, becomes the largest ion on the track."
-      : "Lanes are ordered by mobility. Sizes are to a common scale for the ions, not to the scale of the track.";
+    $("raceCap").innerHTML = S.bare
+      ? "With the shells removed each ion is a bare sphere, so the alkali metal ions finish in order of size: Li<sup>+</sup>, the smallest, is now the fastest of them and Rb<sup>+</sup> the slowest. Put the shells back and the order reverses, which is the inversion of Fig. 7.3."
+      : "Lanes are ordered by mobility. Li<sup>+</sup>, the smallest bare alkali metal ion, carries the most water, moves as the largest and comes last. K<sup>+</sup> and Rb<sup>+</sup> move as spheres smaller than the bare ions, so they carry almost no firmly bound water. Sizes are to a common scale for the ions, not to the scale of the track.";
 
     var K = IONS.filter(function(I){ return I.id==="K"; })[0];
     var Zn = IONS.filter(function(I){ return I.id==="Zn"; })[0];
@@ -691,11 +706,14 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
 
     var note;
     if(!S.grot){
-      note = "With the proton made to swim as an ordinary H₃O⁺ of radius 100 pm its mobility drops to " +
-        num(H.uSwim*1e8,2) + " × 10⁻⁸ m² s⁻¹ V⁻¹, about a quarter of what is measured. Running the Stokes calculation backwards on the real value gives a radius of " +
+      var uH = mobility(H);
+      note = "Made to swim as " + (S.bare ? "a bare H₃O⁺ of radius 100 pm" : "an ordinary hydrated H₃O⁺, taken to carry as much water as Li⁺ (238 pm)") +
+        ", the proton's mobility falls to " + num(uH*1e8,2) + " × 10⁻⁸ m² s⁻¹ V⁻¹, about " +
+        (uH/H.u > 0.2 ? "a quarter" : "a ninth") + " of what is measured" + (S.bare ? "" : ", and it finishes with the slowest ions, as the Stokes picture of Section 7.6.4 predicts") +
+        ". Running the Stokes calculation backwards on the real value gives a radius of " +
         num(H.rs,0) + " pm, which is smaller than an atom and therefore not a radius at all. That is the evidence for Grotthuss hopping.";
-    } else if(S.shell){
-      note = "Lithium is the smallest of the alkali metal cations and therefore holds the most water, so it moves as the largest of the three and comes last. The radius that matters in Stokes’ law is the one drawn here, not the crystallographic one.";
+    } else if(S.bare){
+      note = "Without their shells the ions sort by size and charge alone, so Zn²⁺ and Ca²⁺, small and doubly charged, lead the metal ions, and among the alkali metals Li⁺ comes first. The real race is the other way round because the smallest ion, with the highest field at its surface, holds the most water.";
     } else {
       note = "Zinc carries twice the charge of potassium, which doubles the numerator of the mobility. It also binds far more water, and the radius wins, so zinc is slower. Put the same numbers into λ° = |z|uF and the charge enters a second time, which is enough to reverse the ordering.";
     }
@@ -729,14 +747,14 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
   $("field").addEventListener("input", function(){ S.field = +this.value; sync(); });
   $("dist").addEventListener("input", function(){ S.dist = +this.value; sync(); });
   var setSpeed = group("speed", function(d){ S.speed = +d.v; });
-  $("shell").addEventListener("change", function(){ S.shell = this.checked; paint(); });
+  $("bare").addEventListener("change", function(){ S.bare = this.checked; paint(); });
   $("grot").addEventListener("change", function(){ S.grot = this.checked; paint(); });
   $("run").addEventListener("click", function(){ S.running ? stop() : start(); });
   $("resetBtn").addEventListener("click", function(){
     stop(); S.t = 0; $("clock").textContent = "0.0 s";
-    S.field = DEF.field; S.dist = DEF.dist; S.speed = DEF.speed; S.shell = DEF.shell; S.grot = DEF.grot;
+    S.field = DEF.field; S.dist = DEF.dist; S.speed = DEF.speed; S.bare = DEF.bare; S.grot = DEF.grot;
     $("field").value = S.field; $("dist").value = S.dist;
-    $("shell").checked = false; $("grot").checked = true;
+    $("bare").checked = false; $("grot").checked = true;
     setSpeed("1");
     sync();
   });

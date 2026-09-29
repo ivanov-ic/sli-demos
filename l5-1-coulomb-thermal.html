@@ -183,7 +183,7 @@
   .seg button[aria-pressed="true"]{background:var(--deep); border-color:var(--deep); color:var(--panel); font-weight:500}
   .sub{font-size:12px; color:var(--muted)}
   .lc{text-transform:none !important}
-  .ro .k em, .ro .k sub, .ro .k sup, .ctl > label em, .ctl > .lab em, table th em{text-transform:none}
+  .ro .k em, .ro .k sub, .ro .k sup, .ctl > label em, .ctl > .lab em, .ctl > label sub, .ctl > .lab sub, .ctl > label sup, .ctl > .lab sup, table th em{text-transform:none}
   .wide{grid-column:span 2}
   @media (max-width:520px){.wide{grid-column:1/-1}}
   .toggles{display:flex; flex-wrap:wrap; gap:10px 16px; align-items:center}
@@ -238,6 +238,7 @@
     .chart-box{min-height:250px}
   }
   @media (max-width:560px){
+    .work .eq{white-space:pre-wrap; overflow-wrap:anywhere; font-size:12.5px}
     .wrap{padding-inline:16px}
     #cloudBox{min-height:320px}
     .controls{padding:13px 14px 15px}
@@ -295,7 +296,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
 <div class="wrap">
   <header class="top">
     <div>
-      <div class="eyebrow">Solids, Liquids and Interfaces &middot; Lecture 5 &middot; Demo 5.1</div>
+      <div class="eyebrow">Solids, Liquids and Interfaces &middot; Lecture 5 &middot; Interactive demo L5.1</div>
       <h1>Coulomb against thermal energy</h1>
     </div>
   </header>
@@ -664,6 +665,23 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     mono(g,10.5,500);
     labs.forEach(function(lb){ tag(g, lb.name, L+pw-5, lb.y, "right", "middle", TH.muted, TH.panel); });
 
+    // the Bjerrum length, where the curve for two singly charged ions crosses 1,
+    // and where the chosen pair's own curve crosses 1 if that is somewhere else
+    if(s.lB >= rMin && s.lB <= rMax){
+      var xb = X(s.lB);
+      g.strokeStyle = TH.teal; g.lineWidth = 1.4; g.setLineDash([4,3]);
+      g.beginPath(); g.moveTo(xb, T); g.lineTo(xb, T+ph); g.stroke(); g.setLineDash([]);
+      mono(g,10.5,500);
+      tag(g, "lʙ = " + fmtLB(s.lB) + " nm", xb + 4, T + 4, xb > L + pw*0.7 ? "right" : "left", "top", TH.teal, TH.panel);
+    }
+    if(Math.abs(s.cross - s.lB) > 1e-6 && s.cross >= rMin && s.cross <= rMax){
+      var xc = X(s.cross), yc = Y(1);
+      g.strokeStyle = TH.teal; g.lineWidth = 2; g.fillStyle = TH.panel;
+      g.beginPath(); g.arc(xc, yc, 5, 0, 6.2832); g.fill(); g.stroke();
+      mono(g,10.5,500);
+      tag(g, "|V| = kʙT at " + fmtLB(s.cross) + " nm", xc - 6, yc + 8, "right", "top", TH.teal, TH.panel);
+    }
+
     // contact band
     g.fillStyle = "rgba(107,118,128,0.18)";
     g.fillRect(X(0.28), T, X(0.35)-X(0.28), ph);
@@ -676,6 +694,10 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       g.fillStyle = TH.red;
       g.beginPath(); g.arc(cx, Math.max(T+2,Math.min(T+ph-2,cy)), 6, 0, 6.2832); g.fill();
       g.strokeStyle = TH.panel; g.lineWidth = 2; g.stroke();
+      if(s.ratio > yMax){
+        mono(g,10.5,500);
+        tag(g, "↑ " + sci(s.ratio,2) + ", off the scale", cx + 9, T + 4, cx > L + pw*0.6 ? "right" : "left", "top", TH.red, TH.panel);
+      }
     }
 
     g.strokeStyle = TH.line; g.lineWidth = 1; g.strokeRect(L,T,pw,ph);

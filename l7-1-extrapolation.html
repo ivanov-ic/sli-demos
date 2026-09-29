@@ -183,7 +183,7 @@
   .seg button[aria-pressed="true"]{background:var(--deep); border-color:var(--deep); color:var(--panel); font-weight:500}
   .sub{font-size:12px; color:var(--muted)}
   .lc{text-transform:none !important}
-  .ro .k em, .ro .k sub, .ro .k sup, .ctl > label em, .ctl > .lab em, table th em{text-transform:none}
+  .ro .k em, .ro .k sub, .ro .k sup, .ctl > label em, .ctl > .lab em, .ctl > label sub, .ctl > .lab sub, .ctl > label sup, .ctl > .lab sup, table th em{text-transform:none}
   .wide{grid-column:span 2}
   @media (max-width:520px){.wide{grid-column:1/-1}}
   .toggles{display:flex; flex-wrap:wrap; gap:10px 16px; align-items:center}
@@ -238,6 +238,7 @@
     .chart-box{min-height:250px}
   }
   @media (max-width:560px){
+    .work .eq{white-space:pre-wrap; overflow-wrap:anywhere; font-size:12.5px}
     .wrap{padding-inline:16px}
     #cloudBox{min-height:320px}
     .controls{padding:13px 14px 15px}
@@ -314,7 +315,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
 <div class="wrap">
   <header class="top">
     <div>
-      <div class="eyebrow">Solids, Liquids and Interfaces &middot; Lecture 7 &middot; Demo 7.1</div>
+      <div class="eyebrow">Solids, Liquids and Interfaces &middot; Lecture 7 &middot; Interactive demo L7.1</div>
       <h1>Extrapolating to the limiting value</h1>
     </div>
   </header>
@@ -364,6 +365,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       <div class="canvas-box" id="plotBox"><canvas role="img" id="plot" aria-label="Molar conductivity against the square root of concentration, with a line the user can drag"></canvas></div>
       <div class="legend">
         <span class="key"><span class="dot" style="background:var(--ink)"></span><span id="ptsKey">measured points</span></span>
+        <span class="key" id="ostKey" hidden><span class="bar" style="border-color:var(--muted); border-top-style:dashed"></span>Ostwald law, <em>K</em><sub>a</sub> = 1.80 &times; 10<sup>&minus;5</sup></span>
         <span class="key"><span class="bar" style="border-color:var(--red)"></span>your line</span>
         <span class="key"><span class="dot" style="background:var(--teal)"></span>the accepted limiting value</span>
       </div>
@@ -407,7 +409,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
 
   <footer>
     <span>Kohlrausch's law, eqn 7.5 &middot; independent migration, eqn 7.6 &middot; Ostwald dilution law, eqn 7.8</span>
-    <span>KCl points are Shedlovsky's measurements at 298 K; the acetic acid curve follows from the Ostwald law with <em>K</em><sub>a</sub> = 1.80 &times; 10<sup>&minus;5</sup>, the value of the Fig. 7.1 curve and of Self-test 7.3, before any activity correction</span>
+    <span>Data as in Table D3: KCl from Shedlovsky (1932), acetic acid from MacInnes and Shedlovsky (1932), both at 298 K. The dashed Ostwald curve uses the concentration-based <em>K</em><sub>a</sub> = 1.80 &times; 10<sup>&minus;5</sup> of Fig. 7.1 and Self-test 7.3</span>
   <span>© 2026 A. P. Ivanov. <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" rel="license" target="_blank">CC BY-NC-ND 4.0</a></span>
   </footer>
 </div>
@@ -528,21 +530,27 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     L:[147.81,146.95,143.55,141.27,138.34,133.37,128.96],
     lam0:149.8
   };
-  // acetic acid from the Ostwald dilution law with Ka = 1.80e-5 and Lam0 = 390.7.
-  // 1.80e-5 is the concentration-based value used for the book's Fig. 7.1 curve and in Self-test 7.3
-  // (Example 7.3 rounds to 1.79e-5); it reproduces the book's 16.2 at 0.0100 and 5.20 at 0.100.
+  // MacInnes and Shedlovsky's (1932) measurements on aqueous acetic acid at 298 K, as listed in the
+  // coursebook's Table D3 and plotted in Fig. 7.1(b); c in mol dm^-3, Lambda_m in S cm^2 mol^-1.
+  var HAC = {
+    c:[0.028014e-3,0.11135e-3,0.15321e-3,0.21844e-3,1.02831e-3,1.36340e-3,2.41400e-3,3.44065e-3,
+       5.91153e-3,9.8421e-3,12.829e-3,20.000e-3,50.000e-3,100.00e-3,200.00e-3],
+    L:[210.38,127.75,112.05,96.493,48.146,42.227,32.217,27.199,20.962,16.371,14.375,11.567,7.356,5.200,3.650],
+    lam0:390.7
+  };
+  // The dashed curve of Fig. 7.1(b): the Ostwald dilution law with Lambda°m = 390.7 and the
+  // concentration-based Ka = 1.80e-5, which fits the points (Self-test 7.3 gives the same Ka).
   var KA = 1.80e-5, LAM0_HA = 390.7;
   function alpha(c){ return (-KA + Math.sqrt(KA*KA + 4*KA*c))/(2*c); }
-  var HAC = {c:[], L:[], lam0:LAM0_HA};
-  [0.0002,0.0005,0.001,0.002,0.005,0.01,0.02,0.05,0.1].forEach(function(c){
-    HAC.c.push(c); HAC.L.push(alpha(c)*LAM0_HA);
-  });
 
   var DEF = {mode:"strong", inter:500, end:400, target:"acetic"};
   var S = {mode:"strong", inter:500, end:400, target:"acetic", coef:{}, fit:null};
   SALTS.forEach(function(s){ S.coef[s.n] = 0; });
 
+  // the c^1/2 range shown: acetic acid collapses so close to the axis that its lowest points
+  // need a closer view to be drawn through by hand
   var XMAX = 0.35;
+  function setXmax(){ XMAX = S.mode === "weak" ? 0.10 : 0.35; }
   function series(){ return S.mode === "weak" ? HAC : KCL; }
   function yRange(){ return S.mode === "weak" ? [0,400] : [120,152]; }
   function lineY(frac){ var r = yRange(); return r[0] + (r[1]-r[0])*frac; }
@@ -574,7 +582,8 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       g.fillStyle = TH.muted; g.fillText(String(v), L-8, y);
     }
     g.textAlign="center"; g.textBaseline="top";
-    for(var x=0; x<=XMAX+1e-9; x+=(pw < 420 ? 0.1 : 0.05)){
+    var xstep = S.mode === "weak" ? (pw < 420 ? 0.02 : 0.01) : (pw < 420 ? 0.1 : 0.05);
+    for(var x=0; x<=XMAX+1e-9; x+=xstep){
       var xx = X(x);
       g.strokeStyle = TH.grid; g.beginPath(); g.moveTo(xx,T); g.lineTo(xx,T+ph); g.stroke();
       g.fillStyle = TH.muted; g.fillText(x.toFixed(2), xx, T+ph+7);
@@ -594,6 +603,17 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       tag(g, "Λ°m = " + num(s.lam0,1), L+9, Y(s.lam0)-2, "left", "bottom", TH.teal, TH.panel);
     }
 
+    // the Ostwald dilution law, dashed, as in Fig. 7.1(b)
+    if(S.mode === "weak"){
+      g.save(); g.beginPath(); g.rect(L,T,pw,ph); g.clip();
+      g.strokeStyle = TH.muted; g.lineWidth = 1.6; g.setLineDash([5,4]); g.beginPath();
+      for(var i=1;i<=300;i++){
+        var xc = XMAX*Math.pow(i/300, 2), cc = xc*xc, px = X(xc), py = Y(alpha(cc)*LAM0_HA);
+        i>1 ? g.lineTo(px,py) : g.moveTo(px,py);
+      }
+      g.stroke(); g.setLineDash([]); g.restore();
+    }
+
     // measured points
     g.fillStyle = TH.ink;
     s.c.forEach(function(c,i){
@@ -601,8 +621,10 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       g.beginPath(); g.arc(X(x), Y(s.L[i]), 4.4, 0, 6.2832); g.fill();
       g.strokeStyle = TH.panel; g.lineWidth = 1.5; g.stroke();
     });
-    // join them faintly so the shape reads
-    g.strokeStyle = TH.ink; g.globalAlpha = 0.25; g.lineWidth = 1.4; g.beginPath();
+    // join them faintly so the shape reads (in weak mode the dashed Ostwald curve does this)
+    if(S.mode !== "weak"){ g.strokeStyle = TH.ink; g.globalAlpha = 0.25; }
+    else g.globalAlpha = 0;
+    g.strokeStyle = TH.ink; g.lineWidth = 1.4; g.beginPath();
     s.c.forEach(function(c,i){ var x=Math.sqrt(c); if(x>XMAX) return; var px=X(x), py=Y(s.L[i]); i?g.lineTo(px,py):g.moveTo(px,py); });
     g.stroke(); g.globalAlpha = 1;
 
@@ -738,7 +760,8 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     $("cardBuild").hidden = !build;
     $("ctlLine").hidden = build;
     $("ctlTarget").hidden = !build;
-    $("ptsKey").innerHTML = S.mode === "weak" ? "Ostwald-law values, <em>K</em><sub>a</sub> = 1.80 &times; 10<sup>&minus;5</sup>" : "measured points, Shedlovsky";
+    $("ptsKey").textContent = S.mode === "weak" ? "measured points, MacInnes and Shedlovsky" : "measured points, Shedlovsky";
+    $("ostKey").hidden = S.mode !== "weak";
 
     if(build){
       var t = TARGETS[S.target], tally = ionTally(), total = buildSum();
@@ -820,12 +843,12 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       v.className = "verdict bad";
       v.textContent = "There is nothing here to extrapolate. The points plunge towards the axis instead of meeting it, because the degree of dissociation is collapsing, not because the ions are being retarded.";
       $("scoreTitle").textContent = "The same attempt on a weak acid";
-      $("scoreCap").innerHTML = "Whatever straight line you draw through these points, it meets the axis far below 390.7. The failure is not in your drawing.";
+      $("scoreCap").innerHTML = "The best straight line through the lowest points meets the axis far below 390.7. The failure is not in your drawing.";
       $("plotTitle").innerHTML = "CH<sub>3</sub>COOH: &Lambda;<sub>m</sub> against <em>c</em><sup>1/2</sup>";
-      $("plotCap").innerHTML = "By 0.01 mol dm<sup>&minus;3</sup> the acid has given up 96 per cent of its limiting value. The teal point is where the answer actually is.";
+      $("plotCap").innerHTML = "Measurements on aqueous acetic acid at 298 K up to 0.01 mol dm<sup>&minus;3</sup>, with the Ostwald dilution law dashed through them. By 0.01 mol dm<sup>&minus;3</sup> the acid has given up 96 per cent of its limiting value. The teal point is where the answer actually is.";
       $("workK").textContent = "Why it fails";
-      $("eq1").textContent = "α = Λm/Λ°m :  at 0.010 mol dm⁻³, α = " + num(alpha(0.01),4) + ", so only " + num(alpha(0.01)*100,1) + " per cent of the acid is dissociated";
-      $("eq2").textContent = "Ka = cα²/(1−α) = " + sci(KA,2) + ",  and Λ°m must come from elsewhere";
+      $("eq1").textContent = "α = Λm/Λ°m :  at 0.0100 mol dm⁻³, Λm = 16.2 (Example 7.3), so α = 16.2/390.7 = 0.0415 and only 4.1 per cent of the acid is dissociated";
+      $("eq2").textContent = "Ka = cα²/(1−α) = 1.79 × 10⁻⁵ (Example 7.3),  and Λ°m must come from elsewhere";
       $("eqNote").textContent = "For a strong electrolyte all the ions are present at every concentration and each one moves a little more slowly. For a weak one the ions are not there at all. Mode 3 assembles the missing number out of electrolytes that can be extrapolated.";
     }
     drawPlot(); drawIons();
@@ -833,7 +856,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
 
   // ---------- wiring ----------
   var setMode = group("mode", function(d){
-    S.mode = d.v;
+    S.mode = d.v; setXmax();
     S.inter = S.mode === "weak" ? 700 : 500;
     S.end = S.mode === "weak" ? 300 : 400;
     $("intercept").value = S.inter; $("slope").value = S.end;

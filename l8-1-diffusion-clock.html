@@ -183,7 +183,7 @@
   .seg button[aria-pressed="true"]{background:var(--deep); border-color:var(--deep); color:var(--panel); font-weight:500}
   .sub{font-size:12px; color:var(--muted)}
   .lc{text-transform:none !important}
-  .ro .k em, .ro .k sub, .ro .k sup, .ctl > label em, .ctl > .lab em, table th em{text-transform:none}
+  .ro .k em, .ro .k sub, .ro .k sup, .ctl > label em, .ctl > .lab em, .ctl > label sub, .ctl > .lab sub, .ctl > label sup, .ctl > .lab sup, table th em{text-transform:none}
   .wide{grid-column:span 2}
   @media (max-width:520px){.wide{grid-column:1/-1}}
   .toggles{display:flex; flex-wrap:wrap; gap:10px 16px; align-items:center}
@@ -238,6 +238,7 @@
     .chart-box{min-height:250px}
   }
   @media (max-width:560px){
+    .work .eq{white-space:pre-wrap; overflow-wrap:anywhere; font-size:12.5px}
     .wrap{padding-inline:16px}
     #cloudBox{min-height:320px}
     .controls{padding:13px 14px 15px}
@@ -307,7 +308,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
 <div class="wrap">
   <header class="top">
     <div>
-      <div class="eyebrow">Solids, Liquids and Interfaces &middot; Lecture 8 &middot; Demo 8.1</div>
+      <div class="eyebrow">Solids, Liquids and Interfaces &middot; Lecture 8 &middot; Interactive demo L8.1</div>
       <h1>The diffusion clock</h1>
     </div>
   </header>
@@ -340,7 +341,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     <div class="ctl">
       <div class="lab">Convection <span class="val" id="velVal">off</span></div>
       <div class="toggles"><label class="tog"><input autocomplete="off" type="checkbox" id="conv"> Move the solvent as well</label></div>
-      <input autocomplete="off" type="range" id="vel" min="0" max="100" value="30" step="1" disabled>
+      <input autocomplete="off" type="range" id="vel" min="0" max="100" value="50" step="1" disabled aria-label="Solvent velocity, 10 nm per second to 1 cm per second">
       <div class="sub" id="peNote">Diffusion only</div>
     </div>
 
@@ -371,6 +372,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
         <h2 id="stopTitle">Time to cross</h2>
         <p class="cap" id="stopCap"></p>
         <div class="clockbig" id="stopwatch">&ndash;</div>
+        <div class="sub" id="crossNote" style="margin-top:2px">Press Start to time the swarm</div>
         <div style="overflow-x:auto; margin-top:10px">
           <table class="tg">
             <thead><tr><th>Distance</th><th>What it is</th><th><span class="lc">t = x<sup>2</sup>/2D</span></th></tr></thead>
@@ -502,8 +504,8 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
   ];
 
   var N = 400;
-  var DEF = {spec:"Na", target:1e-5, conv:false, vel:30};
-  var S = {spec:"Na", target:1e-5, conv:false, vel:30, t:0, wall:0, running:false, crossed:null};
+  var DEF = {spec:"Na", target:1e-5, conv:false, vel:50};
+  var S = {spec:"Na", target:1e-5, conv:false, vel:50, t:0, wall:0, running:false, crossed:null};
   var P = new Float64Array(2*N);     // metres
   var HIST = [];                     // {t, msd}
 
@@ -512,19 +514,23 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
   function viewHalf(){ return S.target*1.6; }          // metres across half the panel
   // simulated seconds per second of wall clock, chosen so a run lasts about 20 s
   function rate(){ return tCross(viewHalf()*0.85)/20; }
-  function driftV(){ return S.conv ? (S.vel/100)*viewHalf()/tCross(viewHalf()*0.85)*3 : 0; }  // m/s
+  // the solvent velocity is a physical speed, 10 nm s^-1 to 1 cm s^-1 on a log scale, the same for
+  // every species and distance, so Pe = vL/D grows with the distance as Section 8.2.3 says
+  function driftV(){ return S.conv ? Math.pow(10, -8 + 6*S.vel/100) : 0; }  // m/s
   function peclet(){ return S.conv ? driftV()*S.target/D() : 0; }
 
+  // times to three significant figures, since D is known to two or three
   function fmtT(s){
     if(!isFinite(s)) return "–";
-    if(s < 1e-6) return num(s*1e9,0) + " ns";
-    if(s < 1e-3) return num(s*1e6,1) + " µs";
-    if(s < 1) return num(s*1e3,1) + " ms";
-    if(s < 90) return num(s,1) + " s";
-    if(s < 5400) return num(s/60,1) + " min";
-    if(s < 1.73e5) return num(s/3600,1) + " h";
-    if(s < 3.15e7) return num(s/86400,1) + " days";
-    return num(s/3.156e7,1) + " years";
+    function p3(x){ return String(Number(x.toPrecision(3))); }
+    if(s < 1e-6) return p3(s*1e9) + " ns";
+    if(s < 1e-3) return p3(s*1e6) + " µs";
+    if(s < 1) return p3(s*1e3) + " ms";
+    if(s < 90) return p3(s) + " s";
+    if(s < 5400) return p3(s/60) + " min";
+    if(s < 1.73e5) return p3(s/3600) + " h";
+    if(s < 3.15e7) return p3(s/86400) + " days";
+    return p3(s/3.156e7) + " years";
   }
   function fmtLen(m){
     function p3(x){ return String(Number(x.toPrecision(3))); }
@@ -535,10 +541,17 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     return p3(m) + " m";
   }
 
+  function crossText(){
+    var el = document.getElementById("crossNote"); if(!el) return;
+    var txt = S.crossed !== null
+      ? "The swarm's rms spread reached " + fmtLen(S.target) + " at " + fmtT(S.crossed) + " of simulated time"
+      : (S.t > 0 ? "Timing the swarm…" : "Press Start to time the swarm");
+    if(el.textContent !== txt) el.textContent = txt;
+  }
   function reset(){
     for(var i=0;i<2*N;i++) P[i] = 0;
     S.cx = 0;
-    S.t = 0; S.wall = 0; S.crossed = null; HIST = [{t:0,msd:0}];
+    S.t = 0; S.wall = 0; S.crossed = null; HIST = [{t:0,msd:0}]; crossText();
     var w = document.getElementById("wall"); if(w) w.textContent = "0.0 s on the wall";
   }
   reset();
@@ -550,13 +563,15 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       P[2*i+1] += sd*gauss();
     }
     S.t += dtSim;
-    var sx = 0, sxx = 0;
-    for(var j=0;j<N;j++){ var x = P[2*j]; sx += x; sxx += x*x; }
-    var mx = sx/N, msd = sxx/N - mx*mx;
+    // the spread along one direction, averaged over x and y for a steadier estimate,
+    // each measured about the swarm's centre so that a drift drops out
+    var sx = 0, sxx = 0, sy = 0, syy = 0;
+    for(var j=0;j<N;j++){ var x = P[2*j], yv = P[2*j+1]; sx += x; sxx += x*x; sy += yv; syy += yv*yv; }
+    var mx = sx/N, my = sy/N, msd = 0.5*((sxx/N - mx*mx) + (syy/N - my*my));
     S.cx = mx;
     HIST.push({t:S.t, msd:msd});
     if(HIST.length > 1200) HIST = HIST.filter(function(h,i){ return i % 2 === 0 || i === HIST.length-1; });
-    if(S.crossed === null && Math.sqrt(msd) >= S.target) S.crossed = S.t;
+    if(S.crossed === null && Math.sqrt(msd) >= S.target){ S.crossed = S.t; crossText(); }
   }
   var spare = null;
   function gauss(){
@@ -575,7 +590,9 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     g.fillStyle = TH["panel-2"]; g.fillRect(0,0,W,H);
     var half = viewHalf();
     var scale = Math.min(W,H)/(2*half);
-    var cx = W/2, cy = H/2;
+    // once the solvent has carried the swarm well downstream, the view follows it
+    var pan = Math.max(0, (S.cx||0) - 0.45*half);
+    var cx = W/2 - pan*scale, cy = H/2;
 
     // the target distance
     var rt = S.target*scale;
@@ -618,7 +635,11 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     tag(g, "simulated time  " + fmtT(S.t), W-12, 16, "right", "middle", TH.ink, TH["panel-2"]);
     if(S.conv){
       mono(g,11,500);
-      tag(g, "solvent drift →", W-12, 36, "right", "middle", TH.gold, TH["panel-2"]);
+      tag(g, "solvent drift →" + (pan > 0 ? "  view follows the swarm, carried " + fmtLen(S.cx) : ""), W-12, 36, "right", "middle", TH.gold, TH["panel-2"]);
+    }
+    if(S.crossed !== null){
+      mono(g,11,500);
+      tag(g, "reached " + fmtLen(S.target) + " at " + fmtT(S.crossed), W-12, S.conv ? 56 : 36, "right", "middle", TH.red, TH["panel-2"]);
     }
   }
 
@@ -684,6 +705,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     $("stopCap").innerHTML = "For " + sp.html + " crossing " + fmtLen(S.target) +
       ", from &lang;x<sup>2</sup>&rang; = 2<em>Dt</em>. Any row can be clicked.";
     $("stopwatch").textContent = fmtT(tCross(S.target));
+    crossText();
 
     $("eq1").textContent = "t = x² / 2D = (" + sci(S.target,0) + " m)² / 2(" + sci(D(),2) +
       " m² s⁻¹) = " + sci(tCross(S.target),2) + " s, that is " + fmtT(tCross(S.target));
@@ -728,6 +750,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     S.wall += dtWall;
     step(dtWall*rate());
     $("wall").textContent = num(S.wall,1) + " s on the wall";
+    crossText();
     if(S.t >= tCross(viewHalf()*0.85)) stop();
     drawWalk(); drawCharts();
     raf = requestAnimationFrame(frame);

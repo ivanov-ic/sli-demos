@@ -270,7 +270,7 @@
     font-variant-numeric:tabular-nums;
   }
   .saltrow .cf.on{color:var(--red); font-weight:600}
-  .mini{padding:3px 9px; font-size:14px; line-height:1}
+  .mini{padding:3px 9px; font-size:14px; line-height:1; min-width:40px}
   .chips{display:flex; flex-wrap:wrap; gap:6px; margin-top:10px}
   .chip{
     font-family:"IBM Plex Mono", monospace; font-size:12px; padding:4px 9px; border-radius:99px;
@@ -305,6 +305,108 @@
   }
 </style>
 </head>
+<style>
+  /* ---------- guided lesson ---------- */
+  .lesson-cta{display:flex; flex-wrap:wrap; align-items:center; gap:10px 16px; margin:0 0 14px;
+    padding:11px 15px; background:var(--panel); border:1px solid var(--line); border-left:3px solid var(--teal);
+    border-radius:8px; box-shadow:var(--shadow); font-size:14px; color:var(--ink-2)}
+  .lesson-cta p{margin:0; flex:1 1 260px}
+  .lesson-cta b{color:var(--ink)}
+  .btn.go{background:var(--teal); border-color:var(--teal); color:#fff; font-weight:600}
+  .btn.go:hover{filter:brightness(1.06); color:#fff}
+  .btn.go:disabled{background:var(--panel-2); border-color:var(--line); color:var(--muted); filter:none; cursor:default}
+
+  .lesson{display:none; margin:0 0 14px; background:var(--panel); border:1px solid var(--line);
+    border-radius:10px; box-shadow:var(--shadow); padding:14px 16px 16px; scroll-margin-top:10px}
+  .lesson-on .lesson{display:block}
+  .lesson-on .lesson-cta, .lesson-on .controls, .lesson-on .work, .lesson-on .point, .lesson-on .lesson-hide{display:none}
+  .lesson-top{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap}
+  .lesson-step{font-size:11.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); font-weight:500}
+  .lesson-exit{background:none; border:none; padding:4px 0; color:var(--blue); font:inherit; font-size:13px; cursor:pointer; text-decoration:underline; text-underline-offset:2px}
+  .lesson-bar{height:5px; border-radius:3px; background:var(--panel-2); margin:8px 0 12px; overflow:hidden}
+  .lesson-bar span{display:block; height:100%; width:0; background:var(--teal); border-radius:3px; transition:width .3s ease}
+  .lesson h3{font-family:"Source Serif 4", Georgia, serif; font-size:19px; font-weight:600; margin:0 0 6px; color:var(--ink)}
+  .lesson .ltext{margin:0 0 8px; font-size:15px; line-height:1.55; color:var(--ink-2); max-width:72ch}
+  .lesson .lnow{margin:0 0 10px; font-size:12.5px; color:var(--muted)}
+  .lesson .lnow b{color:var(--ink-2); font-weight:600}
+  .lesson .lq{margin:4px 0 9px; font-size:15.5px; font-weight:600; color:var(--ink); max-width:72ch}
+  .lopts{display:grid; gap:8px; max-width:640px}
+  .lopt{display:flex; align-items:flex-start; gap:10px; width:100%; text-align:left; padding:10px 12px; min-height:44px;
+    background:var(--panel); color:var(--ink); border:1.5px solid var(--line); border-radius:8px;
+    font:inherit; font-size:14.5px; line-height:1.4; cursor:pointer}
+  .lopt:hover:not([aria-disabled="true"]){border-color:var(--blue)}
+  .lopt .mk{flex:none; width:22px; height:22px; border-radius:50%; border:1.5px solid var(--line); display:flex;
+    align-items:center; justify-content:center; font-size:12px; font-weight:700; color:var(--muted); margin-top:-1px}
+  .lopt[aria-disabled="true"]{cursor:default}
+  .lopt:focus-visible, .btn:focus-visible, .lesson-exit:focus-visible, .lsee:focus-visible{outline:2px solid var(--focus); outline-offset:2px}
+  .lopt.right{border-color:var(--teal); background:var(--teal-soft)}
+  .lopt.right .mk{border-color:var(--teal); background:var(--teal); color:#fff}
+  .lopt.wrong{border-color:var(--red); background:var(--red-soft)}
+  .lopt.wrong .mk{border-color:var(--red); background:var(--red); color:#fff}
+  .lopt.dim{opacity:.55}
+  .lfb{margin:10px 0 0; max-width:72ch; font-size:14.5px; line-height:1.55; color:var(--ink-2)}
+  .lfb:empty{display:none}
+  .lfb .verdict{display:block; font-weight:700; margin-bottom:3px}
+  .lfb .verdict.ok{color:var(--teal)} .lfb .verdict.no{color:var(--red)}
+  .lfb .more{display:block; margin-top:7px; padding-top:7px; border-top:1px solid var(--line)}
+  .lnav{display:flex; gap:10px; margin-top:14px; flex-wrap:wrap}
+  .lsum ul{margin:6px 0 10px; padding-left:20px; max-width:72ch; color:var(--ink-2); font-size:14.5px; line-height:1.55}
+  .lsum li{margin:3px 0}
+  .lscore{font-size:15px; color:var(--ink); margin:0 0 6px}
+  /* readouts held back until the student has committed to an answer */
+  .ro.veiled .v, .ro.veiled .n{filter:blur(7px); user-select:none}
+  .ro.veiled{position:relative}
+  .ro.veiled::after{content:"answer first"; position:absolute; right:8px; bottom:8px; font-size:10.5px;
+    letter-spacing:.06em; text-transform:uppercase; color:var(--muted); background:var(--panel);
+    padding:1px 5px; border-radius:4px}
+  @media (max-width:560px){
+    .lesson{padding:12px 13px 14px}
+    .lesson h3{font-size:18px}
+    .lesson .ltext{font-size:14.5px}
+  }
+  @media (prefers-reduced-motion: reduce){ .lesson-bar span{transition:none} }
+  /* the lesson sits under the picture it is about */
+  .card .lesson{margin:12px 0 0; border:none; border-top:1px solid var(--line); border-radius:0; box-shadow:none; padding:12px 0 2px}
+  .lesson-on .stage{align-items:start}
+  .lchips{display:flex; flex-wrap:wrap; gap:6px 8px; margin:12px 0 0}
+  .lchips .chip{display:inline-flex; align-items:baseline; gap:6px; padding:5px 10px; border-radius:6px; background:var(--panel-2);
+    font-size:13px; color:var(--ink-2)}
+  .lchips .chip b{font-family:"IBM Plex Mono", monospace; font-weight:500; color:var(--ink); font-variant-numeric:tabular-nums}
+  .lchips .chip.veiled b{filter:blur(6px); user-select:none}
+  .lfb .ans{display:block; margin-top:6px}
+  .lcta-btns{display:flex; flex-wrap:wrap; align-items:center; gap:8px 14px}
+  .ltop-btns{display:flex; gap:14px; flex-wrap:wrap}
+  .sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
+  .lfb .verdict:focus{outline:none}
+  .lesson h3:focus{outline:none}
+  .lsee{display:inline-block; margin-top:8px; background:none; border:1px solid var(--line); border-radius:6px;
+    padding:6px 10px; font:inherit; font-size:13px; color:var(--blue); cursor:pointer}
+  .lesson-exit[aria-pressed="true"]{font-weight:600; text-decoration:none; color:var(--ink);
+    background:var(--panel-2); border-radius:5px; padding:4px 8px}
+  .lhint{align-self:center; font-size:12.5px; color:var(--muted)}
+  /* a blurred verdict pill keeps no colour, since the colour alone would give the answer */
+  .ro.veiled .pill{background:var(--panel-2) !important; border-color:var(--line) !important; color:transparent !important}
+  .lsee + .lsee{margin-left:8px}
+  /* readouts and charts held back: stacked on a phone they are removed; on a wide screen the column
+     keeps its place with a note, so the layout does not jump when the answer is revealed */
+  @media (max-width:1040px){ .veil-charts .col-right, .veil-charts .lveilbox{display:none} }
+  @media (min-width:1041px){
+    .veil-charts .col-right, .veil-charts .lveilbox{visibility:hidden; position:relative}
+    .veil-charts .col-right::after, .veil-charts .lveilbox::after{content:"These charts and readouts appear when you answer.";
+      visibility:visible; position:absolute; top:60px; left:12%; right:12%; padding:16px 18px; text-align:center;
+      border:1px dashed var(--line); border-radius:10px; color:var(--muted); font-size:14px; line-height:1.5; background:var(--panel)}
+    .l-answered.veil-charts .col-right::after, .l-answered.veil-charts .lveilbox::after{content:"Held back for now: a later question asks about it."}
+  }
+  .veil-ost #ostKey{display:none}
+  .lesson-on.l71-weak #plotCap{display:none}
+  .veil-build #saltList{opacity:.55}
+  .lesson-on footer > span:not(:last-child){display:none}
+  /* the demo's own .verdict and .chip styles must not reach the lesson's */
+  .lfb .verdict{padding:0; border:0; background:none; margin:0 0 3px; font-size:inherit; border-radius:0}
+  .lchips .chip{font-family:inherit; border:0; border-radius:6px; padding:5px 10px; font-size:13px; background:var(--panel-2)}
+  .veil-lam0 #cardPlot .legend .key:last-child{display:none}
+
+</style>
 <body>
 <script>if(window.self!==window.top)document.documentElement.classList.add("in-frame");</script>
 <noscript><div style="max-width:60ch;margin:40px auto;padding:18px 22px;border:1px solid #CF4520;border-radius:8px;background:#fff;color:#0F1E2B;font:15px/1.55 'IBM Plex Sans',system-ui,sans-serif">
@@ -320,6 +422,26 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     </div>
   </header>
   <p class="point">A strong electrolyte lets you extrapolate. A weak one does not, and that is why the law of independent migration is needed rather than merely available.</p>
+
+  <div class="lesson-cta" id="lessonCta">
+    <p><b>Guided lesson.</b> Eight short questions on finding limiting molar conductivities, about ten minutes. Each step asks you to predict first, then shows you the answer in the demo.</p>
+    <div class="lcta-btns">
+      <button type="button" class="btn go" id="lessonStart">Start the guided lesson</button>
+      <button type="button" class="lesson-exit" id="lessonRestart" hidden>Start again from step 1</button>
+    </div>
+  </div>
+
+  <section class="lesson" id="lesson" aria-label="Guided lesson">
+    <div class="lesson-top">
+      <span class="lesson-step" id="lStep">Step 1</span>
+      <span class="ltop-btns">
+        <button type="button" class="lesson-exit" id="lPause" hidden>Pause motion</button>
+        <button type="button" class="lesson-exit" id="lExit">Leave the lesson</button>
+      </span>
+    </div>
+    <div class="lesson-bar" aria-hidden="true"><span id="lBar"></span></div>
+    <div id="lBody"></div>
+  </section>
 
   <section class="controls">
     <div class="ctl wide">
@@ -595,7 +717,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     var s = series();
 
     // the accepted limiting value
-    if(s.lam0 <= yr[1] && s.lam0 >= yr[0]){
+    if(s.lam0 <= yr[1] && s.lam0 >= yr[0] && !S.hideLam0){
       g.fillStyle = TH.teal;
       g.beginPath(); g.arc(L, Y(s.lam0), 6, 0, 6.2832); g.fill();
       g.strokeStyle = TH.panel; g.lineWidth = 2; g.stroke();
@@ -741,9 +863,9 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       var c = S.coef[s.n];
       html += '<div class="saltrow"><span class="nm">' + s.n + '</span>' +
         '<span class="lam">' + num(s.lam,1) + '</span>' +
-        '<button type="button" class="btn mini" data-s="'+s.n+'" data-d="-1">&minus;</button>' +
-        '<span class="cf '+(c?"on":"")+'">' + (c>0?"+":"") + c + '</span>' +
-        '<button type="button" class="btn mini" data-s="'+s.n+'" data-d="1">+</button></div>';
+        '<button type="button" class="btn mini" data-s="'+s.n+'" data-d="-1" aria-label="Subtract '+s.n+'">&minus;</button>' +
+        '<span class="cf '+(c?"on":"")+'">' + (c>0?"+":(c<0?"−":"")) + Math.abs(c) + '</span>' +
+        '<button type="button" class="btn mini" data-s="'+s.n+'" data-d="1" aria-label="Add '+s.n+'">+</button></div>';
     });
     $("saltList").innerHTML = html;
   }
@@ -786,7 +908,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
 
       $("scoreTitle").textContent = "The running total";
       $("scoreCap").innerHTML = "Adding whole electrolytes, each of which can be measured, until only the ions of " + t.html + " are left.";
-      $("k1").textContent = "Running total"; $("v1").textContent = num(total,1);
+      $("k1").textContent = "Running total"; $("v1").textContent = num(total,1).replace("-","−");
       $("k2").innerHTML = 'Target <span class="lc">Λ°<sub>m</sub></span>'; $("v2").textContent = num(t.lam,1);
       $("k3").textContent = "Out by"; $("v3").textContent = t.lam ? num(Math.abs(total-t.lam)/t.lam*100,1) : "–";
       $("k4").textContent = "Electrolytes used";
@@ -808,7 +930,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
         .map(function(s){ return (S.coef[s.n]>0?"+ ":"− ") + (Math.abs(S.coef[s.n])>1?Math.abs(S.coef[s.n])+" ":"") + s.n; }).join("  ");
       $("eq1").textContent = "Λ°m = " + (terms.replace(/^\+ /,"") || "nothing yet");
       $("eq2").textContent = chosen
-        .map(function(s){ return (S.coef[s.n]>0?"+":"−") + num(s.lam,1); }).join(" ").replace(/^\+/,"") + (terms ? "  =  " + num(total,1) + " S cm² mol⁻¹" : "");
+        .map(function(s){ var c = S.coef[s.n]; return (c>0?"+ ":"− ") + (Math.abs(c)>1 ? Math.abs(c) + " × " : "") + num(s.lam,1); }).join(" ").replace(/^\+ /,"") + (terms ? "  =  " + num(total,1).replace("-","−") + " S cm² mol⁻¹" : "");
       $("eqNote").textContent = ok
         ? "Expand each electrolyte into its ionic contributions and the sodium and chloride terms subtract out exactly, leaving " + wanted.map(function(i){ return "λ°(" + i + ")"; }).join(" + ") + ". That is the whole trick."
         : "Each electrolyte here is strong, so each of these limiting values came from an extrapolation of the kind you did in mode 1. The weak electrolyte borrows them.";
@@ -821,14 +943,17 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     $("k1").textContent = "Your intercept"; $("v1").textContent = num(inter,1);
     $("k2").textContent = "Accepted value"; $("v2").textContent = num(s.lam0,1);
     $("k3").textContent = "Out by"; $("v3").textContent = ((err>0?"+":"") + num(err,1)).replace("-","−");
-    $("k4").innerHTML = "Your slope <em>K</em>"; $("v4").textContent = num(K,0);
+    $("k4").innerHTML = "Your slope <em>K</em>"; var k0 = Math.round(K); $("v4").textContent = (k0 < 0 ? "−" : "") + Math.abs(k0);
     $("n4").innerHTML = "S cm<sup>2</sup> mol<sup>&minus;1</sup> / (mol dm<sup>&minus;3</sup>)<sup>1/2</sup>";
 
     var v = $("verdict");
     if(S.mode === "strong"){
       var a = Math.abs(inter - s.lam0);
-      v.className = "verdict" + (a < 0.6 ? " good" : (a > 4 ? " bad" : ""));
-      v.textContent = a < 0.6 ? "That is the limiting molar conductivity of KCl to within a few tenths. The points really do lie on a line."
+      var off = Math.max.apply(null, [0,1,2,3].map(function(i){ return Math.abs(inter - K*Math.sqrt(s.c[i]) - s.L[i]); }));
+      var lucky = a < 0.6 && off >= 1;
+      v.className = "verdict" + (a < 0.6 && !lucky ? " good" : (a > 4 ? " bad" : ""));
+      v.textContent = lucky ? "The intercept is close, but the line does not follow the low points yet, so that is luck rather than an extrapolation."
+        : a < 0.6 ? "That is the limiting molar conductivity of KCl to within a few tenths. The points really do lie on a line."
         : (a > 4 ? "Not yet. Line up the line with the points at small c first, then follow it back to the axis."
                  : "Close. The lowest few points are the ones that matter, since the law is exact only as c approaches zero.");
       $("scoreTitle").textContent = "Where your line meets the axis";
@@ -836,7 +961,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       $("plotTitle").innerHTML = "KCl: &Lambda;<sub>m</sub> against <em>c</em><sup>1/2</sup>";
       $("plotCap").innerHTML = "Seven measurements on aqueous KCl at 298 K. The point at 0.01 mol dm<sup>&minus;3</sup> is the 141.3 of Example 7.1.";
       $("workK").textContent = "Reading the line";
-      $("eq1").textContent = "Λm = Λ°m − K c¹ᐟ²   with your line:  Λm = " + num(inter,1) + (K >= 0 ? " − " : " + ") + num(Math.abs(K),0) + " c¹ᐟ²";
+      $("eq1").textContent = "Λm = Λ°m − K c¹ᐟ²   with your line:  Λm = " + num(inter,1) + (Math.round(K) >= 0 ? " − " : " + ") + Math.abs(Math.round(K)) + " c¹ᐟ²";
       $("eq2").textContent = "accepted Λ°m(KCl) = 149.8 S cm² mol⁻¹ = 1.498 × 10⁻² S m² mol⁻¹";
       $("eqNote").textContent = "At 0.01 mol dm⁻³ the measured value is already 6 per cent below the limit, which is where the three retardation effects of Section 7.5 show up.";
     } else {
@@ -869,8 +994,8 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
   });
   function buildHint(){ return S.target === "acetic" ? "Example 7.2 is the model answer" : "Self-test 7.2 asks for exactly this one"; }
   var setTarget = group("target", function(d){ S.target = d.v; if(S.mode === "build") $("hint").textContent = buildHint(); paint(); });
-  $("intercept").addEventListener("input", function(){ if(S.fit) unfit(); S.inter = +this.value; sync(); });
-  $("slope").addEventListener("input", function(){ if(S.fit) unfit(); S.end = +this.value; sync(); });
+  $("intercept").addEventListener("input", function(){ var v = +this.value; if(S.fit) unfit(); S.inter = v; this.value = v; sync(); });
+  $("slope").addEventListener("input", function(){ var v = +this.value; if(S.fit) unfit(); S.end = v; this.value = v; sync(); });
 
   $("showBtn").addEventListener("click", function(){
     if(S.mode === "build"){
@@ -915,6 +1040,362 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
   if(document.fonts && document.fonts.ready) document.fonts.ready.then(paint);
   renderSalts();
   sync();
+
+  // ===================== guided lesson (shared engine) =====================
+  // Predict, then reveal. Each step puts the demo into a stated condition, asks one
+  // multiple-choice question (one attempt, so the final score is honest), hides any
+  // readout that would give the answer away, and only after the student commits moves
+  // the demo to the new condition and explains. The page-specific part is the object
+  // passed in: its steps, which readouts to show beside the question, and apply(),
+  // which sets the demo through its own internals so that values are exact.
+  function lessonEngine(C){
+    var $l = function(id){ return document.getElementById(id); };
+    var root = document.documentElement;
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var lessonEl = $l("lesson"), lBody = $l("lBody"), cta = $l("lessonCta");
+    var anchor = document.querySelector(C.anchor || ".stage .card");
+    anchor.appendChild(lessonEl);                     // the lesson sits under the picture it is about
+    // the picture to scroll back to; a page whose picture changes with its mode passes a function
+    // a step can name its own picture when its answer is on a chart rather than the main view
+    function picture(){
+      var st = C.steps[LS.i], pc = (st && st.picture) || C.picture;
+      return typeof pc === "function" ? pc() : (pc ? document.querySelector(pc) : anchor);
+    }
+    var N = C.steps.length;
+    var LS = {i:0, answered:[], score:0};
+
+    function veil(ids, step){
+      (C.veilable || []).forEach(function(id){
+        var el = $l(id); if(!el) return;
+        var on = ids.indexOf(id) >= 0, box = el.closest(".ro") || el.parentNode;
+        box.classList.toggle("veiled", on);
+        [].forEach.call(box.querySelectorAll(".v,.n"), function(x){
+          if(on) x.setAttribute("aria-hidden", "true"); else x.removeAttribute("aria-hidden");
+        });
+      });
+      // hide: what the picture holds back while the question is open; hideAfter: what stays
+      // hidden once it is answered (for a later step that asks about the same thing)
+      root.classList.toggle("l-answered", !!(step && LS.answered[LS.i]));
+      if(C.onVeil) C.onVeil(step ? (LS.answered[LS.i] ? (step.hideAfter || 0) : (step.hide || 0)) : 0);
+    }
+    function chips(s, done){
+      var keys = (done && s.show2) ? s.show2 : (s.show || []), vs = done ? (s.veilAfter || []) : (s.veil || []);
+      if(!keys.length) return "";
+      return "<div class=\"lchips\" id=\"lChips\">" + keys.map(function(k){
+        // a chip reads a readout by its id, or calls a function for values the page has no readout for
+        var c = C.chips[k], v = typeof c[0] === "function" ? c[0]() : (($l(c[0]) || {}).textContent || "").trim();
+        var hid = vs.indexOf(k) >= 0 || (typeof c[0] === "string" && vs.indexOf(c[0]) >= 0);
+        return "<span class=\"chip" + (hid ? " veiled" : "") + "\"><span>" + c[1] + "</span>" +
+          (hid ? "<b aria-hidden=\"true\">" + v + c[2] + "</b><span class=\"sr\">hidden until you answer</span>"
+               : "<b>" + v + c[2] + "</b>") + "</span>";
+      }).join("") + "</div>";
+    }
+    // the line that says what the demo is showing; it is told the step, so it can hold back a value
+    function nowText(){ var s = C.steps[LS.i]; return C.now(s, !!LS.answered[LS.i]); }
+    function nowLine(){ return C.now ? "<p class=\"lnow\" id=\"lNow\">" + nowText() + "</p>" : ""; }
+    function scrollTo(el){ if(el && el.scrollIntoView) el.scrollIntoView({block:"start", behavior: reduce ? "auto" : "smooth"}); }
+
+    function render(focusWhat){
+      $l("lBar").style.width = (100*LS.i/N) + "%";
+      if(LS.i >= N) return summary();
+      var s = C.steps[LS.i], done = LS.answered[LS.i];
+      $l("lStep").textContent = "Step " + (LS.i+1) + " of " + N;
+      var h = "<h3 tabindex=\"-1\" id=\"lTitle\">" + s.title + "</h3><p class=\"ltext\">" + s.text + "</p>" + nowLine() +
+        "<p class=\"lq\" id=\"lQ\">" + s.q + "</p><div class=\"lopts\" role=\"group\" aria-labelledby=\"lQ\">";
+      s.opts.forEach(function(o, k){
+        var cls = "lopt", mk = String.fromCharCode(65+k), sr = "";
+        if(done){
+          if(o.ok){ cls += " right"; mk = "✓"; sr = done.pick === k ? " (your answer, correct)" : " (correct answer)"; }
+          else if(done.pick === k){ cls += " wrong"; mk = "✗"; sr = " (your answer)"; }
+          else cls += " dim";
+        }
+        h += "<button type=\"button\" class=\"" + cls + "\" data-k=\"" + k + "\"" + (done ? " aria-disabled=\"true\"" : "") +
+             "><span class=\"mk\" aria-hidden=\"true\">" + mk + "</span><span>" + o.t + "<span class=\"sr\">" + sr + "</span></span></button>";
+      });
+      h += "</div>" + chips(s, done) + "<div class=\"lfb\" id=\"lFb\" aria-live=\"polite\">";
+      if(done){
+        var picked = s.opts[done.pick], right = s.opts.filter(function(o){ return o.ok; })[0];
+        h += "<span class=\"verdict " + (picked.ok ? "ok" : "no") + "\" tabindex=\"-1\" id=\"lVerdict\">" + (picked.ok ? "Right." : "Not quite.") + "</span>" +
+             picked.why + (picked.ok ? "" : "<span class=\"ans\">The right answer was: <b>" + right.t + "</b>. " + right.why + "</span>") +
+             "<span class=\"more\">" + s.more + "</span>" +
+             (s.after || s.hide || s.veil ? "<button type=\"button\" class=\"lsee\" id=\"lSee\">See it in the demo &uarr;</button>" : "") +
+             (C.replay && s.after && s.after.run ? "<button type=\"button\" class=\"lsee\" id=\"lAgainRun\">Run it again</button>" : "");
+      }
+      h += "</div><div class=\"lnav\">" +
+        (LS.i > 0 ? "<button type=\"button\" class=\"btn\" id=\"lBack\">Back</button>" : "") +
+        "<button type=\"button\" class=\"btn go\" id=\"lNext\"" + (done ? "" : " disabled") + ">" + (LS.i === N-1 ? "Finish" : "Continue") + "</button>" +
+        (done ? "" : "<span class=\"lhint\">Choose an answer to continue</span>") + "</div>";
+      lBody.innerHTML = h;
+      [].forEach.call(lBody.querySelectorAll(".lopt"), function(b){
+        b.addEventListener("click", function(){ if(!LS.answered[LS.i]) answer(+b.dataset.k); });
+      });
+      if($l("lBack")) $l("lBack").addEventListener("click", function(){ LS.i--; go(); });
+      $l("lNext").addEventListener("click", function(){ LS.i++; go(); });
+      if($l("lAgainRun")) $l("lAgainRun").addEventListener("click", function(){ C.replay(s); pollChips(s); });
+      if($l("lSee")) $l("lSee").addEventListener("click", function(){
+        var pic = picture(); if(!pic) return;
+        if(!pic.hasAttribute("tabindex")) pic.setAttribute("tabindex", "-1");
+        scrollTo(pic); pic.focus({preventScroll:true});
+      });
+      var f = focusWhat === "verdict" ? $l("lVerdict") : (focusWhat === "title" ? $l("lTitle") : null);
+      if(f) f.focus({preventScroll: focusWhat === "title"});
+    }
+    function refreshChips(){
+      var s = C.steps[LS.i], el = $l("lChips");
+      if(!s || !el) return;
+      var tmp = document.createElement("div"); tmp.innerHTML = chips(s, LS.answered[LS.i]);
+      el.parentNode.replaceChild(tmp.firstChild, el);
+      if(C.now && $l("lNow")) $l("lNow").innerHTML = nowText();
+    }
+    function answer(k){
+      var s = C.steps[LS.i];
+      LS.answered[LS.i] = {pick:k};
+      if(s.opts[k].ok) LS.score++;
+      if(s.after) C.apply(s.after, "after", s);
+      veil(s.veilAfter || [], s);
+      render("verdict");
+      pollChips(s);
+    }
+    // values that change over time (a race, a simulation) are read again until they settle; a page
+    // whose runs go at the display's frame rate says through busy() whether one is still going
+    function pollChips(s){
+      var at = LS.i, t0 = Date.now(), until = Math.max(1600, s.settle || 0);
+      clearInterval(LS.timer);
+      LS.timer = setInterval(function(){
+        var el = Date.now() - t0;
+        if(LS.i !== at || !LS.answered[at] || el > 180000 || (el > until + 50 && !(C.busy && C.busy()))){
+          clearInterval(LS.timer); refreshChips(); return;
+        }
+        refreshChips();
+      }, 500);
+    }
+    function go(auto){
+      var s = C.steps[LS.i];
+      if(s){
+        C.apply(s.setup, "setup", s);
+        if(LS.answered[LS.i]){ if(s.after) C.apply(s.after, "after", s); veil(s.veilAfter || [], s); }
+        else veil(s.veil || [], s);
+      }
+      clearInterval(LS.timer);
+      render(auto ? null : "title");
+      syncPause();
+      // on entry, go to the step's own picture only if it is on show (a held-back chart is not)
+      if(!auto){
+        var pc = picture();
+        if(!pc || !pc.getClientRects().length || getComputedStyle(pc).visibility === "hidden") pc = (typeof C.picture === "string" && document.querySelector(C.picture)) || anchor;
+        scrollTo(pc);
+      }
+    }
+    function summary(){
+      $l("lStep").textContent = "Lesson complete";
+      veil([], null);
+      lBody.innerHTML = "<div class=\"lsum\"><h3 tabindex=\"-1\" id=\"lTitle\">What you have seen</h3>" +
+        "<p class=\"lscore\">You predicted <b>" + LS.score + " of " + N + "</b> correctly at the first attempt.</p><ul>" +
+        C.summary.points.map(function(p){ return "<li>" + p + "</li>"; }).join("") + "</ul>" +
+        "<p class=\"ltext\">" + C.summary.next + "</p>" +
+        "<div class=\"lnav\"><button type=\"button\" class=\"btn go\" id=\"lFree\">Explore freely</button>" +
+        "<button type=\"button\" class=\"btn\" id=\"lAgain\">Start again</button></div></div>";
+      $l("lFree").addEventListener("click", function(){ leave(); });
+      $l("lAgain").addEventListener("click", function(){ start(true); });
+      $l("lTitle").focus({preventScroll:true});
+    }
+    function updateCta(){
+      var n = LS.answered.filter(Boolean).length;
+      var resume = n > 0 && LS.i < N;
+      $l("lessonStart").textContent = resume ? "Resume the guided lesson (step " + (LS.i+1) + ")" : "Start the guided lesson";
+      $l("lessonRestart").hidden = !resume;
+    }
+    function leave(){
+      clearInterval(LS.timer);
+      root.classList.remove("lesson-on");
+      veil([], null);
+      if(C.onLeave) C.onLeave();
+      updateCta();
+      $l("lessonStart").focus({preventScroll:true});
+    }
+    function start(fresh, auto){
+      if(fresh || LS.i >= N){ LS.i = 0; LS.answered = []; LS.score = 0; }
+      root.classList.add("lesson-on");
+      go(auto);
+    }
+    $l("lessonStart").addEventListener("click", function(){ start(false); });
+    $l("lessonRestart").addEventListener("click", function(){ start(true); });
+    $l("lExit").addEventListener("click", leave);
+    // a link ending in #lesson opens the page straight into the lesson, without scrolling
+    // a Canvas page that holds it in an iframe
+    if(location.hash === "#lesson") setTimeout(function(){ start(true, true); }, 0);
+    // a pause control for the moving picture, since the demo's own controls are hidden
+    // sliders announce the value the page prints beside them (with its unit), not the raw slider number
+    [].forEach.call(document.querySelectorAll("input[type=range]"), function(r){
+      var box = r.closest(".ctl");
+      var lab = (r.id && document.querySelector("label[for=\"" + r.id + "\"] .val")) ||
+                (box && box.querySelectorAll("input[type=range]").length === 1 ? box.querySelector(".val") : null);
+      if(!lab) return;
+      var set = function(){ r.setAttribute("aria-valuetext", lab.textContent.replace(/\s+/g, " ").trim()); };
+      set(); new MutationObserver(set).observe(lab, {childList:true, characterData:true, subtree:true});
+    });
+    // (a fixed label with aria-pressed, so a screen reader hears the state, not a new name)
+    var mv = C.motion ? $l(C.motion) : null, pz = $l("lPause");
+    function syncPause(){ if(mv && pz) pz.setAttribute("aria-pressed", String(!mv.checked)); }
+    if(mv && pz){
+      pz.hidden = false;
+      pz.addEventListener("click", function(){ mv.checked = !mv.checked; mv.dispatchEvent(new Event("change", {bubbles:true})); syncPause(); });
+      mv.addEventListener("change", syncPause);
+      // the demo's Reset sets the box back without firing change, so check again after any click on the page
+      document.addEventListener("click", function(){ setTimeout(syncPause, 0); });
+      syncPause();
+    }
+  }
+
+  // ---------- L7.1 lesson ----------
+  function lessonApply(cfg, phase){
+    // the demo's own buttons are pressed, so that each mode sets itself up exactly as it does by hand
+    function press(group, v){ document.querySelector("#" + group + " button[data-v=\"" + v + "\"]").click(); }
+    if(phase === "setup"){
+      S.fit = null; SALTS.forEach(function(s){ S.coef[s.n] = 0; });
+      press("target", cfg.target || "acetic");
+      press("mode", cfg.mode || "strong");
+      renderSalts(); sync();
+    }
+    if(cfg.target && phase !== "setup") press("target", cfg.target);
+    if(cfg.show) $("showBtn").click();
+    // the weak-acid caption gives away the size of the collapse, so the lesson leaves it out
+    document.documentElement.classList.toggle("l71-weak", S.mode === "weak");
+    // the lesson card follows whichever card the mode shows
+    document.getElementById(S.mode === "build" ? "cardBuild" : "cardPlot").appendChild(document.getElementById("lesson"));
+  }
+  lessonEngine({
+    anchor: "#cardPlot",
+    picture: function(){ return document.getElementById(S.mode === "build" ? "cardBuild" : "plotBox"); },
+    chips: {
+      inter: [function(){ return num(interVal(),1); }, "your intercept", ""],
+      acc: [function(){ return num(series().lam0,1); }, "accepted Λ°<sub>m</sub>", ""],
+      out: [function(){ return ((interVal()-series().lam0)/series().lam0*100).toFixed(1).replace("-","−") + " per cent"; }, "out by", ""],
+      sum: [function(){ return num(buildSum(),1) + " S cm² mol⁻¹"; }, "your combination", ""]
+    },
+    apply: lessonApply,
+    // 1: the limiting value and the score; 2: the score and the Ostwald key, which quotes K_a;
+    // 3: the running total and its verdict, and the salt list waits for an answer
+    onVeil: function(level){
+      var r = document.documentElement;
+      S.hideLam0 = level === 1;
+      r.classList.toggle("veil-charts", level >= 1);
+      r.classList.toggle("veil-ost", level === 2);
+      r.classList.toggle("veil-lam0", level === 1);
+      r.classList.toggle("veil-build", level === 3);
+      var sl = document.getElementById("saltList");
+      if(level === 3) sl.setAttribute("inert", ""); else sl.removeAttribute("inert");
+      paint();
+    },
+    now: function(){
+      return S.mode === "build" ? "Building Λ°<sub>m</sub>(" + TARGETS[S.target].html + ") from strong electrolytes." :
+        "Showing <b>" + (S.mode === "weak" ? "acetic acid" : "KCl") + "</b>: Λ<sub>m</sub> against <em>c</em><sup>1/2</sup> at 298 K.";
+    },
+    steps: [
+    { title:"Back to infinite dilution",
+      setup:{mode:"strong"}, show:[], hide:1,
+      text:"These are Shedlovsky's measurements on KCl at 298 K. Kohlrausch's law (eqn 7.5), Λ<sub>m</sub> = Λ°<sub>m</sub> &minus; <em>K</em><em>c</em><sup>1/2</sup>, says the points should lie on a straight line at low concentration. This is the Try this task in the book's box.",
+      q:"Imagine a straight line through the lowest points (you can drag the ends of the red line) and extend it to <em>c</em> = 0. Where does it meet the axis?",
+      opts:[
+        {t:"About 141 S cm<sup>2</sup> mol<sup>&minus;1</sup>", why:"That is the value at 0.010 mol dm<sup>&minus;3</sup> (Example 7.1), not at infinite dilution."},
+        {t:"About 150 S cm<sup>2</sup> mol<sup>&minus;1</sup>", ok:true, why:"The best line through the four lowest points meets the axis at 149.6, against 149.8 in Table 7.1."},
+        {t:"About 130 S cm<sup>2</sup> mol<sup>&minus;1</sup>", why:"That is the value at 0.1 mol dm<sup>&minus;3</sup>, the most concentrated point."},
+        {t:"About 200 S cm<sup>2</sup> mol<sup>&minus;1</sup>", why:"That would need a much steeper fall than the points show."}
+      ],
+      after:{show:true}, show2:["inter","acc"],
+      more:"For a strong electrolyte the extrapolation works: the dilute points lie on a straight line that runs back to the limiting value, as Kohlrausch's law says." },
+
+    { title:"How far below the limit?",
+      setup:{mode:"strong"}, show:[], hide:1, after:{show:true},
+      text:"Example 7.1 found Λ<sub>m</sub> = 141.3 S cm<sup>2</sup> mol<sup>&minus;1</sup> for 0.0100 mol dm<sup>&minus;3</sup> KCl, against Λ°<sub>m</sub> = 149.8.",
+      q:"Roughly how far is 141.3 below the limiting value?",
+      opts:[
+        {t:"About 0.6 per cent", why:"(149.8 &minus; 141.3)/149.8 = 0.057, which is ten times that."},
+        {t:"About 6 per cent", ok:true, why:"(149.8 &minus; 141.3)/149.8 = 5.7 per cent."},
+        {t:"About 60 per cent", why:"That would leave KCl with less than half its limiting value. The points never fall that far; even the most concentrated is within 15 per cent of it."}
+      ],
+      more:"Every ion is present at every concentration, so this shortfall is not lost ions. It comes from the retardation effects of Section 7.5, which slow every ion more as the concentration rises." },
+
+    { title:"Now a weak acid",
+      setup:{mode:"weak"}, show:[], hide:2, hideAfter:2,
+      text:"These are MacInnes and Shedlovsky's measurements on acetic acid at 298 K (Table D3). The true limiting value, 390.7 S cm<sup>2</sup> mol<sup>&minus;1</sup>, is the teal point on the axis.",
+      q:"Can a straight-line extrapolation through the lowest points find it?",
+      opts:[
+        {t:"Yes, the lowest points fall on a line through 390.7", why:"They plunge almost vertically; no straight line through them reaches 390.7."},
+        {t:"Yes, if the line goes through all the points", why:"Including the higher points makes it worse, because Λ<sub>m</sub> keeps curving."},
+        {t:"No, the best line through the lowest points meets the axis far below it", ok:true, why:"The best line through the four lowest points meets the axis at 269.6, 31 per cent too low."}
+      ],
+      after:{show:true}, show2:["inter","acc","out"],
+      more:"This is why Fig. 7.1(b) says there is nothing to extrapolate. Λ°<sub>m</sub>(CH<sub>3</sub>COOH) has to come from somewhere else." },
+
+    { title:"Why the weak acid collapses",
+      setup:{mode:"weak", show:true}, show:[], hide:2, hideAfter:2,
+      text:"KCl loses about 6 per cent of its limiting value by 0.01 mol dm<sup>&minus;3</sup>. Acetic acid loses far more by the same concentration.",
+      q:"Why does Λ<sub>m</sub> of acetic acid fall so steeply?",
+      opts:[
+        {t:"The fraction of acid that is dissociated falls", ok:true, why:"For a weak electrolyte Λ<sub>m</sub> = αΛ°<sub>m</sub> very nearly, and the degree of dissociation α falls as the concentration rises (Section 7.4.3)."},
+        {t:"Its ions are retarded far more strongly than those of KCl", why:"Retardation costs KCl only a few per cent. Something much larger is happening here."},
+        {t:"Acetate ions are much larger than chloride ions", why:"Size does set λ°, which is why acetate's 40.9 is about half chloride's 76.3, but it does not change with concentration, so it cannot make Λ<sub>m</sub> fall as the concentration rises."}
+      ],
+      more:"The ions are not being slowed down; for the most part they are not there at all. The dashed curve is the Ostwald dilution law (eqn 7.8), which follows from this." },
+
+    { title:"The degree of dissociation",
+      setup:{mode:"weak", show:true}, show:[], hide:2, hideAfter:2,
+      text:"This is Example 7.3. At 0.0100 mol dm<sup>&minus;3</sup>, acetic acid has Λ<sub>m</sub> = 16.2 S cm<sup>2</sup> mol<sup>&minus;1</sup>, and Λ°<sub>m</sub> = 390.7.",
+      q:"What is the degree of dissociation, α?",
+      opts:[
+        {t:"0.0415", ok:true, why:"α = Λ<sub>m</sub>/Λ°<sub>m</sub> = 16.2/390.7 = 0.0415."},
+        {t:"0.415", why:"Check the division: 16.2/390.7 is about 0.04."},
+        {t:"0.96", why:"That is the fraction that has <em>not</em> dissociated."},
+        {t:"24.1", why:"That divides the wrong way round."}
+      ],
+      more:"Only about 4 per cent of the acid is ionised at this concentration." },
+
+    { title:"The acid dissociation constant",
+      setup:{mode:"weak", show:true}, show:[], hide:2, hideAfter:2,
+      text:"Still Example 7.3: <em>c</em> = 0.0100 mol dm<sup>&minus;3</sup> and α = 16.2/390.7 = 0.04146, so <em>K</em><sub>a</sub> = <em>c</em>α<sup>2</sup>/(1 &minus; α), ignoring activity coefficients.",
+      q:"What is <em>K</em><sub>a</sub>?",
+      opts:[
+        {t:"1.72 × 10<sup>&minus;5</sup>", why:"That leaves out the 1 &minus; α in the denominator."},
+        {t:"4.15 × 10<sup>&minus;4</sup>", why:"That is <em>c</em>α, the concentration of each ion, not <em>K</em><sub>a</sub>."},
+        {t:"1.79 × 10<sup>&minus;5</sup>", ok:true, why:"(0.0100)(0.04146)<sup>2</sup>/(1 &minus; 0.04146) = 1.79 × 10<sup>&minus;5</sup>. Rounding α to 0.0415 first gives 1.80, which is why the book carries the extra figure."}
+      ],
+      more:"The accepted value is 1.75 × 10<sup>&minus;5</sup>. Putting the activity coefficients back in, as Example 7.3 does, brings it to 1.71 × 10<sup>&minus;5</sup>." },
+
+    { title:"Building the answer",
+      setup:{mode:"build", target:"acetic"}, show:[], hide:3,
+      text:"This is Example 7.2. The law of independent migration (eqn 7.6) says Λ°<sub>m</sub> is the sum of contributions from the ions, so whole strong electrolytes can be added and subtracted until only H⁺ and CH<sub>3</sub>COO⁻ are left.",
+      q:"Which combination gives Λ°<sub>m</sub>(CH<sub>3</sub>COOH)?",
+      opts:[
+        {t:"CH<sub>3</sub>COONa + HCl + NaCl", why:"Adding NaCl puts in a second Na⁺ and Cl⁻ instead of cancelling the first."},
+        {t:"CH<sub>3</sub>COONa + HCl &minus; NaCl", ok:true, why:"The first two supply H⁺ and CH<sub>3</sub>COO⁻ together with Na⁺ and Cl⁻; subtracting NaCl removes the spectators."},
+        {t:"CH<sub>3</sub>COONa &minus; HCl + NaCl", why:"That subtracts H⁺ instead of adding it, and leaves two Na⁺ behind."}
+      ],
+      after:{show:true}, show2:["sum"],
+      more:"91.0 + 426.1 &minus; 126.4 = 390.7 S cm<sup>2</sup> mol<sup>&minus;1</sup>. Each of the three can be extrapolated, because each is a strong electrolyte." },
+
+    { title:"Ammonia",
+      setup:{mode:"build", target:"ammonia"}, show:[], hide:3,
+      text:"This is Self-test 7.2. Ammonia conducts as NH<sub>4</sub>⁺ and OH⁻.",
+      q:"Which combination gives Λ°<sub>m</sub>(NH<sub>3</sub>)?",
+      opts:[
+        {t:"NH<sub>4</sub>Cl &minus; NaOH + NaCl", why:"That subtracts the OH⁻ you need."},
+        {t:"NH<sub>4</sub>Cl + HCl &minus; NaCl", why:"HCl supplies H⁺, not OH⁻."},
+        {t:"NH<sub>4</sub>Cl + NaOH &minus; NaCl", ok:true, why:"NH<sub>4</sub>Cl supplies NH<sub>4</sub>⁺, NaOH supplies OH⁻, and subtracting NaCl removes Na⁺ and Cl⁻."}
+      ],
+      after:{show:true}, show2:["sum"],
+      more:"271.4 S cm<sup>2</sup> mol<sup>&minus;1</sup>, which is 2.714 × 10<sup>&minus;2</sup> S m<sup>2</sup> mol<sup>&minus;1</sup>, the answer to Self-test 7.2." }
+    ],
+    summary: {
+      points:[
+        "For a strong electrolyte Λ<sub>m</sub> falls as <em>c</em><sup>1/2</sup> (Kohlrausch's law), so a straight line through the dilute points gives Λ°<sub>m</sub>.",
+        "For a weak electrolyte the fall is a collapse in the degree of dissociation, α = Λ<sub>m</sub>/Λ°<sub>m</sub>, and there is nothing to extrapolate.",
+        "Λ°<sub>m</sub> of a weak electrolyte is built from strong ones by the law of independent migration.",
+        "With α and <em>c</em>, the Ostwald dilution law gives <em>K</em><sub>a</sub>."
+      ],
+      next:"Now go back to the free explorer and try drawing the lines by hand, and building other combinations."
+    }
+  });
 })();
 </script>
 </body>

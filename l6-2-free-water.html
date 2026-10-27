@@ -283,6 +283,102 @@
   }
 </style>
 </head>
+<style>
+  /* ---------- guided lesson ---------- */
+  .lesson-cta{display:flex; flex-wrap:wrap; align-items:center; gap:10px 16px; margin:0 0 14px;
+    padding:11px 15px; background:var(--panel); border:1px solid var(--line); border-left:3px solid var(--teal);
+    border-radius:8px; box-shadow:var(--shadow); font-size:14px; color:var(--ink-2)}
+  .lesson-cta p{margin:0; flex:1 1 260px}
+  .lesson-cta b{color:var(--ink)}
+  .btn.go{background:var(--teal); border-color:var(--teal); color:#fff; font-weight:600}
+  .btn.go:hover{filter:brightness(1.06); color:#fff}
+  .btn.go:disabled{background:var(--panel-2); border-color:var(--line); color:var(--muted); filter:none; cursor:default}
+
+  .lesson{display:none; margin:0 0 14px; background:var(--panel); border:1px solid var(--line);
+    border-radius:10px; box-shadow:var(--shadow); padding:14px 16px 16px; scroll-margin-top:10px}
+  .lesson-on .lesson{display:block}
+  .lesson-on .lesson-cta, .lesson-on .controls, .lesson-on .work, .lesson-on .point, .lesson-on .lesson-hide{display:none}
+  .lesson-top{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap}
+  .lesson-step{font-size:11.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); font-weight:500}
+  .lesson-exit{background:none; border:none; padding:4px 0; color:var(--blue); font:inherit; font-size:13px; cursor:pointer; text-decoration:underline; text-underline-offset:2px}
+  .lesson-bar{height:5px; border-radius:3px; background:var(--panel-2); margin:8px 0 12px; overflow:hidden}
+  .lesson-bar span{display:block; height:100%; width:0; background:var(--teal); border-radius:3px; transition:width .3s ease}
+  .lesson h3{font-family:"Source Serif 4", Georgia, serif; font-size:19px; font-weight:600; margin:0 0 6px; color:var(--ink)}
+  .lesson .ltext{margin:0 0 8px; font-size:15px; line-height:1.55; color:var(--ink-2); max-width:72ch}
+  .lesson .lnow{margin:0 0 10px; font-size:12.5px; color:var(--muted)}
+  .lesson .lnow b{color:var(--ink-2); font-weight:600}
+  .lesson .lq{margin:4px 0 9px; font-size:15.5px; font-weight:600; color:var(--ink); max-width:72ch}
+  .lopts{display:grid; gap:8px; max-width:640px}
+  .lopt{display:flex; align-items:flex-start; gap:10px; width:100%; text-align:left; padding:10px 12px; min-height:44px;
+    background:var(--panel); color:var(--ink); border:1.5px solid var(--line); border-radius:8px;
+    font:inherit; font-size:14.5px; line-height:1.4; cursor:pointer}
+  .lopt:hover:not([aria-disabled="true"]){border-color:var(--blue)}
+  .lopt .mk{flex:none; width:22px; height:22px; border-radius:50%; border:1.5px solid var(--line); display:flex;
+    align-items:center; justify-content:center; font-size:12px; font-weight:700; color:var(--muted); margin-top:-1px}
+  .lopt[aria-disabled="true"]{cursor:default}
+  .lopt:focus-visible, .btn:focus-visible, .lesson-exit:focus-visible, .lsee:focus-visible{outline:2px solid var(--focus); outline-offset:2px}
+  .lopt.right{border-color:var(--teal); background:var(--teal-soft)}
+  .lopt.right .mk{border-color:var(--teal); background:var(--teal); color:#fff}
+  .lopt.wrong{border-color:var(--red); background:var(--red-soft)}
+  .lopt.wrong .mk{border-color:var(--red); background:var(--red); color:#fff}
+  .lopt.dim{opacity:.55}
+  .lfb{margin:10px 0 0; max-width:72ch; font-size:14.5px; line-height:1.55; color:var(--ink-2)}
+  .lfb:empty{display:none}
+  .lfb .verdict{display:block; font-weight:700; margin-bottom:3px}
+  .lfb .verdict.ok{color:var(--teal)} .lfb .verdict.no{color:var(--red)}
+  .lfb .more{display:block; margin-top:7px; padding-top:7px; border-top:1px solid var(--line)}
+  .lnav{display:flex; gap:10px; margin-top:14px; flex-wrap:wrap}
+  .lsum ul{margin:6px 0 10px; padding-left:20px; max-width:72ch; color:var(--ink-2); font-size:14.5px; line-height:1.55}
+  .lsum li{margin:3px 0}
+  .lscore{font-size:15px; color:var(--ink); margin:0 0 6px}
+  /* readouts held back until the student has committed to an answer */
+  .ro.veiled .v, .ro.veiled .n{filter:blur(7px); user-select:none}
+  .ro.veiled{position:relative}
+  .ro.veiled::after{content:"answer first"; position:absolute; right:8px; bottom:8px; font-size:10.5px;
+    letter-spacing:.06em; text-transform:uppercase; color:var(--muted); background:var(--panel);
+    padding:1px 5px; border-radius:4px}
+  @media (max-width:560px){
+    .lesson{padding:12px 13px 14px}
+    .lesson h3{font-size:18px}
+    .lesson .ltext{font-size:14.5px}
+  }
+  @media (prefers-reduced-motion: reduce){ .lesson-bar span{transition:none} }
+  /* the lesson sits under the picture it is about */
+  .card .lesson{margin:12px 0 0; border:none; border-top:1px solid var(--line); border-radius:0; box-shadow:none; padding:12px 0 2px}
+  .lesson-on .stage{align-items:start}
+  .lchips{display:flex; flex-wrap:wrap; gap:6px 8px; margin:12px 0 0}
+  .lchips .chip{display:inline-flex; align-items:baseline; gap:6px; padding:5px 10px; border-radius:6px; background:var(--panel-2);
+    font-size:13px; color:var(--ink-2)}
+  .lchips .chip b{font-family:"IBM Plex Mono", monospace; font-weight:500; color:var(--ink); font-variant-numeric:tabular-nums}
+  .lchips .chip.veiled b{filter:blur(6px); user-select:none}
+  .lfb .ans{display:block; margin-top:6px}
+  .lcta-btns{display:flex; flex-wrap:wrap; align-items:center; gap:8px 14px}
+  .ltop-btns{display:flex; gap:14px; flex-wrap:wrap}
+  .sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
+  .lfb .verdict:focus{outline:none}
+  .lesson h3:focus{outline:none}
+  .lsee{display:inline-block; margin-top:8px; background:none; border:1px solid var(--line); border-radius:6px;
+    padding:6px 10px; font:inherit; font-size:13px; color:var(--blue); cursor:pointer}
+  .lesson-exit[aria-pressed="true"]{font-weight:600; text-decoration:none; color:var(--ink);
+    background:var(--panel-2); border-radius:5px; padding:4px 8px}
+  .lhint{align-self:center; font-size:12.5px; color:var(--muted)}
+  /* a blurred verdict pill keeps no colour, since the colour alone would give the answer */
+  .ro.veiled .pill{background:var(--panel-2) !important; border-color:var(--line) !important; color:transparent !important}
+  .lsee + .lsee{margin-left:8px}
+  /* readouts and charts held back: stacked on a phone they are removed; on a wide screen the column
+     keeps its place with a note, so the layout does not jump when the answer is revealed */
+  @media (max-width:1040px){ .veil-charts .col-right, .veil-charts .lveilbox{display:none} }
+  @media (min-width:1041px){
+    .veil-charts .col-right, .veil-charts .lveilbox{visibility:hidden; position:relative}
+    .veil-charts .col-right::after, .veil-charts .lveilbox::after{content:"These charts and readouts appear when you answer.";
+      visibility:visible; position:absolute; top:60px; left:12%; right:12%; padding:16px 18px; text-align:center;
+      border:1px dashed var(--line); border-radius:10px; color:var(--muted); font-size:14px; line-height:1.5; background:var(--panel)}
+    .l-answered.veil-charts .col-right::after, .l-answered.veil-charts .lveilbox::after{content:"Held back for now: a later question asks about it."}
+  }
+  .veil-grid #gridCap, .veil-grid .bar-labels{visibility:hidden}
+  .lesson-on footer > span:not(:last-child){display:none}
+
+</style>
 <body>
 <script>if(window.self!==window.top)document.documentElement.classList.add("in-frame");</script>
 <noscript><div style="max-width:60ch;margin:40px auto;padding:18px 22px;border:1px solid #CF4520;border-radius:8px;background:#fff;color:#0F1E2B;font:15px/1.55 'IBM Plex Sans',system-ui,sans-serif">
@@ -298,6 +394,26 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     </div>
   </header>
   <p class="point">Water held in a hydration shell has stopped being solvent. Take enough of it out of service and the effective concentration of the salt climbs above its molality, which is how &gamma;<sub>&plusmn;</sub> gets above 1.</p>
+
+  <div class="lesson-cta" id="lessonCta">
+    <p><b>Guided lesson.</b> Eight short questions on why activity coefficients rise in concentrated solutions, about ten minutes. Each step asks you to predict first, then shows you the answer in the demo.</p>
+    <div class="lcta-btns">
+      <button type="button" class="btn go" id="lessonStart">Start the guided lesson</button>
+      <button type="button" class="lesson-exit" id="lessonRestart" hidden>Start again from step 1</button>
+    </div>
+  </div>
+
+  <section class="lesson" id="lesson" aria-label="Guided lesson">
+    <div class="lesson-top">
+      <span class="lesson-step" id="lStep">Step 1</span>
+      <span class="ltop-btns">
+        <button type="button" class="lesson-exit" id="lPause" hidden>Pause motion</button>
+        <button type="button" class="lesson-exit" id="lExit">Leave the lesson</button>
+      </span>
+    </div>
+    <div class="lesson-bar" aria-hidden="true"><span id="lBar"></span></div>
+    <div id="lBody"></div>
+  </section>
 
   <section class="controls">
     <div class="ctl">
@@ -343,7 +459,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
 
   <section class="stage">
     <div class="card">
-      <h2>One kilogram of water, 55.5 mol of it</h2>
+      <h2>One kilogram of water<span class="lesson-hide">, 55.5 mol of it</span></h2>
       <p class="cap" id="gridCap"></p>
       <div class="canvas-box" id="gridBox"><canvas role="img" id="grid" aria-label="A kilogram of water drawn as a grid, with the fraction locked into hydration shells shaded"></canvas></div>
       <div class="bar-wrap">
@@ -382,6 +498,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
           <span class="key"><span class="dot" style="background:var(--blue)"></span>NaCl</span>
           <span class="key"><span class="dot" style="background:var(--teal)"></span>KCl</span>
           <span class="key"><span class="bar" style="border-color:var(--gold)"></span>hydration factor</span>
+          <span class="key"><span class="dot" style="background:none; border:1.5px solid var(--ink-2); box-sizing:border-box"></span>measured &divide; factor, chosen salt</span>
         </div>
       </div>
     </div>
@@ -513,8 +630,8 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     var lockA = Math.min(S.ha*m, Math.max(0, W_TOT-lockC));
     var lock = lockC + lockA;
     var free = W_TOT - lock;
-    var factor = free > 0.5 ? W_TOT/free : Infinity;
-    var meff = free > 0.5 ? m*W_TOT/free : Infinity;
+    var factor = free > 1e-9 ? W_TOT/free : Infinity;
+    var meff = free > 1e-9 ? m*W_TOT/free : Infinity;
     return {m:m, h:h, lockC:lockC, lockA:lockA, lock:lock, free:free, factor:factor, meff:meff};
   }
   function gammaAt(s, m){
@@ -663,8 +780,9 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     $("roLock").textContent = num(st.lock,1);
     $("roFree").textContent = num(st.free,1);
     $("roFreeN").textContent = "mol, " + num(100-pct,0) + " per cent of the original";
-    $("roEff").textContent = isFinite(st.meff) ? num(st.meff,2) : "–";
-    $("roFac").textContent = isFinite(st.factor) ? num(st.factor,2) : "–";
+    function big(x, dp){ return x >= 100 ? String(Number(x.toPrecision(3))) : num(x, dp); }
+    $("roEff").textContent = isFinite(st.meff) ? big(st.meff,2) : "–";
+    $("roFac").textContent = isFinite(st.factor) ? big(st.factor,2) : "–";
 
     var gm = gammaAt(s, st.m);
     $("roGam").textContent = gm === null ? "–" : num(gm,3);
@@ -687,20 +805,20 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       (hm > W_TOT ? " mol, capped at the 55.5 there is" : " mol") +
       ",  free = 55.5 − " + num(st.lock,1) + " = " + num(st.free,1) + " mol";
     $("eq2").textContent = "m(effective) = m × 55.5/free = " + num(st.m,2) + " × " +
-      (isFinite(st.factor)?num(st.factor,3):"∞") + " = " + (isFinite(st.meff)?num(st.meff,2):"∞") + " mol kg⁻¹";
+      (isFinite(st.factor)?big(st.factor,3):"∞") + " = " + (isFinite(st.meff)?big(st.meff,2):"∞") + " mol kg⁻¹";
 
     var note;
     if(st.lock >= W_TOT-1){
-      note = "The count has run out of water altogether, which is the signal that this crude picture has been pushed past where it means anything. Real solutions never get there, because the salt stops dissolving first.";
+      note = (st.free <= 0.05 ? "The count has run out of water altogether" : "The count has almost run out of water") + ", which is the signal that this crude picture has been pushed past where it means anything. Real solutions do not run dry like this: as they get more concentrated the shells start to share water, and the number held by each ion falls.";
     } else if(pct > 50){
       note = "More than half the water has stopped being solvent, so the ions share a fraction of the solvent the molality assumes and the count pushes the activity up. " +
         (gm === null ? "There is no measured value at this molality to test that against."
           : (gm > 1 ? "For " + s.html + " the measured γ± is indeed above 1 here."
-                    : "Yet the measured γ± for " + s.html + " is " + num(gm,3) + ", still below 1, so these hydration numbers ask more of " + s.cation + " than it actually holds."));
+                    : "Yet the measured γ± for " + s.html + " is " + num(gm,3) + ", still below 1, so these hydration numbers ask more of the ions than they actually hold."));
     } else if(st.m < 0.4){
       note = "At low molality the count removes almost nothing, the free water is essentially all the water, and γ± is governed by the Debye–Hückel screening of Section 6.3 rather than by hydration.";
     } else {
-      note = "Switch between the three salts at fixed molality. Nothing in the limiting law distinguishes them, since Li⁺, Na⁺ and K⁺ all carry one charge. What separates them is how much water each takes out of service.";
+      note = "Switch between the three salts at fixed molality. Nothing in the limiting law distinguishes them, since Li⁺, Na⁺, and K⁺ all carry one charge. What separates them is how much water each takes out of service.";
     }
     $("eqNote").textContent = note;
 
@@ -761,6 +879,350 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
   window.addEventListener("resize", paint);
   if(document.fonts && document.fonts.ready) document.fonts.ready.then(paint);
   sync();
+
+  // ===================== guided lesson (shared engine) =====================
+  // Predict, then reveal. Each step puts the demo into a stated condition, asks one
+  // multiple-choice question (one attempt, so the final score is honest), hides any
+  // readout that would give the answer away, and only after the student commits moves
+  // the demo to the new condition and explains. The page-specific part is the object
+  // passed in: its steps, which readouts to show beside the question, and apply(),
+  // which sets the demo through its own internals so that values are exact.
+  function lessonEngine(C){
+    var $l = function(id){ return document.getElementById(id); };
+    var root = document.documentElement;
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var lessonEl = $l("lesson"), lBody = $l("lBody"), cta = $l("lessonCta");
+    var anchor = document.querySelector(C.anchor || ".stage .card");
+    anchor.appendChild(lessonEl);                     // the lesson sits under the picture it is about
+    // the picture to scroll back to; a page whose picture changes with its mode passes a function
+    // a step can name its own picture when its answer is on a chart rather than the main view
+    function picture(){
+      var st = C.steps[LS.i], pc = (st && st.picture) || C.picture;
+      return typeof pc === "function" ? pc() : (pc ? document.querySelector(pc) : anchor);
+    }
+    var N = C.steps.length;
+    var LS = {i:0, answered:[], score:0};
+
+    function veil(ids, step){
+      (C.veilable || []).forEach(function(id){
+        var el = $l(id); if(!el) return;
+        var on = ids.indexOf(id) >= 0, box = el.closest(".ro") || el.parentNode;
+        box.classList.toggle("veiled", on);
+        [].forEach.call(box.querySelectorAll(".v,.n"), function(x){
+          if(on) x.setAttribute("aria-hidden", "true"); else x.removeAttribute("aria-hidden");
+        });
+      });
+      // hide: what the picture holds back while the question is open; hideAfter: what stays
+      // hidden once it is answered (for a later step that asks about the same thing)
+      root.classList.toggle("l-answered", !!(step && LS.answered[LS.i]));
+      if(C.onVeil) C.onVeil(step ? (LS.answered[LS.i] ? (step.hideAfter || 0) : (step.hide || 0)) : 0);
+    }
+    function chips(s, done){
+      var keys = (done && s.show2) ? s.show2 : (s.show || []), vs = done ? (s.veilAfter || []) : (s.veil || []);
+      if(!keys.length) return "";
+      return "<div class=\"lchips\" id=\"lChips\">" + keys.map(function(k){
+        // a chip reads a readout by its id, or calls a function for values the page has no readout for
+        var c = C.chips[k], v = typeof c[0] === "function" ? c[0]() : (($l(c[0]) || {}).textContent || "").trim();
+        var hid = vs.indexOf(k) >= 0 || (typeof c[0] === "string" && vs.indexOf(c[0]) >= 0);
+        return "<span class=\"chip" + (hid ? " veiled" : "") + "\"><span>" + c[1] + "</span>" +
+          (hid ? "<b aria-hidden=\"true\">" + v + c[2] + "</b><span class=\"sr\">hidden until you answer</span>"
+               : "<b>" + v + c[2] + "</b>") + "</span>";
+      }).join("") + "</div>";
+    }
+    // the line that says what the demo is showing; it is told the step, so it can hold back a value
+    function nowText(){ var s = C.steps[LS.i]; return C.now(s, !!LS.answered[LS.i]); }
+    function nowLine(){ return C.now ? "<p class=\"lnow\" id=\"lNow\">" + nowText() + "</p>" : ""; }
+    function scrollTo(el){ if(el && el.scrollIntoView) el.scrollIntoView({block:"start", behavior: reduce ? "auto" : "smooth"}); }
+
+    function render(focusWhat){
+      $l("lBar").style.width = (100*LS.i/N) + "%";
+      if(LS.i >= N) return summary();
+      var s = C.steps[LS.i], done = LS.answered[LS.i];
+      $l("lStep").textContent = "Step " + (LS.i+1) + " of " + N;
+      var h = "<h3 tabindex=\"-1\" id=\"lTitle\">" + s.title + "</h3><p class=\"ltext\">" + s.text + "</p>" + nowLine() +
+        "<p class=\"lq\" id=\"lQ\">" + s.q + "</p><div class=\"lopts\" role=\"group\" aria-labelledby=\"lQ\">";
+      s.opts.forEach(function(o, k){
+        var cls = "lopt", mk = String.fromCharCode(65+k), sr = "";
+        if(done){
+          if(o.ok){ cls += " right"; mk = "✓"; sr = done.pick === k ? " (your answer, correct)" : " (correct answer)"; }
+          else if(done.pick === k){ cls += " wrong"; mk = "✗"; sr = " (your answer)"; }
+          else cls += " dim";
+        }
+        h += "<button type=\"button\" class=\"" + cls + "\" data-k=\"" + k + "\"" + (done ? " aria-disabled=\"true\"" : "") +
+             "><span class=\"mk\" aria-hidden=\"true\">" + mk + "</span><span>" + o.t + "<span class=\"sr\">" + sr + "</span></span></button>";
+      });
+      h += "</div>" + chips(s, done) + "<div class=\"lfb\" id=\"lFb\" aria-live=\"polite\">";
+      if(done){
+        var picked = s.opts[done.pick], right = s.opts.filter(function(o){ return o.ok; })[0];
+        h += "<span class=\"verdict " + (picked.ok ? "ok" : "no") + "\" tabindex=\"-1\" id=\"lVerdict\">" + (picked.ok ? "Right." : "Not quite.") + "</span>" +
+             picked.why + (picked.ok ? "" : "<span class=\"ans\">The right answer was: <b>" + right.t + "</b>. " + right.why + "</span>") +
+             "<span class=\"more\">" + s.more + "</span>" +
+             (s.after || s.hide || s.veil ? "<button type=\"button\" class=\"lsee\" id=\"lSee\">See it in the demo &uarr;</button>" : "") +
+             (C.replay && s.after && s.after.run ? "<button type=\"button\" class=\"lsee\" id=\"lAgainRun\">Run it again</button>" : "");
+      }
+      h += "</div><div class=\"lnav\">" +
+        (LS.i > 0 ? "<button type=\"button\" class=\"btn\" id=\"lBack\">Back</button>" : "") +
+        "<button type=\"button\" class=\"btn go\" id=\"lNext\"" + (done ? "" : " disabled") + ">" + (LS.i === N-1 ? "Finish" : "Continue") + "</button>" +
+        (done ? "" : "<span class=\"lhint\">Choose an answer to continue</span>") + "</div>";
+      lBody.innerHTML = h;
+      [].forEach.call(lBody.querySelectorAll(".lopt"), function(b){
+        b.addEventListener("click", function(){ if(!LS.answered[LS.i]) answer(+b.dataset.k); });
+      });
+      if($l("lBack")) $l("lBack").addEventListener("click", function(){ LS.i--; go(); });
+      $l("lNext").addEventListener("click", function(){ LS.i++; go(); });
+      if($l("lAgainRun")) $l("lAgainRun").addEventListener("click", function(){ C.replay(s); pollChips(s); });
+      if($l("lSee")) $l("lSee").addEventListener("click", function(){
+        var pic = picture(); if(!pic) return;
+        if(!pic.hasAttribute("tabindex")) pic.setAttribute("tabindex", "-1");
+        scrollTo(pic); pic.focus({preventScroll:true});
+      });
+      var f = focusWhat === "verdict" ? $l("lVerdict") : (focusWhat === "title" ? $l("lTitle") : null);
+      if(f) f.focus({preventScroll: focusWhat === "title"});
+    }
+    function refreshChips(){
+      var s = C.steps[LS.i], el = $l("lChips");
+      if(!s || !el) return;
+      var tmp = document.createElement("div"); tmp.innerHTML = chips(s, LS.answered[LS.i]);
+      el.parentNode.replaceChild(tmp.firstChild, el);
+      if(C.now && $l("lNow")) $l("lNow").innerHTML = nowText();
+    }
+    function answer(k){
+      var s = C.steps[LS.i];
+      LS.answered[LS.i] = {pick:k};
+      if(s.opts[k].ok) LS.score++;
+      if(s.after) C.apply(s.after, "after", s);
+      veil(s.veilAfter || [], s);
+      render("verdict");
+      pollChips(s);
+    }
+    // values that change over time (a race, a simulation) are read again until they settle; a page
+    // whose runs go at the display's frame rate says through busy() whether one is still going
+    function pollChips(s){
+      var at = LS.i, t0 = Date.now(), until = Math.max(1600, s.settle || 0);
+      clearInterval(LS.timer);
+      LS.timer = setInterval(function(){
+        var el = Date.now() - t0;
+        if(LS.i !== at || !LS.answered[at] || el > 180000 || (el > until + 50 && !(C.busy && C.busy()))){
+          clearInterval(LS.timer); refreshChips(); return;
+        }
+        refreshChips();
+      }, 500);
+    }
+    function go(auto){
+      var s = C.steps[LS.i];
+      if(s){
+        C.apply(s.setup, "setup", s);
+        if(LS.answered[LS.i]){ if(s.after) C.apply(s.after, "after", s); veil(s.veilAfter || [], s); }
+        else veil(s.veil || [], s);
+      }
+      clearInterval(LS.timer);
+      render(auto ? null : "title");
+      syncPause();
+      // on entry, go to the step's own picture only if it is on show (a held-back chart is not)
+      if(!auto){
+        var pc = picture();
+        if(!pc || !pc.getClientRects().length || getComputedStyle(pc).visibility === "hidden") pc = (typeof C.picture === "string" && document.querySelector(C.picture)) || anchor;
+        scrollTo(pc);
+      }
+    }
+    function summary(){
+      $l("lStep").textContent = "Lesson complete";
+      veil([], null);
+      lBody.innerHTML = "<div class=\"lsum\"><h3 tabindex=\"-1\" id=\"lTitle\">What you have seen</h3>" +
+        "<p class=\"lscore\">You predicted <b>" + LS.score + " of " + N + "</b> correctly at the first attempt.</p><ul>" +
+        C.summary.points.map(function(p){ return "<li>" + p + "</li>"; }).join("") + "</ul>" +
+        "<p class=\"ltext\">" + C.summary.next + "</p>" +
+        "<div class=\"lnav\"><button type=\"button\" class=\"btn go\" id=\"lFree\">Explore freely</button>" +
+        "<button type=\"button\" class=\"btn\" id=\"lAgain\">Start again</button></div></div>";
+      $l("lFree").addEventListener("click", function(){ leave(); });
+      $l("lAgain").addEventListener("click", function(){ start(true); });
+      $l("lTitle").focus({preventScroll:true});
+    }
+    function updateCta(){
+      var n = LS.answered.filter(Boolean).length;
+      var resume = n > 0 && LS.i < N;
+      $l("lessonStart").textContent = resume ? "Resume the guided lesson (step " + (LS.i+1) + ")" : "Start the guided lesson";
+      $l("lessonRestart").hidden = !resume;
+    }
+    function leave(){
+      clearInterval(LS.timer);
+      root.classList.remove("lesson-on");
+      veil([], null);
+      if(C.onLeave) C.onLeave();
+      updateCta();
+      $l("lessonStart").focus({preventScroll:true});
+    }
+    function start(fresh, auto){
+      if(fresh || LS.i >= N){ LS.i = 0; LS.answered = []; LS.score = 0; }
+      root.classList.add("lesson-on");
+      go(auto);
+    }
+    $l("lessonStart").addEventListener("click", function(){ start(false); });
+    $l("lessonRestart").addEventListener("click", function(){ start(true); });
+    $l("lExit").addEventListener("click", leave);
+    // a link ending in #lesson opens the page straight into the lesson, without scrolling
+    // a Canvas page that holds it in an iframe
+    if(location.hash === "#lesson") setTimeout(function(){ start(true, true); }, 0);
+    // a pause control for the moving picture, since the demo's own controls are hidden
+    // sliders announce the value the page prints beside them (with its unit), not the raw slider number
+    [].forEach.call(document.querySelectorAll("input[type=range]"), function(r){
+      var box = r.closest(".ctl");
+      var lab = (r.id && document.querySelector("label[for=\"" + r.id + "\"] .val")) ||
+                (box && box.querySelectorAll("input[type=range]").length === 1 ? box.querySelector(".val") : null);
+      if(!lab) return;
+      var set = function(){ r.setAttribute("aria-valuetext", lab.textContent.replace(/\s+/g, " ").trim()); };
+      set(); new MutationObserver(set).observe(lab, {childList:true, characterData:true, subtree:true});
+    });
+    // (a fixed label with aria-pressed, so a screen reader hears the state, not a new name)
+    var mv = C.motion ? $l(C.motion) : null, pz = $l("lPause");
+    function syncPause(){ if(mv && pz) pz.setAttribute("aria-pressed", String(!mv.checked)); }
+    if(mv && pz){
+      pz.hidden = false;
+      pz.addEventListener("click", function(){ mv.checked = !mv.checked; mv.dispatchEvent(new Event("change", {bubbles:true})); syncPause(); });
+      mv.addEventListener("change", syncPause);
+      // the demo's Reset sets the box back without firing change, so check again after any click on the page
+      document.addEventListener("click", function(){ setTimeout(syncPause, 0); });
+      syncPause();
+    }
+  }
+
+  // ---------- L6.2 lesson ----------
+  function lessonApply(cfg, phase){
+    var o = {};
+    if(phase === "setup"){ o = {salt:"LiCl", m:100, hc:5, ha:1}; $("crossNote").textContent = ""; }
+    if(cfg.salt){ o.salt = cfg.salt; o.hc = SALTS[cfg.salt].hc; o.ha = SALTS[cfg.salt].ha; }
+    if(cfg.m !== undefined) o.m = cfg.m;
+    apply(o);
+  }
+  function gAt(name, m){ var g = gammaAt(SALTS[name], m); return g === null ? "none" : num(g,3); }
+  lessonEngine({
+    picture: "#gridBox",
+    chips: {
+      lock: [function(){ return num(state().lock,1) + " mol"; }, "water locked up", ""],
+      free: [function(){ return num(state().free,1) + " mol"; }, "free water", ""],
+      fac: [function(){ var f = state().factor; return isFinite(f) ? num(f,2) : "∞"; }, "hydration factor", ""],
+      gam: [function(){ return gAt(S.salt, molality()); }, "measured γ<sub>±</sub>", ""],
+      rat: [function(){ var g = gammaAt(salt(), molality()), f = state().factor; return (g === null || !isFinite(f)) ? "none" : num(g/f,3); }, "γ<sub>±</sub> ÷ factor", ""],
+      three: [function(){ return "LiCl " + gAt("LiCl",3) + ", NaCl " + gAt("NaCl",3) + ", KCl " + gAt("KCl",3); }, "γ<sub>±</sub> at 3 mol kg⁻¹", ""]
+    },
+    apply: lessonApply,
+    // 1: the count and the chart; 2: also the grid's caption and the bar's labels
+    onVeil: function(level){
+      document.documentElement.classList.toggle("veil-charts", level >= 1);
+      document.documentElement.classList.toggle("veil-grid", level >= 2);
+    },
+    now: function(){
+      return "Showing <b>" + num(molality(),2) + " mol kg<sup>&minus;1</sup> " + salt().html + "</b>, with " + S.hc + (S.hc === 1 ? " water molecule" : " water molecules") + " held by each cation and " + S.ha + " by each anion.";
+    },
+    steps: [
+    { title:"A kilogram of water",
+      setup:{}, show:[], hide:2,
+      text:"Molality counts moles of solute per kilogram of solvent. The grid is one kilogram of water, with each square standing for a share of its molecules.",
+      q:"How many moles of water are in one kilogram?",
+      opts:[
+        {t:"18", why:"18 g is the mass of one mole of water, so a kilogram holds 1000/18 moles."},
+        {t:"55.5", ok:true, why:"1000 g / 18.02 g mol<sup>&minus;1</sup> = 55.5 mol."},
+        {t:"1000", why:"That is the mass in grams, not the amount in moles."}
+      ],
+      more:"So 1 mol kg<sup>&minus;1</sup> means one mole of salt shared among 55.5 moles of water. That ratio is the key to what follows." },
+
+    { title:"Water held by the ions",
+      setup:{salt:"LiCl", m:100}, show:[], hide:2,
+      text:"This is 1.0 mol kg<sup>&minus;1</sup> LiCl. Suppose each Li⁺ holds five water molecules in its primary hydration shell and each Cl⁻ holds one, and that this water stops acting as solvent.",
+      q:"How much water is locked up in the shells?",
+      opts:[
+        {t:"1 mol", why:"That counts one water per formula unit. Each Li⁺ holds five and each Cl⁻ one."},
+        {t:"6 mol", ok:true, why:"(5 + 1) × 1.0 mol = 6.0 mol, which is 11 per cent of the 55.5 mol."},
+        {t:"55.5 mol", why:"That would be all of it. At this molality most of the water is still free."}
+      ],
+      show2:["lock","free"],
+      more:"At 1 mol kg<sup>&minus;1</sup> the shells take only a small part of the water, so the correction is modest (Section 6.4)." },
+
+    { title:"Five times the salt",
+      setup:{salt:"LiCl", m:100}, show:[], hide:1,
+      text:"This is Problem 6.6 and the Try this task in the book's box. When you answer, the LiCl will rise to 5.0 mol kg<sup>&minus;1</sup>, still with five waters on Li⁺ and one on Cl⁻. The ions then share only the free water, so their effective molality is raised by the factor 55.5/(55.5 &minus; <em>hm</em>), where <em>h</em> = 6 is the number of water molecules locked per formula unit.",
+      q:"By what factor is the effective molality raised?",
+      opts:[
+        {t:"About 1.1", why:"That is the factor at 1 mol kg<sup>&minus;1</sup>. At five times the salt, five times as much water is locked."},
+        {t:"About 2.2", ok:true, why:"<em>hm</em> = 6 × 5.0 = 30 mol locked, so the factor is 55.5/(55.5 &minus; 30) = 55.5/25.5 = 2.18."},
+        {t:"About 5.5", why:"That is five times the factor at 1 mol kg<sup>&minus;1</sup>, but the factor is not proportional to <em>m</em>. It is 55.5/(55.5 &minus; 6<em>m</em>), which grows slowly at first and then steeply. A factor of 5.5 would need 45 of the 55.5 mol locked."},
+        {t:"Infinite: all the water is locked", why:"30 of the 55.5 mol are locked, more than half but not all."}
+      ],
+      after:{m:500}, show2:["lock","free","fac"],
+      more:"More than half the water has stopped being solvent, so the ions share less than half of it, and their effective molality is 10.9 mol kg<sup>&minus;1</sup>, not 5.0." },
+
+    { title:"What is left once the count is divided out",
+      picture:"#gamBox",
+      setup:{salt:"LiCl", m:500}, show:["fac"], hide:1,
+      text:"The measured γ<sub>±</sub> of 5.0 mol kg<sup>&minus;1</sup> LiCl is 2.02, well above 1. The hydration factor at this molality is 2.18.",
+      q:"What is γ<sub>±</sub> divided by the hydration factor?",
+      opts:[
+        {t:"About 4.4", why:"That multiplies by the factor instead of dividing."},
+        {t:"Still 2.02, because the factor is a separate effect", why:"Dividing by the factor is the point: it removes the part of γ<sub>±</sub> that is only the counting effect."},
+        {t:"About 0.93", ok:true, why:"2.02/2.18 = 0.93."}
+      ],
+      show2:["fac","gam","rat"],
+      more:"Once the free water is counted properly, the whole rise above 1 has gone: the quotient is 0.93, a little below 1. The hollow points in the γ<sub>±</sub> chart show this quotient at every molality, which is the decomposition the free-water argument implies." },
+
+    { title:"Lithium, sodium, potassium",
+      picture:"#gamBox",
+      setup:{salt:"LiCl", m:300}, show:[], hide:1,
+      text:"Li⁺, Na⁺, and K⁺ carry the same charge, so the limiting law cannot tell their chlorides apart.",
+      q:"At 3.0 mol kg<sup>&minus;1</sup>, how do their measured γ<sub>±</sub> compare?",
+      opts:[
+        {t:"KCl > NaCl > LiCl", why:"That would follow if larger ions behaved less ideally. The order is set by hydration, and Li⁺ is the most hydrated."},
+        {t:"LiCl > NaCl > KCl", ok:true, why:"1.156, 0.714, and 0.569 (Fig. 6.2). The smallest cation, with the highest field at its surface, holds the most water."},
+        {t:"All three about the same", why:"They would be in the limiting law, but at 3 mol kg<sup>&minus;1</sup> hydration separates them widely."}
+      ],
+      show2:["three"],
+      more:"The ordering Li⁺ > Na⁺ > K⁺ is a hydration effect, and it is the point of Fig. 6.2." },
+
+    { title:"Potassium chloride",
+      setup:{salt:"LiCl", m:450}, show:[], hide:1,
+      text:"This is the second half of the Try this task. When you answer, the salt will change to KCl at 4.5 mol kg<sup>&minus;1</sup>, its most concentrated measured point, with one water on K⁺ and one on Cl⁻.",
+      q:"What is the hydration factor for KCl at 4.5 mol kg<sup>&minus;1</sup>?",
+      opts:[
+        {t:"About 1.04", why:"That locks two waters in all, as if the molality were 1. At 4.5 mol kg<sup>&minus;1</sup>, <em>hm</em> = 2 × 4.5 = 9.0 mol."},
+        {t:"About 1.19", ok:true, why:"<em>hm</em> = 2 × 4.5 = 9.0 mol locked, so the factor is 55.5/46.5 = 1.19. For LiCl at the same molality it is 1.95."},
+        {t:"About 1.95", why:"That is the factor for LiCl, with six waters per formula unit. KCl locks only two."}
+      ],
+      after:{salt:"KCl", m:450}, show2:["fac","gam"],
+      more:"With so little water locked, KCl stays below γ<sub>±</sub> = 1 all the way to saturation, at about 4.8 mol kg<sup>&minus;1</sup>." },
+
+    { title:"Crossing 1",
+      picture:"#gamBox",
+      setup:{salt:"LiCl", m:100}, show:[], hide:1,
+      text:"Dilute LiCl has γ<sub>±</sub> below 1, as the limiting law says. At 5 mol kg<sup>&minus;1</sup> it is 2.02.",
+      q:"At about what molality does the measured γ<sub>±</sub> of LiCl pass 1?",
+      opts:[
+        {t:"About 0.5 mol kg<sup>&minus;1</sup>", why:"At 0.5 mol kg<sup>&minus;1</sup> γ<sub>±</sub> is 0.739, near its minimum."},
+        {t:"About 2.4 mol kg<sup>&minus;1</sup>", ok:true, why:"It lies between the measured points at 2.0 (0.921) and 2.5 (1.026), at about 2.4 by interpolation."},
+        {t:"About 5 mol kg<sup>&minus;1</sup>", why:"By 5 mol kg<sup>&minus;1</sup> it is already twice 1."}
+      ],
+      after:{m:240}, show2:["gam"],
+      more:"Below the crossing, screening (Section 6.3) wins and γ<sub>±</sub> &lt; 1. Above it, the loss of free water wins. NaCl comes close to 1 at 6 mol kg<sup>&minus;1</sup> without passing it, and KCl never does." },
+
+    { title:"Where the picture breaks",
+      setup:{salt:"LiCl", m:500}, show:["lock","free"], after:{m:600}, show2:["lock","free","fac"],
+      text:"With five waters on Li⁺ and one on Cl⁻, each extra mole of LiCl locks up another 6 mol of water.",
+      q:"At what molality would no free water be left at all?",
+      opts:[
+        {t:"About 55 mol kg<sup>&minus;1</sup>", why:"That forgets that each formula unit locks six water molecules, not one."},
+        {t:"About 4.6 mol kg<sup>&minus;1</sup>", why:"That counts twelve waters per formula unit, twice the number assumed here."},
+        {t:"About 9.3 mol kg<sup>&minus;1</sup>", ok:true, why:"55.5/6 = 9.25 mol kg<sup>&minus;1</sup>."}
+      ],
+      more:"The slider stops at 6.0 mol kg<sup>&minus;1</sup>, where 36 of the 55.5 mol are already locked. LiCl dissolves to about 20 mol kg<sup>&minus;1</sup>, well past 9.3, so real shells must start to share water and the number held by each ion must fall. The fixed count is a picture of the trend, not a model to push to the limit." }
+    ],
+    summary: {
+      points:[
+        "A kilogram of water is 55.5 mol, and in a concentrated solution the hydration shells can take a large share of it.",
+        "Water held in a shell no longer acts as solvent, so the ions share less water than the molality assumes: the effective molality is raised by 55.5/(55.5 &minus; <em>hm</em>).",
+        "That count explains why γ<sub>±</sub> rises above 1, and why it does so most for the most strongly hydrated cation.",
+        "The order LiCl > NaCl > KCl in Fig. 6.2 is a hydration effect; the limiting law cannot distinguish the three."
+      ],
+      next:"Now go back to the free explorer and try different hydration numbers for each salt."
+    }
+  });
 })();
 </script>
 </body>

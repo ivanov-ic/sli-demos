@@ -271,6 +271,102 @@
   }
 </style>
 </head>
+<style>
+  /* ---------- guided lesson ---------- */
+  .lesson-cta{display:flex; flex-wrap:wrap; align-items:center; gap:10px 16px; margin:0 0 14px;
+    padding:11px 15px; background:var(--panel); border:1px solid var(--line); border-left:3px solid var(--teal);
+    border-radius:8px; box-shadow:var(--shadow); font-size:14px; color:var(--ink-2)}
+  .lesson-cta p{margin:0; flex:1 1 260px}
+  .lesson-cta b{color:var(--ink)}
+  .btn.go{background:var(--teal); border-color:var(--teal); color:#fff; font-weight:600}
+  .btn.go:hover{filter:brightness(1.06); color:#fff}
+  .btn.go:disabled{background:var(--panel-2); border-color:var(--line); color:var(--muted); filter:none; cursor:default}
+
+  .lesson{display:none; margin:0 0 14px; background:var(--panel); border:1px solid var(--line);
+    border-radius:10px; box-shadow:var(--shadow); padding:14px 16px 16px; scroll-margin-top:10px}
+  .lesson-on .lesson{display:block}
+  .lesson-on .lesson-cta, .lesson-on .controls, .lesson-on .work, .lesson-on .point, .lesson-on .lesson-hide{display:none}
+  .lesson-top{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap}
+  .lesson-step{font-size:11.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); font-weight:500}
+  .lesson-exit{background:none; border:none; padding:4px 0; color:var(--blue); font:inherit; font-size:13px; cursor:pointer; text-decoration:underline; text-underline-offset:2px}
+  .lesson-bar{height:5px; border-radius:3px; background:var(--panel-2); margin:8px 0 12px; overflow:hidden}
+  .lesson-bar span{display:block; height:100%; width:0; background:var(--teal); border-radius:3px; transition:width .3s ease}
+  .lesson h3{font-family:"Source Serif 4", Georgia, serif; font-size:19px; font-weight:600; margin:0 0 6px; color:var(--ink)}
+  .lesson .ltext{margin:0 0 8px; font-size:15px; line-height:1.55; color:var(--ink-2); max-width:72ch}
+  .lesson .lnow{margin:0 0 10px; font-size:12.5px; color:var(--muted)}
+  .lesson .lnow b{color:var(--ink-2); font-weight:600}
+  .lesson .lq{margin:4px 0 9px; font-size:15.5px; font-weight:600; color:var(--ink); max-width:72ch}
+  .lopts{display:grid; gap:8px; max-width:640px}
+  .lopt{display:flex; align-items:flex-start; gap:10px; width:100%; text-align:left; padding:10px 12px; min-height:44px;
+    background:var(--panel); color:var(--ink); border:1.5px solid var(--line); border-radius:8px;
+    font:inherit; font-size:14.5px; line-height:1.4; cursor:pointer}
+  .lopt:hover:not([aria-disabled="true"]){border-color:var(--blue)}
+  .lopt .mk{flex:none; width:22px; height:22px; border-radius:50%; border:1.5px solid var(--line); display:flex;
+    align-items:center; justify-content:center; font-size:12px; font-weight:700; color:var(--muted); margin-top:-1px}
+  .lopt[aria-disabled="true"]{cursor:default}
+  .lopt:focus-visible, .btn:focus-visible, .lesson-exit:focus-visible, .lsee:focus-visible{outline:2px solid var(--focus); outline-offset:2px}
+  .lopt.right{border-color:var(--teal); background:var(--teal-soft)}
+  .lopt.right .mk{border-color:var(--teal); background:var(--teal); color:#fff}
+  .lopt.wrong{border-color:var(--red); background:var(--red-soft)}
+  .lopt.wrong .mk{border-color:var(--red); background:var(--red); color:#fff}
+  .lopt.dim{opacity:.55}
+  .lfb{margin:10px 0 0; max-width:72ch; font-size:14.5px; line-height:1.55; color:var(--ink-2)}
+  .lfb:empty{display:none}
+  .lfb .verdict{display:block; font-weight:700; margin-bottom:3px}
+  .lfb .verdict.ok{color:var(--teal)} .lfb .verdict.no{color:var(--red)}
+  .lfb .more{display:block; margin-top:7px; padding-top:7px; border-top:1px solid var(--line)}
+  .lnav{display:flex; gap:10px; margin-top:14px; flex-wrap:wrap}
+  .lsum ul{margin:6px 0 10px; padding-left:20px; max-width:72ch; color:var(--ink-2); font-size:14.5px; line-height:1.55}
+  .lsum li{margin:3px 0}
+  .lscore{font-size:15px; color:var(--ink); margin:0 0 6px}
+  /* readouts held back until the student has committed to an answer */
+  .ro.veiled .v, .ro.veiled .n{filter:blur(7px); user-select:none}
+  .ro.veiled{position:relative}
+  .ro.veiled::after{content:"answer first"; position:absolute; right:8px; bottom:8px; font-size:10.5px;
+    letter-spacing:.06em; text-transform:uppercase; color:var(--muted); background:var(--panel);
+    padding:1px 5px; border-radius:4px}
+  @media (max-width:560px){
+    .lesson{padding:12px 13px 14px}
+    .lesson h3{font-size:18px}
+    .lesson .ltext{font-size:14.5px}
+  }
+  @media (prefers-reduced-motion: reduce){ .lesson-bar span{transition:none} }
+  /* the lesson sits under the picture it is about */
+  .card .lesson{margin:12px 0 0; border:none; border-top:1px solid var(--line); border-radius:0; box-shadow:none; padding:12px 0 2px}
+  .lesson-on .stage{align-items:start}
+  .lchips{display:flex; flex-wrap:wrap; gap:6px 8px; margin:12px 0 0}
+  .lchips .chip{display:inline-flex; align-items:baseline; gap:6px; padding:5px 10px; border-radius:6px; background:var(--panel-2);
+    font-size:13px; color:var(--ink-2)}
+  .lchips .chip b{font-family:"IBM Plex Mono", monospace; font-weight:500; color:var(--ink); font-variant-numeric:tabular-nums}
+  .lchips .chip.veiled b{filter:blur(6px); user-select:none}
+  .lfb .ans{display:block; margin-top:6px}
+  .lcta-btns{display:flex; flex-wrap:wrap; align-items:center; gap:8px 14px}
+  .ltop-btns{display:flex; gap:14px; flex-wrap:wrap}
+  .sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
+  .lfb .verdict:focus{outline:none}
+  .lesson h3:focus{outline:none}
+  .lsee{display:inline-block; margin-top:8px; background:none; border:1px solid var(--line); border-radius:6px;
+    padding:6px 10px; font:inherit; font-size:13px; color:var(--blue); cursor:pointer}
+  .lesson-exit[aria-pressed="true"]{font-weight:600; text-decoration:none; color:var(--ink);
+    background:var(--panel-2); border-radius:5px; padding:4px 8px}
+  .lhint{align-self:center; font-size:12.5px; color:var(--muted)}
+  /* a blurred verdict pill keeps no colour, since the colour alone would give the answer */
+  .ro.veiled .pill{background:var(--panel-2) !important; border-color:var(--line) !important; color:transparent !important}
+  .lsee + .lsee{margin-left:8px}
+  /* readouts and charts held back: stacked on a phone they are removed; on a wide screen the column
+     keeps its place with a note, so the layout does not jump when the answer is revealed */
+  @media (max-width:1040px){ .veil-charts .col-right, .veil-charts .lveilbox{display:none} }
+  @media (min-width:1041px){
+    .veil-charts .col-right, .veil-charts .lveilbox{visibility:hidden; position:relative}
+    .veil-charts .col-right::after, .veil-charts .lveilbox::after{content:"These charts and readouts appear when you answer.";
+      visibility:visible; position:absolute; top:60px; left:12%; right:12%; padding:16px 18px; text-align:center;
+      border:1px dashed var(--line); border-radius:10px; color:var(--muted); font-size:14px; line-height:1.5; background:var(--panel)}
+    .l-answered.veil-charts .col-right::after, .l-answered.veil-charts .lveilbox::after{content:"Held back for now: a later question asks about it."}
+  }
+  .lesson-on #cloudCap{display:none}
+  @media (max-width:1040px){ .lesson-on #cloudBox{height:clamp(240px, 38vh, 330px)} }
+
+</style>
 <body>
 <script>if(window.self!==window.top)document.documentElement.classList.add("in-frame");</script>
 <noscript><div style="max-width:60ch;margin:40px auto;padding:18px 22px;border:1px solid #CF4520;border-radius:8px;background:#fff;color:#0F1E2B;font:15px/1.55 'IBM Plex Sans',system-ui,sans-serif">
@@ -286,6 +382,26 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     </div>
   </header>
   <p class="point">Raise the ionic strength a hundredfold and the atmosphere shrinks only tenfold, because &lambda;<sub>D</sub> goes as <em>I</em><sup>&minus;1/2</sup>.</p>
+
+  <div class="lesson-cta" id="lessonCta">
+    <p><b>Guided lesson.</b> Ten short questions on the ionic atmosphere, about ten minutes. Each step asks you to predict first, then shows you the answer in the demo.</p>
+    <div class="lcta-btns">
+      <button type="button" class="btn go" id="lessonStart">Start the guided lesson</button>
+      <button type="button" class="lesson-exit" id="lessonRestart" hidden>Start again from step 1</button>
+    </div>
+  </div>
+
+  <section class="lesson" id="lesson" aria-label="Guided lesson">
+    <div class="lesson-top">
+      <span class="lesson-step" id="lStep">Step 1</span>
+      <span class="ltop-btns">
+        <button type="button" class="lesson-exit" id="lPause" hidden>Pause motion</button>
+        <button type="button" class="lesson-exit" id="lExit">Leave the lesson</button>
+      </span>
+    </div>
+    <div class="lesson-bar" aria-hidden="true"><span id="lBar"></span></div>
+    <div id="lBody"></div>
+  </section>
 
   <section class="controls">
     <div class="ctl">
@@ -351,7 +467,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     <div class="card">
       <h2>A snapshot of the solution</h2>
       <p class="cap" id="cloudCap"></p>
-      <div class="canvas-box" id="cloudBox"><canvas role="img" id="cloud" aria-label="Central cation surrounded by a cloud of ions, with the Debye length drawn as a shaded shell"></canvas></div>
+      <div class="canvas-box" id="cloudBox"><canvas role="img" id="cloud" aria-label="Central cation surrounded by a cloud of ions, with the Debye length drawn as a dashed circle over a shaded haze, the time-averaged atmosphere"></canvas></div>
       <div class="legend">
         <span class="key"><span class="dot" style="background:var(--red)"></span>cation</span>
         <span class="key"><span class="dot" style="background:var(--blue)"></span>anion</span>
@@ -377,9 +493,9 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
   <section class="readouts" id="ro">
     <div class="ro"><div class="k">Ionic strength <em>I</em></div><div class="v" id="roI">&ndash;</div><div class="n">no unit, from <em>c</em><sub><em>i</em></sub>/<em>c</em><sup>&#8854;</sup> with <em>c</em><sup>&#8854;</sup> = 1 mol dm<sup>&minus;3</sup></div></div>
     <div class="ro hi"><div class="k">Debye length <span class="lc">&lambda;<sub>D</sub></span></div><div class="v" id="roL">&ndash;</div><div class="n" id="roLn">nm</div></div>
-    <div class="ro"><div class="k">Bjerrum length <span class="lc"><em>l</em><sub>B</sub></span></div><div class="v" id="roB">&ndash;</div><div class="n">nm. Set by solvent and temperature only, never by concentration.</div></div>
+    <div class="ro"><div class="k">Bjerrum length <span class="lc"><em>l</em><sub>B</sub></span></div><div class="v" id="roB">&ndash;</div><div class="n">nm<span class="lesson-hide">. Set by solvent and temperature only, never by concentration.</span></div></div>
     <div class="ro"><div class="k">Mean ion separation</div><div class="v" id="roS">&ndash;</div><div class="n">nm, from the total number density of ions</div></div>
-    <div class="ro"><div class="k"><span class="lc">&lambda;<sub>D</sub></span> over a protein's radius, <span class="lc">2 nm</span></div><div class="v" id="roP">&ndash;</div><div class="n" id="roPn">&nbsp;</div></div>
+    <div class="ro"><div class="k"><span class="lc">&lambda;<sub>D</sub></span> over a protein's radius, <span class="lc">2&nbsp;nm</span></div><div class="v" id="roP">&ndash;</div><div class="n" id="roPn">&nbsp;</div></div>
     <div class="ro pin" id="pinCard"><div class="k">Against the pinned state</div><div class="v" id="roPin">&ndash;</div><div class="n" id="roPinN">Pin a state, then move the concentration slider.</div></div>
   </section>
 
@@ -418,6 +534,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
   // operating system asks for reduced motion; the checkbox turns it off.
   var MOTION_DEFAULT = true;
   var S = {slider:600, c:0.01, type:"11", T:298, eps:78.4, fov:"20", motion:MOTION_DEFAULT, scaleObj:true, pin:null};
+  S.veilLevel = 0;   // guided lesson: 1 hides the λD label, 2 hides everything that shows λD
   function cFromSlider(v){ return Math.pow(10, -5 + 5*(v/1000)); }
 
   // ---------- number formatting ----------
@@ -520,39 +637,62 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
   // in the central ion's screened potential and then move by Brownian steps accepted with the
   // Metropolis rule, so the ions keep crossing lambda_D in and out while the average stays right.
   var POOLMAX = 3500;           // most ions drawn at once; beyond this a thinner slice is shown
-  var PX = new Float64Array(POOLMAX), PY = new Float64Array(POOLMAX);   // nm from the central ion
+  var PX = new Float64Array(POOLMAX), PY = new Float64Array(POOLMAX), PZ = new Float64Array(POOLMAX);   // nm from the central ion; z is depth
+  var DEPTH = 1;                // nm, depth of the drawn slab, centred on the central ion
   var UO = new Float64Array(POOLMAX), UKEY = "";
   var ANION = new Uint8Array(POOLMAX), ENSKEY = "", PENDING_DT = 0;
   var R_CONTACT = 0.30;         // nm, the closest approach to the central ion
   var DVIS = 0.0008;            // visual diffusion coefficient at 298 K, in (field of view)^2 per second
   function seeded(seed){ return function(){ seed = (seed + 0x6D2B79F5) | 0; var t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
     t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0)/4294967296; }; }
-  // energy of an ion of signed charge z at in-plane distance r from the central cation, in units of kBT
+  // energy of an ion of signed charge z at distance r (in three dimensions) from the central cation, in units of kBT
   function uKT(z, r, st){
     if(r < R_CONTACT) return Infinity;
     return Math.max(-6, Math.min(6, z*st.t.zc*st.lB*Math.exp(-r/st.lamD)/r));
   }
   function zOf(k, tt){ return ANION[k] ? -tt.za : tt.zc; }
+  var NDRAW = 0;                // ions actually drawn, set by the build
   function buildEnsemble(st, viewW, viewH, N){
-    var rnd = seeded(20260924), tt = st.t, fA = tt.na/(tt.nc+tt.na);
-    for(var k=0;k<N;k++) ANION[k] = (Math.floor((k+1)*fA) - Math.floor(k*fA)) ? 1 : 0;   // exact mix, interleaved
-    var G = 160, cw = viewW/G, ch = viewH/G;
-    function cdf(z){
-      var c = new Float64Array(G*G), acc = 0;
-      for(var j=0;j<G;j++) for(var i=0;i<G;i++){
-        var u = uKT(z, Math.hypot((i+0.5)*cw - viewW/2, (j+0.5)*ch - viewH/2), st);
-        acc += isFinite(u) ? Math.exp(-u) : 0; c[j*G+i] = acc;
+    var rnd = seeded(20260924), tt = st.t;
+    var G = 72, NZ = 10, cw = viewW/G, ch = viewH/G, cz = DEPTH/NZ, n3 = NZ*G*G;
+    var cA = new Float64Array(n3), cC = new Float64Array(n3), aA = 0, aC = 0, qbox = 0;
+    var kq = cw*ch*cz/(4*Math.PI*st.lamD*st.lamD), b = tt.zc*st.lB;
+    for(var l=0;l<NZ;l++){
+      var zz = (l+0.5)*cz - DEPTH/2;
+      for(var j=0;j<G;j++){
+        var y0 = (j+0.5)*ch - viewH/2, base = (l*G + j)*G;
+        for(var i=0;i<G;i++){
+          var x0 = (i+0.5)*cw - viewW/2, r = Math.sqrt(x0*x0 + y0*y0 + zz*zz);
+          if(r >= R_CONTACT){
+            var e = Math.exp(-r/st.lamD)/r;
+            aC += Math.exp(-Math.max(-6, Math.min(6,  tt.zc*b*e)));
+            aA += Math.exp(-Math.max(-6, Math.min(6, -tt.za*b*e)));
+            qbox -= tt.zc*e*kq;                  // Debye-Hückel counter-charge in this cell, in units of e
+          }
+          cC[base+i] = aC; cA[base+i] = aA;
+        }
       }
-      return c;
     }
-    var cA = cdf(-tt.za), cC = cdf(tt.zc);
+    // species numbers: the stoichiometric share of cations, and enough anions for the box to hold qbox
+    var Nc = Math.round(N*tt.nc/(tt.nc+tt.na)), Na = N - Nc;
+    if(N >= 10){
+      Na = Math.max(0, Math.round((tt.zc*Nc - qbox)/tt.za));
+      if(Nc + Na > POOLMAX){                   // a full pool: fewer cations, so the charge still comes out right
+        Nc = Math.floor((POOLMAX*tt.za + qbox)/(tt.zc + tt.za));
+        Na = Math.min(POOLMAX - Nc, Math.max(0, Math.round((tt.zc*Nc - qbox)/tt.za)));
+      }
+    }
+    N = Nc + Na; NDRAW = N;
+    // the mix, interleaved; integer arithmetic so the count of each species is exact
+    for(var k=0;k<N;k++) ANION[k] = (Math.floor((k+1)*Na/N) - Math.floor(k*Na/N)) ? 1 : 0;
     for(var k2=0;k2<N;k2++){
       var c = ANION[k2] ? cA : cC, total = c[c.length-1];
       for(var tries=0; tries<60; tries++){
         var t = rnd()*total, lo = 0, hi = c.length-1;
         while(lo < hi){ var m = (lo+hi)>>1; if(c[m] < t) lo = m+1; else hi = m; }
-        var x = (lo%G + rnd())*cw - viewW/2, y = (((lo/G)|0) + rnd())*ch - viewH/2;
-        if(Math.hypot(x,y) >= R_CONTACT){ PX[k2] = x; PY[k2] = y; break; }
+        var ii = lo%G, jj = ((lo/G)|0)%G, ll = (lo/(G*G))|0;
+        var x = (ii + rnd())*cw - viewW/2, y = (jj + rnd())*ch - viewH/2, z3 = (ll + rnd())*cz - DEPTH/2;
+        if(Math.sqrt(x*x + y*y + z3*z3) >= R_CONTACT){ PX[k2] = x; PY[k2] = y; PZ[k2] = z3; break; }
       }
     }
   }
@@ -567,16 +707,18 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     var sig = Math.sqrt(2*DVIS*diffRel(S.T)*dt)*fov;          // nm, rms step along each axis
     if(UKEY !== ENSKEY){                                      // energies of the current positions
       UKEY = ENSKEY;
-      for(var j=0;j<N;j++) UO[j] = uKT(zOf(j, tt), Math.sqrt(PX[j]*PX[j]+PY[j]*PY[j]), st);
+      for(var j=0;j<N;j++) UO[j] = uKT(zOf(j, tt), Math.sqrt(PX[j]*PX[j]+PY[j]*PY[j]+PZ[j]*PZ[j]), st);
     }
     for(var k=0;k<N;k++){
-      var x = PX[k] + sig*gauss(), y = PY[k] + sig*gauss();
+      var x = PX[k] + sig*gauss(), y = PY[k] + sig*gauss(), z3 = PZ[k] + sig*gauss(), hd = DEPTH/2;
       if(x > hw) x = 2*hw - x; else if(x < -hw) x = -2*hw - x;    // reflecting walls at the frame
       if(y > hh) y = 2*hh - y; else if(y < -hh) y = -2*hh - y;
-      var u1 = uKT(zOf(k, tt), Math.sqrt(x*x+y*y), st);
+      if(z3 > hd) z3 = 2*hd - z3; else if(z3 < -hd) z3 = -2*hd - z3;
+      if(z3 > hd || z3 < -hd) z3 = (Math.random()-0.5)*DEPTH;      // a step longer than a thin slab
+      var u1 = uKT(zOf(k, tt), Math.sqrt(x*x+y*y+z3*z3), st);
       if(u1 === Infinity) continue;
       var du = u1 - UO[k];
-      if(du <= 0 || Math.random() < Math.exp(-du)){ PX[k] = x; PY[k] = y; UO[k] = u1; }
+      if(du <= 0 || Math.random() < Math.exp(-du)){ PX[k] = x; PY[k] = y; PZ[k] = z3; UO[k] = u1; }
     }
   }
 
@@ -607,12 +749,12 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     // it peaks at lambda_D and fades smoothly beyond, so the shading has no edge.
     var rp = st.lamD*scale;
     var dpr = g.getTransform().a;
-    var bgKey = [W, H, dpr, rp.toFixed(2), TH["panel-2"]].join("|");
+    var bgKey = [W, H, dpr, rp.toFixed(2), TH["panel-2"], S.veilLevel].join("|");
     if(bgKey !== BGKEY){
       BGKEY = bgKey; BG.width = cloudCv.width; BG.height = cloudCv.height;
       var b = BG.getContext("2d"); b.setTransform(dpr,0,0,dpr,0,0);
       b.fillStyle = TH["panel-2"]; b.fillRect(0,0,W,H);
-      if(rp > 0.6){
+      if(rp > 0.6 && S.veilLevel < 2){
         var RG = 4*rp, grad = b.createRadialGradient(cx,cy,0,cx,cy,RG);
         for(var gs=0; gs<=16; gs++){
           var xr = 4*gs/16, a = 0.20*xr*Math.exp(1-xr);
@@ -626,8 +768,10 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     // ions
     var tt = st.t;
     var rIon = Math.max(1.5, Math.min(0.13*scale, 11));
-    var key = [st.c, S.type, S.T, S.eps, viewW.toFixed(4), viewH.toFixed(4), N].join("|");
+    DEPTH = slab;
+    var key = [st.c, S.type, S.T, S.eps, viewW.toFixed(4), viewH.toFixed(4), N, slab.toPrecision(4)].join("|");
     if(key !== ENSKEY){ ENSKEY = key; buildEnsemble(st, viewW, viewH, N); UKEY = ""; PENDING_DT = 0; }
+    N = NDRAW;
     if(S.motion && PENDING_DT > 0){ stepEnsemble(st, viewW, viewH, N, PENDING_DT); PENDING_DT = 0; }
     [1,0].forEach(function(which){
       g.fillStyle = which ? TH.blue : TH.red;
@@ -638,10 +782,10 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     });
 
     // the atmosphere's edge goes on top of the ions, so it stays visible in a crowded solution
-    if(rp > 0.6){
+    if(rp > 0.6 && S.veilLevel < 2){
       g.strokeStyle = TH.teal; g.lineWidth = 1.8; g.setLineDash([5,4]);
       g.beginPath(); g.arc(cx,cy,rp,0,6.2832); g.stroke(); g.setLineDash([]);
-      if(rp > 26){
+      if(rp > 26 && !S.veilLevel){
         g.strokeStyle = TH.teal; g.lineWidth = 1.6;
         g.beginPath(); g.moveTo(cx,cy); g.lineTo(cx+rp*0.707, cy-rp*0.707); g.stroke();
         mono(g,12,500);
@@ -731,7 +875,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
                    : " The box follows λ<sub>D</sub>, and it holds fewer ions the more concentrated the solution, because λ<sub>D</sub>³ shrinks faster than the concentration grows.")
         : " Change the concentration and the count changes in proportion.");
     setHTML("cloudCap", head + tail +
-      " Each ion keeps its charge and feels the central ion's screened potential as if it lay in the same plane, so counter-ions gather near the centre and co-ions are thinned out there. They keep moving in and out: the dashed circle marks where the atmosphere's charge peaks, not a wall.");
+      " Each ion keeps its charge and moves in the central ion's screened potential, so on average a few more counter-ions than co-ions are found near the centre, spread through the depth of the box. Over the whole atmosphere that excess adds up to the central ion's charge with the opposite sign; the box holds the part of it that lies inside. They keep moving in and out: the dashed circle marks where the atmosphere's charge peaks, not a wall.");
   }
 
   // ---------- phi(r) chart ----------
@@ -1069,6 +1213,399 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
   document.getElementById("motion").checked = S.motion;
   update();
   if(S.motion) raf = requestAnimationFrame(loop);
+
+  // ===================== guided lesson (shared engine) =====================
+  // Predict, then reveal. Each step puts the demo into a stated condition, asks one
+  // multiple-choice question (one attempt, so the final score is honest), hides any
+  // readout that would give the answer away, and only after the student commits moves
+  // the demo to the new condition and explains. The page-specific part is the object
+  // passed in: its steps, which readouts to show beside the question, and apply(),
+  // which sets the demo through its own internals so that values are exact.
+  function lessonEngine(C){
+    var $l = function(id){ return document.getElementById(id); };
+    var root = document.documentElement;
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var lessonEl = $l("lesson"), lBody = $l("lBody"), cta = $l("lessonCta");
+    var anchor = document.querySelector(C.anchor || ".stage .card");
+    anchor.appendChild(lessonEl);                     // the lesson sits under the picture it is about
+    // the picture to scroll back to; a page whose picture changes with its mode passes a function
+    // a step can name its own picture when its answer is on a chart rather than the main view
+    function picture(){
+      var st = C.steps[LS.i], pc = (st && st.picture) || C.picture;
+      return typeof pc === "function" ? pc() : (pc ? document.querySelector(pc) : anchor);
+    }
+    var N = C.steps.length;
+    var LS = {i:0, answered:[], score:0};
+
+    function veil(ids, step){
+      (C.veilable || []).forEach(function(id){
+        var el = $l(id); if(!el) return;
+        var on = ids.indexOf(id) >= 0, box = el.closest(".ro") || el.parentNode;
+        box.classList.toggle("veiled", on);
+        [].forEach.call(box.querySelectorAll(".v,.n"), function(x){
+          if(on) x.setAttribute("aria-hidden", "true"); else x.removeAttribute("aria-hidden");
+        });
+      });
+      // hide: what the picture holds back while the question is open; hideAfter: what stays
+      // hidden once it is answered (for a later step that asks about the same thing)
+      root.classList.toggle("l-answered", !!(step && LS.answered[LS.i]));
+      if(C.onVeil) C.onVeil(step ? (LS.answered[LS.i] ? (step.hideAfter || 0) : (step.hide || 0)) : 0);
+    }
+    function chips(s, done){
+      var keys = (done && s.show2) ? s.show2 : (s.show || []), vs = done ? (s.veilAfter || []) : (s.veil || []);
+      if(!keys.length) return "";
+      return "<div class=\"lchips\" id=\"lChips\">" + keys.map(function(k){
+        // a chip reads a readout by its id, or calls a function for values the page has no readout for
+        var c = C.chips[k], v = typeof c[0] === "function" ? c[0]() : (($l(c[0]) || {}).textContent || "").trim();
+        var hid = vs.indexOf(k) >= 0 || (typeof c[0] === "string" && vs.indexOf(c[0]) >= 0);
+        return "<span class=\"chip" + (hid ? " veiled" : "") + "\"><span>" + c[1] + "</span>" +
+          (hid ? "<b aria-hidden=\"true\">" + v + c[2] + "</b><span class=\"sr\">hidden until you answer</span>"
+               : "<b>" + v + c[2] + "</b>") + "</span>";
+      }).join("") + "</div>";
+    }
+    // the line that says what the demo is showing; it is told the step, so it can hold back a value
+    function nowText(){ var s = C.steps[LS.i]; return C.now(s, !!LS.answered[LS.i]); }
+    function nowLine(){ return C.now ? "<p class=\"lnow\" id=\"lNow\">" + nowText() + "</p>" : ""; }
+    function scrollTo(el){ if(el && el.scrollIntoView) el.scrollIntoView({block:"start", behavior: reduce ? "auto" : "smooth"}); }
+
+    function render(focusWhat){
+      $l("lBar").style.width = (100*LS.i/N) + "%";
+      if(LS.i >= N) return summary();
+      var s = C.steps[LS.i], done = LS.answered[LS.i];
+      $l("lStep").textContent = "Step " + (LS.i+1) + " of " + N;
+      var h = "<h3 tabindex=\"-1\" id=\"lTitle\">" + s.title + "</h3><p class=\"ltext\">" + s.text + "</p>" + nowLine() +
+        "<p class=\"lq\" id=\"lQ\">" + s.q + "</p><div class=\"lopts\" role=\"group\" aria-labelledby=\"lQ\">";
+      s.opts.forEach(function(o, k){
+        var cls = "lopt", mk = String.fromCharCode(65+k), sr = "";
+        if(done){
+          if(o.ok){ cls += " right"; mk = "✓"; sr = done.pick === k ? " (your answer, correct)" : " (correct answer)"; }
+          else if(done.pick === k){ cls += " wrong"; mk = "✗"; sr = " (your answer)"; }
+          else cls += " dim";
+        }
+        h += "<button type=\"button\" class=\"" + cls + "\" data-k=\"" + k + "\"" + (done ? " aria-disabled=\"true\"" : "") +
+             "><span class=\"mk\" aria-hidden=\"true\">" + mk + "</span><span>" + o.t + "<span class=\"sr\">" + sr + "</span></span></button>";
+      });
+      h += "</div>" + chips(s, done) + "<div class=\"lfb\" id=\"lFb\" aria-live=\"polite\">";
+      if(done){
+        var picked = s.opts[done.pick], right = s.opts.filter(function(o){ return o.ok; })[0];
+        h += "<span class=\"verdict " + (picked.ok ? "ok" : "no") + "\" tabindex=\"-1\" id=\"lVerdict\">" + (picked.ok ? "Right." : "Not quite.") + "</span>" +
+             picked.why + (picked.ok ? "" : "<span class=\"ans\">The right answer was: <b>" + right.t + "</b>. " + right.why + "</span>") +
+             "<span class=\"more\">" + s.more + "</span>" +
+             (s.after || s.hide || s.veil ? "<button type=\"button\" class=\"lsee\" id=\"lSee\">See it in the demo &uarr;</button>" : "") +
+             (C.replay && s.after && s.after.run ? "<button type=\"button\" class=\"lsee\" id=\"lAgainRun\">Run it again</button>" : "");
+      }
+      h += "</div><div class=\"lnav\">" +
+        (LS.i > 0 ? "<button type=\"button\" class=\"btn\" id=\"lBack\">Back</button>" : "") +
+        "<button type=\"button\" class=\"btn go\" id=\"lNext\"" + (done ? "" : " disabled") + ">" + (LS.i === N-1 ? "Finish" : "Continue") + "</button>" +
+        (done ? "" : "<span class=\"lhint\">Choose an answer to continue</span>") + "</div>";
+      lBody.innerHTML = h;
+      [].forEach.call(lBody.querySelectorAll(".lopt"), function(b){
+        b.addEventListener("click", function(){ if(!LS.answered[LS.i]) answer(+b.dataset.k); });
+      });
+      if($l("lBack")) $l("lBack").addEventListener("click", function(){ LS.i--; go(); });
+      $l("lNext").addEventListener("click", function(){ LS.i++; go(); });
+      if($l("lAgainRun")) $l("lAgainRun").addEventListener("click", function(){ C.replay(s); pollChips(s); });
+      if($l("lSee")) $l("lSee").addEventListener("click", function(){
+        var pic = picture(); if(!pic) return;
+        if(!pic.hasAttribute("tabindex")) pic.setAttribute("tabindex", "-1");
+        scrollTo(pic); pic.focus({preventScroll:true});
+      });
+      var f = focusWhat === "verdict" ? $l("lVerdict") : (focusWhat === "title" ? $l("lTitle") : null);
+      if(f) f.focus({preventScroll: focusWhat === "title"});
+    }
+    function refreshChips(){
+      var s = C.steps[LS.i], el = $l("lChips");
+      if(!s || !el) return;
+      var tmp = document.createElement("div"); tmp.innerHTML = chips(s, LS.answered[LS.i]);
+      el.parentNode.replaceChild(tmp.firstChild, el);
+      if(C.now && $l("lNow")) $l("lNow").innerHTML = nowText();
+    }
+    function answer(k){
+      var s = C.steps[LS.i];
+      LS.answered[LS.i] = {pick:k};
+      if(s.opts[k].ok) LS.score++;
+      if(s.after) C.apply(s.after, "after", s);
+      veil(s.veilAfter || [], s);
+      render("verdict");
+      pollChips(s);
+    }
+    // values that change over time (a race, a simulation) are read again until they settle; a page
+    // whose runs go at the display's frame rate says through busy() whether one is still going
+    function pollChips(s){
+      var at = LS.i, t0 = Date.now(), until = Math.max(1600, s.settle || 0);
+      clearInterval(LS.timer);
+      LS.timer = setInterval(function(){
+        var el = Date.now() - t0;
+        if(LS.i !== at || !LS.answered[at] || el > 180000 || (el > until + 50 && !(C.busy && C.busy()))){
+          clearInterval(LS.timer); refreshChips(); return;
+        }
+        refreshChips();
+      }, 500);
+    }
+    function go(auto){
+      var s = C.steps[LS.i];
+      if(s){
+        C.apply(s.setup, "setup", s);
+        if(LS.answered[LS.i]){ if(s.after) C.apply(s.after, "after", s); veil(s.veilAfter || [], s); }
+        else veil(s.veil || [], s);
+      }
+      clearInterval(LS.timer);
+      render(auto ? null : "title");
+      syncPause();
+      // on entry, go to the step's own picture only if it is on show (a held-back chart is not)
+      if(!auto){
+        var pc = picture();
+        if(!pc || !pc.getClientRects().length || getComputedStyle(pc).visibility === "hidden") pc = (typeof C.picture === "string" && document.querySelector(C.picture)) || anchor;
+        scrollTo(pc);
+      }
+    }
+    function summary(){
+      $l("lStep").textContent = "Lesson complete";
+      veil([], null);
+      lBody.innerHTML = "<div class=\"lsum\"><h3 tabindex=\"-1\" id=\"lTitle\">What you have seen</h3>" +
+        "<p class=\"lscore\">You predicted <b>" + LS.score + " of " + N + "</b> correctly at the first attempt.</p><ul>" +
+        C.summary.points.map(function(p){ return "<li>" + p + "</li>"; }).join("") + "</ul>" +
+        "<p class=\"ltext\">" + C.summary.next + "</p>" +
+        "<div class=\"lnav\"><button type=\"button\" class=\"btn go\" id=\"lFree\">Explore freely</button>" +
+        "<button type=\"button\" class=\"btn\" id=\"lAgain\">Start again</button></div></div>";
+      $l("lFree").addEventListener("click", function(){ leave(); });
+      $l("lAgain").addEventListener("click", function(){ start(true); });
+      $l("lTitle").focus({preventScroll:true});
+    }
+    function updateCta(){
+      var n = LS.answered.filter(Boolean).length;
+      var resume = n > 0 && LS.i < N;
+      $l("lessonStart").textContent = resume ? "Resume the guided lesson (step " + (LS.i+1) + ")" : "Start the guided lesson";
+      $l("lessonRestart").hidden = !resume;
+    }
+    function leave(){
+      clearInterval(LS.timer);
+      root.classList.remove("lesson-on");
+      veil([], null);
+      if(C.onLeave) C.onLeave();
+      updateCta();
+      $l("lessonStart").focus({preventScroll:true});
+    }
+    function start(fresh, auto){
+      if(fresh || LS.i >= N){ LS.i = 0; LS.answered = []; LS.score = 0; }
+      root.classList.add("lesson-on");
+      go(auto);
+    }
+    $l("lessonStart").addEventListener("click", function(){ start(false); });
+    $l("lessonRestart").addEventListener("click", function(){ start(true); });
+    $l("lExit").addEventListener("click", leave);
+    // a link ending in #lesson opens the page straight into the lesson, without scrolling
+    // a Canvas page that holds it in an iframe
+    if(location.hash === "#lesson") setTimeout(function(){ start(true, true); }, 0);
+    // a pause control for the moving picture, since the demo's own controls are hidden
+    // sliders announce the value the page prints beside them (with its unit), not the raw slider number
+    [].forEach.call(document.querySelectorAll("input[type=range]"), function(r){
+      var box = r.closest(".ctl");
+      var lab = (r.id && document.querySelector("label[for=\"" + r.id + "\"] .val")) ||
+                (box && box.querySelectorAll("input[type=range]").length === 1 ? box.querySelector(".val") : null);
+      if(!lab) return;
+      var set = function(){ r.setAttribute("aria-valuetext", lab.textContent.replace(/\s+/g, " ").trim()); };
+      set(); new MutationObserver(set).observe(lab, {childList:true, characterData:true, subtree:true});
+    });
+    // (a fixed label with aria-pressed, so a screen reader hears the state, not a new name)
+    var mv = C.motion ? $l(C.motion) : null, pz = $l("lPause");
+    function syncPause(){ if(mv && pz) pz.setAttribute("aria-pressed", String(!mv.checked)); }
+    if(mv && pz){
+      pz.hidden = false;
+      pz.addEventListener("click", function(){ mv.checked = !mv.checked; mv.dispatchEvent(new Event("change", {bubbles:true})); syncPause(); });
+      mv.addEventListener("change", syncPause);
+      // the demo's Reset sets the box back without firing change, so check again after any click on the page
+      document.addEventListener("click", function(){ setTimeout(syncPause, 0); });
+      syncPause();
+    }
+  }
+
+  // ---------- L5.2 lesson: sets the demo through its own state, so values are exact ----------
+  function lessonApply(cfg){
+    function pressed(sel, attr, val){
+      [].forEach.call(document.querySelectorAll(sel), function(x){ x.setAttribute("aria-pressed", String(x.dataset[attr] === val)); });
+    }
+    if(cfg.c !== undefined) setSliderFromConc(cfg.c);
+    if(cfg.type !== undefined){ S.type = cfg.type; pressed("#ztype button", "z", cfg.type); }
+    if(cfg.T !== undefined){ S.T = cfg.T; tempEl.value = cfg.T; }
+    if(cfg.eps !== undefined){ S.eps = cfg.eps; epsEl.value = cfg.eps; }
+    if(cfg.fov !== undefined){ S.fov = cfg.fov; pressed("#fov button", "fov", cfg.fov); }
+    if(cfg.scaleObj !== undefined){ S.scaleObj = cfg.scaleObj; document.getElementById("scaleObj").checked = cfg.scaleObj; }
+    if(cfg.motion){                                            // a step that is about the motion turns it on
+      var mv = document.getElementById("motion");
+      if(!mv.checked){ mv.checked = true; mv.dispatchEvent(new Event("change", {bubbles:true})); }
+    }
+    if(cfg.pin === false){
+      S.pin = null;
+      document.getElementById("roPin").textContent = "–";
+      document.getElementById("roPinN").textContent = "Pin a state, then move the concentration slider.";
+    }
+    if(cfg.pin === true){
+      var st = state(); S.pin = {I:st.I, lamD:st.lamD, eps:S.eps, T:S.T};
+      document.getElementById("roPinN").innerHTML = "Pinned at I = " + conc(st.I) + ", λ<sub>D</sub> = " + nm(st.lamD) + " nm. Now move the concentration.";
+      document.getElementById("roPin").textContent = "×1.00 → ×1.00";
+    }
+    update();
+    if(S.motion && raf === null){ tPrev = 0; raf = requestAnimationFrame(loop); }
+  }
+  function lessonSetup(o){
+    var b = {T:298, eps:78.4, scaleObj:true, pin:false};       // water at 298 K unless a step says otherwise
+    Object.keys(o).forEach(function(k){ b[k] = o[k]; });
+    return b;
+  }
+  lessonEngine({
+    picture: "#cloudBox",
+    motion: "motion",
+    veilable: ["roI","roL","roB","roS","roP","roPin"],
+    chips: {I:["roI","<em>I</em>",""], L:["roL","λ<sub>D</sub>"," nm"], B:["roB","<em>l</em><sub>B</sub>"," nm"],
+            S:["roS","mean separation"," nm"], P:["roP","λ<sub>D</sub> / protein radius",""], pin:["roPin","against the pin",""]},
+    apply: function(cfg, phase){ lessonApply(phase === "setup" ? lessonSetup(cfg) : cfg); },
+    onVeil: function(level){
+      S.veilLevel = level;
+      // the canvas description must not mention a circle or haze that is not drawn
+      document.getElementById("cloud").setAttribute("aria-label", level >= 2 ? "Central cation surrounded by a cloud of ions" :
+        "Central cation surrounded by a cloud of ions, with the Debye length drawn as a dashed circle over a shaded haze, the time-averaged atmosphere");
+      document.documentElement.classList.toggle("veil-charts", level >= 1);
+      drawAll();
+    },
+    now: function(){
+      var c = S.c, cs = c >= 0.0095 ? c.toPrecision(2) + " mol dm⁻³" : (c*1000).toPrecision(2) + " mmol dm⁻³";
+      var salt = {"11":"NaCl or KCl (1:1)", "21":"CaCl₂ (2:1)", "22":"MgSO₄ (2:2)"}[S.type];
+      var solv = Math.abs(S.eps-78.4) < 0.05 ? "water" : (Math.abs(S.eps-24.3) < 0.05 ? "ethanol" : "a solvent of εr = " + S.eps.toFixed(1));
+      return "Now showing <b>" + cs + " " + salt + "</b> in " + solv + " at " + S.T + " K, in a view " +
+        (S.fov === "fit" ? "that follows λ<sub>D</sub>" : "with its shorter side " + S.fov + " nm") + (S.pin ? ", with the previous state pinned" : "") + ".";
+    },
+    steps: [
+    { title:"The neighbours of one ion",
+      setup:{c:0.01, type:"11", fov:"20"}, show:["I"], veil:["roL","roP"], hide:2,
+      text:"The red ion at the centre is a cation. Every other dot is a real ion of the same solution, in a view whose shorter side is 20 nm: red for cations, blue for anions. The picture is one moment; the ions move all the time.",
+      q:"Close to the central cation, compared with far from it, what would you expect to find on average?",
+      opts:[
+        {t:"Slightly more anions than cations", ok:true, why:"The Boltzmann factor e<sup>&minus;<em>V</em>/<em>k</em><sub>B</sub><em>T</em></sup> makes an anion a little more likely, and a cation a little less likely, to be found near the central cation."},
+        {t:"Equal numbers of anions and cations", why:"That would be true if the ions did not interact. Attraction makes anions a little more likely near the central cation, and repulsion makes cations a little less likely."},
+        {t:"Only anions, because the cations are kept out", why:"That is too strong. Beyond about 0.7 nm, the Bjerrum length, the repulsion is weaker than the thermal energy <em>k</em><sub>B</sub><em>T</em>, so thermal motion still brings cations close. They are thinned out, not excluded."}
+      ],
+      more:"Averaged over time, this small excess of counter-ions is the <b>ionic atmosphere</b>. Its total charge is equal and opposite to that of the central ion, so the ion and its atmosphere together are neutral (Section 5.2.3)." },
+
+    { title:"How big is the atmosphere?",
+      setup:{c:0.01, type:"11", fov:"20"}, show:["I","L"], veil:["roL","roP"], hide:2,
+      text:"For water at 298 K, eqn 5.8 gives λ<sub>D</sub> ≈ 0.304 nm / <em>I</em><sup>1/2</sup>. For a 1:1 salt the ionic strength <em>I</em> is the numerical value of the concentration in mol dm<sup>&minus;3</sup>, so here <em>I</em> = 0.010. The circle and the charts are hidden until you answer.",
+      q:"What is the Debye length of 0.010 mol dm<sup>&minus;3</sup> NaCl?",
+      opts:[
+        {t:"0.0304 nm", why:"That multiplies by <em>I</em><sup>1/2</sup> instead of dividing by it."},
+        {t:"0.304 nm", why:"That is the value at <em>I</em> = 1."},
+        {t:"3.04 nm", ok:true, why:"0.304 nm / (0.010)<sup>1/2</sup> = 0.304 nm / 0.10 = 3.04 nm."},
+        {t:"30.4 nm", why:"That divides by <em>I</em> instead of by <em>I</em><sup>1/2</sup>."}
+      ],
+      more:"That is about ten ionic diameters. The circle, its label, the charts, and the Debye length readouts are back, so you can check." },
+
+    { title:"Is the atmosphere a shell?",
+      setup:{c:0.01, type:"11", fov:"20", motion:true}, show:[], veil:["roL","roP"], hide:1,
+      text:"The dashed teal circle marks the Debye length, λ<sub>D</sub>, the size of the atmosphere. Thermal motion is switched on. Watch the blue anions near the centre for ten seconds before you answer.",
+      q:"What happens to an anion that is inside the circle?",
+      opts:[
+        {t:"It stays bound to the central cation", why:"It is attracted, but beyond the Bjerrum length the attraction is weaker than the thermal energy, so it does not stay."},
+        {t:"It wanders out, and other ions wander in", ok:true, why:"The atmosphere is dynamic: its ions exchange with the bulk all the time."},
+        {t:"It cannot cross the circle", why:"The circle is not a wall. It marks where the charge of the atmosphere peaks, and ions cross it freely."}
+      ],
+      more:"This is the fourth property of the atmosphere in Section 5.2.3. The atmosphere is a time average over ions that keep coming and going, and if something disturbs it, as an electric field does in Lecture 7, it takes a finite time to rebuild." },
+
+    { title:"A hundred times more salt",
+      setup:{c:0.01, type:"11", fov:"20", pin:true}, show:["I","L","pin"], hide:1,
+      text:"The state at 0.010 mol dm<sup>&minus;3</sup> has been pinned. When you answer, the concentration will rise a hundredfold, to 1.0 mol dm<sup>&minus;3</sup>.",
+      q:"What happens to the Debye length?",
+      opts:[
+        {t:"It shrinks a hundredfold", why:"That would be true if λ<sub>D</sub> went as 1/<em>I</em>. It goes as <em>I</em><sup>&minus;1/2</sup>."},
+        {t:"It shrinks tenfold", ok:true, why:"(100)<sup>1/2</sup> = 10, so λ<sub>D</sub> falls from 3.04 nm to 0.304 nm."},
+        {t:"It grows tenfold", why:"More salt puts more counter-ions within reach, so the counter-charge is found closer to the central ion and the atmosphere contracts."},
+        {t:"It does not change", why:"It does change: λ<sub>D</sub> depends on the ionic strength, which has risen a hundredfold."}
+      ],
+      after:{c:1.0},
+      more:"The pinned-state readout shows ×100 in <em>I</em> and ×0.100 in λ<sub>D</sub>, the point of Fig. 5.2. At 1 mol dm<sup>&minus;3</sup>, though, λ<sub>D</sub> is smaller than the mean distance between ions, so the picture of a smooth atmosphere is only a rough guide here." },
+
+    { title:"Halving the atmosphere",
+      setup:{c:0.01, type:"11", fov:"20", pin:true}, show:["I","L","pin"], hide:1,
+      text:"Back to 0.010 mol dm<sup>&minus;3</sup>, pinned again.",
+      q:"By what factor must the ionic strength rise to halve the Debye length?",
+      opts:[
+        {t:"2", why:"Doubling <em>I</em> shrinks λ<sub>D</sub> only by a factor of 2<sup>1/2</sup>, to 71 per cent of its value."},
+        {t:"4", ok:true, why:"λ<sub>D</sub> varies as <em>I</em><sup>&minus;1/2</sup>, so halving λ<sub>D</sub> needs <em>I</em> four times larger."},
+        {t:"8", why:"That goes too far: 8<sup>1/2</sup> = 2.8."}
+      ],
+      after:{c:0.04},
+      more:"The demo has moved to 0.040 mol dm<sup>&minus;3</sup>, and the readout shows ×4.00 in <em>I</em> and ×0.500 in λ<sub>D</sub>. Because the dependence is so weak, the atmosphere changes only from about 10 nm to 0.3 nm between 1 mmol dm<sup>&minus;3</sup> and 1 mol dm<sup>&minus;3</sup>." },
+
+    { title:"Ionic strength is not concentration",
+      setup:{c:0.001, type:"11", fov:"100"}, show:["I","L"],
+      text:"This is 1.0 mmol dm<sup>&minus;3</sup> KCl. For any salt that is not 1:1, the ionic strength and the concentration differ, because every ion counts, weighted by the square of its charge: <em>I</em> = ½ Σ <em>z</em><sub><em>i</em></sub><sup>2</sup> <em>c</em><sub><em>i</em></sub>/<em>c</em><sup>⊖</sup>. When you answer, the KCl will be replaced by CaCl<sub>2</sub> at the same concentration.",
+      q:"What is the ionic strength of 1.0 mmol dm<sup>&minus;3</sup> CaCl<sub>2</sub>?",
+      opts:[
+        {t:"1.0 × 10<sup>&minus;3</sup>", why:"That is the concentration of the salt. Putting it into eqn 5.8 is one of the commonest mistakes in this part of the course."},
+        {t:"2.0 × 10<sup>&minus;3</sup>", why:"That counts the two chloride ions but forgets that Ca<sup>2+</sup> enters with <em>z</em><sup>2</sup> = 4."},
+        {t:"3.0 × 10<sup>&minus;3</sup>", ok:true, why:"½[(1.0 × 10<sup>&minus;3</sup>)(2)<sup>2</sup> + (2.0 × 10<sup>&minus;3</sup>)(1)<sup>2</sup>] = ½(4.0 + 2.0) × 10<sup>&minus;3</sup> = 3.0 × 10<sup>&minus;3</sup>."},
+        {t:"4.0 × 10<sup>&minus;3</sup>", why:"That is MgSO<sub>4</sub>, where both ions are doubly charged."}
+      ],
+      after:{type:"21"},
+      more:"Its Debye length falls from 9.61 nm to 5.55 nm, because λ<sub>D</sub> follows the ionic strength, not the concentration of the salt." },
+
+    { title:"Same concentration, higher charges",
+      setup:{c:0.001, type:"11", fov:"100", pin:true}, show:["I","L","pin"],
+      text:"Back to 1.0 mmol dm<sup>&minus;3</sup> KCl, pinned. When you answer, the KCl will be replaced by MgSO<sub>4</sub> at the same concentration. This is the Predict first task in the book's box for this demo.",
+      q:"By what factor does the Debye length change?",
+      opts:[
+        {t:"It falls by a factor of 4", why:"Four is the factor in the ionic strength, not in λ<sub>D</sub>."},
+        {t:"It falls by a factor of 2", ok:true, why:"Both ions are doubly charged, so <em>I</em> = ½(4 + 4) × 1.0 × 10<sup>&minus;3</sup> = 4.0 × 10<sup>&minus;3</sup>, four times that of KCl, and λ<sub>D</sub> falls by 4<sup>1/2</sup> = 2."},
+        {t:"It falls by a factor of 16", why:"Each charge enters <em>I</em> squared, but <em>I</em> itself rises only fourfold, and λ<sub>D</sub> goes as its square root."},
+        {t:"It does not change", why:"The concentration is the same, but the ionic strength is not, and λ<sub>D</sub> follows <em>I</em>."}
+      ],
+      after:{type:"22"},
+      more:"The Debye length falls from 9.6 nm to 4.8 nm, as in Problem 5.2. The factor is two, not four." },
+
+    { title:"Proteins in blood plasma",
+      setup:{c:0.15, type:"11", fov:"20"}, show:["L","P"], veil:["roL","roP"], hide:2,
+      text:"This is physiological saline, 0.15 mol dm<sup>&minus;3</sup> NaCl. The dashed grey circle in the corner is a protein of radius 2 nm, drawn to the same scale as the ions.",
+      q:"Two proteins approach each other in blood plasma. From roughly what separation of their surfaces do they start to feel each other's charge?",
+      opts:[
+        {t:"Within about a nanometre", ok:true, why:"λ<sub>D</sub> = 0.304 nm / (0.15)<sup>1/2</sup> = 0.785 nm, less than half the protein's radius, so beyond about a nanometre each protein's charge is screened by its own atmosphere."},
+        {t:"About 10 nm, a few protein diameters", why:"That is the range at about 1 mmol dm<sup>&minus;3</sup>, where λ<sub>D</sub> is 9.6 nm. Saline is 150 times more concentrated."},
+        {t:"At any distance, since Coulomb's law has no cut-off", why:"In a vacuum, yes. In an electrolyte the atmosphere screens the charge, and the potential falls off as e<sup>&minus;<em>r</em>/λ<sub>D</sub></sup>/<em>r</em>."}
+      ],
+      more:"This is Example 5.2. At physiological ionic strength the electrostatic forces between proteins act only when their surfaces are almost in contact." },
+
+    { title:"A different solvent",
+      setup:{c:0.01, type:"11", fov:"20", pin:true}, show:["L","B","pin"],
+      text:"Back to 0.010 mol dm<sup>&minus;3</sup> in water, pinned. When you answer, the water will be replaced by ethanol, ε<sub>r</sub> = 24.3, at the same ionic strength.",
+      q:"What happens to the Debye length?",
+      opts:[
+        {t:"It grows, because ethanol is less polar", why:"A less polar solvent lets the ions attract one another more strongly, which pulls the counter-charge closer, not further away."},
+        {t:"It shrinks, to about 0.56 of its value", ok:true, why:"Eqn 5.7 gives λ<sub>D</sub> ∝ (ε<sub>r</sub><em>T</em>)<sup>1/2</sup>, so the factor is (24.3/78.4)<sup>1/2</sup> = 0.557."},
+        {t:"It stays the same, because <em>I</em> has not changed", why:"<em>I</em> is the same, but eqn 5.7 also contains ε<sub>r</sub>."}
+      ],
+      after:{eps:24.3},
+      more:"With less screening by the solvent the ions attract more strongly and the counter-charge gathers closer. Note, too, that the Bjerrum length in ethanol, 2.31 nm, is now longer than λ<sub>D</sub>, so many ions pair (Section 5.2.5) and the smooth-atmosphere picture is only a rough guide." },
+
+    { title:"The length that does not change",
+      setup:{c:0.01, type:"11", fov:"20"}, show:["L","S","B"],
+      text:"Three lengths describe this solution: the Debye length, the mean distance between ions, and the Bjerrum length.",
+      q:"Which of them stays the same when the concentration rises tenfold, from 0.010 to 0.10 mol dm<sup>&minus;3</sup>?",
+      opts:[
+        {t:"The Debye length", why:"It falls by 10<sup>1/2</sup> = 3.2, from 3.04 nm to 0.961 nm."},
+        {t:"The mean distance between ions", why:"It falls as <em>c</em><sup>&minus;1/3</sup>, by 10<sup>1/3</sup> = 2.2, from 4.36 nm to 2.02 nm."},
+        {t:"The Bjerrum length", ok:true, why:"<em>l</em><sub>B</sub> = <em>e</em><sup>2</sup>/4πε<sub>0</sub>ε<sub>r</sub><em>k</em><sub>B</sub><em>T</em> depends only on the solvent and the temperature."}
+      ],
+      after:{c:0.1},
+      more:"The Bjerrum length compares the Coulomb energy with the thermal energy and stays at 0.715 nm in water at 298 K. The Debye length says how far that competition reaches in a particular solution, so it is the one that follows the salt." }
+    ],
+    summary: {
+      points:[
+        "Around every ion there is a slight, time-averaged excess of counter-ions, the ionic atmosphere. Its ions keep coming and going.",
+        "Its size is the Debye length, λ<sub>D</sub> ≈ 0.304 nm / <em>I</em><sup>1/2</sup> in water at 298 K.",
+        "λ<sub>D</sub> follows the ionic strength, not the concentration, and goes as <em>I</em><sup>&minus;1/2</sup>: a hundredfold rise in <em>I</em> shrinks it tenfold.",
+        "A solvent of lower ε<sub>r</sub> gives a thinner atmosphere. The Bjerrum length depends on the solvent and temperature only."
+      ],
+      next:"Now try Problems 5.2 and 5.5 in the free explorer, using the pin to check your factors."
+    }
+  });
 })();
 </script>
 </body>

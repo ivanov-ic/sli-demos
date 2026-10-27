@@ -286,6 +286,102 @@
   }
 </style>
 </head>
+<style>
+  /* ---------- guided lesson ---------- */
+  .lesson-cta{display:flex; flex-wrap:wrap; align-items:center; gap:10px 16px; margin:0 0 14px;
+    padding:11px 15px; background:var(--panel); border:1px solid var(--line); border-left:3px solid var(--teal);
+    border-radius:8px; box-shadow:var(--shadow); font-size:14px; color:var(--ink-2)}
+  .lesson-cta p{margin:0; flex:1 1 260px}
+  .lesson-cta b{color:var(--ink)}
+  .btn.go{background:var(--teal); border-color:var(--teal); color:#fff; font-weight:600}
+  .btn.go:hover{filter:brightness(1.06); color:#fff}
+  .btn.go:disabled{background:var(--panel-2); border-color:var(--line); color:var(--muted); filter:none; cursor:default}
+
+  .lesson{display:none; margin:0 0 14px; background:var(--panel); border:1px solid var(--line);
+    border-radius:10px; box-shadow:var(--shadow); padding:14px 16px 16px; scroll-margin-top:10px}
+  .lesson-on .lesson{display:block}
+  .lesson-on .lesson-cta, .lesson-on .controls, .lesson-on .work, .lesson-on .point, .lesson-on .lesson-hide{display:none}
+  .lesson-top{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap}
+  .lesson-step{font-size:11.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); font-weight:500}
+  .lesson-exit{background:none; border:none; padding:4px 0; color:var(--blue); font:inherit; font-size:13px; cursor:pointer; text-decoration:underline; text-underline-offset:2px}
+  .lesson-bar{height:5px; border-radius:3px; background:var(--panel-2); margin:8px 0 12px; overflow:hidden}
+  .lesson-bar span{display:block; height:100%; width:0; background:var(--teal); border-radius:3px; transition:width .3s ease}
+  .lesson h3{font-family:"Source Serif 4", Georgia, serif; font-size:19px; font-weight:600; margin:0 0 6px; color:var(--ink)}
+  .lesson .ltext{margin:0 0 8px; font-size:15px; line-height:1.55; color:var(--ink-2); max-width:72ch}
+  .lesson .lnow{margin:0 0 10px; font-size:12.5px; color:var(--muted)}
+  .lesson .lnow b{color:var(--ink-2); font-weight:600}
+  .lesson .lq{margin:4px 0 9px; font-size:15.5px; font-weight:600; color:var(--ink); max-width:72ch}
+  .lopts{display:grid; gap:8px; max-width:640px}
+  .lopt{display:flex; align-items:flex-start; gap:10px; width:100%; text-align:left; padding:10px 12px; min-height:44px;
+    background:var(--panel); color:var(--ink); border:1.5px solid var(--line); border-radius:8px;
+    font:inherit; font-size:14.5px; line-height:1.4; cursor:pointer}
+  .lopt:hover:not([aria-disabled="true"]){border-color:var(--blue)}
+  .lopt .mk{flex:none; width:22px; height:22px; border-radius:50%; border:1.5px solid var(--line); display:flex;
+    align-items:center; justify-content:center; font-size:12px; font-weight:700; color:var(--muted); margin-top:-1px}
+  .lopt[aria-disabled="true"]{cursor:default}
+  .lopt:focus-visible, .btn:focus-visible, .lesson-exit:focus-visible, .lsee:focus-visible{outline:2px solid var(--focus); outline-offset:2px}
+  .lopt.right{border-color:var(--teal); background:var(--teal-soft)}
+  .lopt.right .mk{border-color:var(--teal); background:var(--teal); color:#fff}
+  .lopt.wrong{border-color:var(--red); background:var(--red-soft)}
+  .lopt.wrong .mk{border-color:var(--red); background:var(--red); color:#fff}
+  .lopt.dim{opacity:.55}
+  .lfb{margin:10px 0 0; max-width:72ch; font-size:14.5px; line-height:1.55; color:var(--ink-2)}
+  .lfb:empty{display:none}
+  .lfb .verdict{display:block; font-weight:700; margin-bottom:3px}
+  .lfb .verdict.ok{color:var(--teal)} .lfb .verdict.no{color:var(--red)}
+  .lfb .more{display:block; margin-top:7px; padding-top:7px; border-top:1px solid var(--line)}
+  .lnav{display:flex; gap:10px; margin-top:14px; flex-wrap:wrap}
+  .lsum ul{margin:6px 0 10px; padding-left:20px; max-width:72ch; color:var(--ink-2); font-size:14.5px; line-height:1.55}
+  .lsum li{margin:3px 0}
+  .lscore{font-size:15px; color:var(--ink); margin:0 0 6px}
+  /* readouts held back until the student has committed to an answer */
+  .ro.veiled .v, .ro.veiled .n{filter:blur(7px); user-select:none}
+  .ro.veiled{position:relative}
+  .ro.veiled::after{content:"answer first"; position:absolute; right:8px; bottom:8px; font-size:10.5px;
+    letter-spacing:.06em; text-transform:uppercase; color:var(--muted); background:var(--panel);
+    padding:1px 5px; border-radius:4px}
+  @media (max-width:560px){
+    .lesson{padding:12px 13px 14px}
+    .lesson h3{font-size:18px}
+    .lesson .ltext{font-size:14.5px}
+  }
+  @media (prefers-reduced-motion: reduce){ .lesson-bar span{transition:none} }
+  /* the lesson sits under the picture it is about */
+  .card .lesson{margin:12px 0 0; border:none; border-top:1px solid var(--line); border-radius:0; box-shadow:none; padding:12px 0 2px}
+  .lesson-on .stage{align-items:start}
+  .lchips{display:flex; flex-wrap:wrap; gap:6px 8px; margin:12px 0 0}
+  .lchips .chip{display:inline-flex; align-items:baseline; gap:6px; padding:5px 10px; border-radius:6px; background:var(--panel-2);
+    font-size:13px; color:var(--ink-2)}
+  .lchips .chip b{font-family:"IBM Plex Mono", monospace; font-weight:500; color:var(--ink); font-variant-numeric:tabular-nums}
+  .lchips .chip.veiled b{filter:blur(6px); user-select:none}
+  .lfb .ans{display:block; margin-top:6px}
+  .lcta-btns{display:flex; flex-wrap:wrap; align-items:center; gap:8px 14px}
+  .ltop-btns{display:flex; gap:14px; flex-wrap:wrap}
+  .sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
+  .lfb .verdict:focus{outline:none}
+  .lesson h3:focus{outline:none}
+  .lsee{display:inline-block; margin-top:8px; background:none; border:1px solid var(--line); border-radius:6px;
+    padding:6px 10px; font:inherit; font-size:13px; color:var(--blue); cursor:pointer}
+  .lesson-exit[aria-pressed="true"]{font-weight:600; text-decoration:none; color:var(--ink);
+    background:var(--panel-2); border-radius:5px; padding:4px 8px}
+  .lhint{align-self:center; font-size:12.5px; color:var(--muted)}
+  /* a blurred verdict pill keeps no colour, since the colour alone would give the answer */
+  .ro.veiled .pill{background:var(--panel-2) !important; border-color:var(--line) !important; color:transparent !important}
+  .lsee + .lsee{margin-left:8px}
+  /* readouts and charts held back: stacked on a phone they are removed; on a wide screen the column
+     keeps its place with a note, so the layout does not jump when the answer is revealed */
+  @media (max-width:1040px){ .veil-charts .col-right, .veil-charts .lveilbox{display:none} }
+  @media (min-width:1041px){
+    .veil-charts .col-right, .veil-charts .lveilbox{visibility:hidden; position:relative}
+    .veil-charts .col-right::after, .veil-charts .lveilbox::after{content:"These charts and readouts appear when you answer.";
+      visibility:visible; position:absolute; top:60px; left:12%; right:12%; padding:16px 18px; text-align:center;
+      border:1px dashed var(--line); border-radius:10px; color:var(--muted); font-size:14px; line-height:1.5; background:var(--panel)}
+    .l-answered.veil-charts .col-right::after, .l-answered.veil-charts .lveilbox::after{content:"Held back for now: a later question asks about it."}
+  }
+  .veil-charts .lveilbox::after{content:"This chart appears when you answer."}
+  .l-answered.veil-charts .lveilbox::after{content:"This chart is held back for now: a later question asks about it."}
+
+</style>
 <body>
 <script>if(window.self!==window.top)document.documentElement.classList.add("in-frame");</script>
 <noscript><div style="max-width:60ch;margin:40px auto;padding:18px 22px;border:1px solid #CF4520;border-radius:8px;background:#fff;color:#0F1E2B;font:15px/1.55 'IBM Plex Sans',system-ui,sans-serif">
@@ -301,6 +397,26 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     </div>
   </header>
   <p class="point">Coulomb tries to organise the ions and thermal motion tries to scramble them. The solvent decides which one wins, which is why salts dissolve in water as free ions and in hexane not at all.</p>
+
+  <div class="lesson-cta" id="lessonCta">
+    <p><b>Guided lesson.</b> Eight short questions on Coulomb forces against thermal energy, about ten minutes. Each step asks you to predict first, then shows you the answer in the demo.</p>
+    <div class="lcta-btns">
+      <button type="button" class="btn go" id="lessonStart">Start the guided lesson</button>
+      <button type="button" class="lesson-exit" id="lessonRestart" hidden>Start again from step 1</button>
+    </div>
+  </div>
+
+  <section class="lesson" id="lesson" aria-label="Guided lesson">
+    <div class="lesson-top">
+      <span class="lesson-step" id="lStep">Step 1</span>
+      <span class="ltop-btns">
+        <button type="button" class="lesson-exit" id="lPause" hidden>Pause motion</button>
+        <button type="button" class="lesson-exit" id="lExit">Leave the lesson</button>
+      </span>
+    </div>
+    <div class="lesson-bar" aria-hidden="true"><span id="lBar"></span></div>
+    <div id="lBody"></div>
+  </section>
 
   <section class="controls">
     <div class="ctl">
@@ -367,12 +483,12 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       </div>
     </div>
 
-    <div class="card">
+    <div class="card lveilbox">
       <h2>Interaction energy measured in <em>k</em><sub>B</sub><em>T</em></h2>
       <p class="cap">Solid line is the chosen solvent. The other three are dashed, on the same axes.</p>
       <div class="canvas-box" id="enBox"><canvas role="img" id="en" aria-label="Magnitude of the interaction energy in units of thermal energy against separation, with bound, marginal and free bands"></canvas></div>
       <div class="legend">
-        <span class="key"><span class="dot" style="background:var(--red)"></span>strong, |<em>V</em>| &ge; 2<em>k</em><sub>B</sub><em>T</em>, a bound pair if the charges are opposite</span>
+        <span class="key"><span class="dot" style="background:var(--red)"></span>strong, |<em>V</em>| &ge; 2<em>k</em><sub>B</sub><em>T</em>, an ion pair if the charges are opposite</span>
         <span class="key"><span class="dot" style="background:var(--gold)"></span>marginal, 1 to 2</span>
         <span class="key"><span class="dot" style="background:var(--teal)"></span>free, below 1</span>
       </div>
@@ -383,7 +499,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     <div class="ro"><div class="k">Force</div><div class="v" id="roF">&ndash;</div><div class="n" id="roFn">pN</div></div>
     <div class="ro"><div class="k">Potential energy <em>V</em></div><div class="v" id="roV">&ndash;</div><div class="n">kJ mol<sup>&minus;1</sup></div></div>
     <div class="ro hi"><div class="k">|<em>V</em>| / <em>k</em><sub>B</sub><em>T</em></div><div class="v" id="roR">&ndash;</div><div class="n" id="roRn">&nbsp;</div></div>
-    <div class="ro"><div class="k">Verdict</div><div class="v" style="font-size:15px; margin-top:6px"><span class="pill free" id="roPill">&ndash;</span></div><div class="n">Bjerrum counts a pair as bound at 2<em>k</em><sub>B</sub><em>T</em></div></div>
+    <div class="ro"><div class="k">Verdict</div><div class="v" style="font-size:15px; margin-top:6px"><span class="pill free" id="roPill">&ndash;</span></div><div class="n">Bjerrum counts two ions as a pair at 2<em>k</em><sub>B</sub><em>T</em></div></div>
     <div class="ro"><div class="k">Bjerrum length <em>l</em><sub>B</sub></div><div class="v" id="roB">&ndash;</div><div class="n" id="roBn">nm, where |<em>V</em>| = <em>k</em><sub>B</sub><em>T</em> for two singly charged ions</div></div>
     <div class="ro"><div class="k">|<em>V</em>| = <em>k</em><sub>B</sub><em>T</em> at</div><div class="v" id="roX">&ndash;</div><div class="n" id="roXn">nm for this pair of charges</div></div>
   </section>
@@ -546,7 +662,8 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     tag(g, "contact", (cx1+cx2)/2, yAx-13, "center", "bottom", TH.muted, TH["panel-2"]);
 
     // Bjerrum length
-    if(s.lB <= rMax){
+    if(S.hideLb){
+    } else if(s.lB <= rMax){
       var bx = padL + s.lB*scale;
       g.strokeStyle = TH.teal; g.lineWidth = 1.6; g.setLineDash([5,4]);
       g.beginPath(); g.moveTo(bx, yAx+9); g.lineTo(bx, yIon-30); g.stroke(); g.setLineDash([]);
@@ -560,13 +677,15 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     // ions
     var x1 = padL, x2 = padL + s.r*scale;
     function ion(x, z){
-      var rad = 9 + 3*Math.abs(z);
+      var rad = Math.max(4, Math.min(9 + 3*Math.abs(z), (x2 - x1)/2 - 1));
       g.fillStyle = z>0 ? TH.red : TH.blue;
       g.beginPath(); g.arc(x, yIon, rad, 0, 6.2832); g.fill();
       g.strokeStyle = TH["panel-2"]; g.lineWidth = 2; g.stroke();
       mono(g, 13, 500); g.fillStyle = TH["panel-2"];
       g.textAlign="center"; g.textBaseline="middle";
-      g.fillText((Math.abs(z)>1?Math.abs(z):"")+(z>0?"+":"−"), x, yIon+0.5);
+      if(rad >= 9) g.fillText((Math.abs(z)>1?Math.abs(z):"")+(z>0?"+":"−"), x, yIon+0.5);
+      else { mono(g, 11, 600); g.fillStyle = z>0 ? TH.red : TH.blue; g.textBaseline = "bottom";
+             g.fillText((Math.abs(z)>1?Math.abs(z):"")+(z>0?"+":"−"), x, yIon-rad-3); }
       return rad;
     }
     var r1 = ion(x1, S.z1), r2 = ion(x2, S.z2);
@@ -585,11 +704,13 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     if(s.attract){ len1 = len2 = Math.max(6, Math.min(len, (x2-x1)/2 - 3)); }
     else { len1 = Math.max(6, Math.min(len, x1 - 6)); len2 = Math.max(6, Math.min(len, W - x2 - 6)); }
     g.strokeStyle = TH.deep; g.fillStyle = TH.deep; g.lineWidth = 2.6;
-    arrow(g, x1, yIon-r1-14, x1 + dir*len1, yIon-r1-14, 8);
-    arrow(g, x2, yIon-r2-14, x2 - dir*len2, yIon-r2-14, 8);
+    if(!(s.attract && (x2-x1)/2 - 3 < 8)){
+      arrow(g, x1, yIon-r1-14, x1 + dir*len1, yIon-r1-14, 8);
+      arrow(g, x2, yIon-r2-14, x2 - dir*len2, yIon-r2-14, 8);
+    }
     mono(g,12,500);
-    tag(g, fmtF(Fp)+" pN, "+(s.attract?"attractive":"repulsive"),
-        (x1+x2)/2, yIon-r1-34, "center", "bottom", TH.deep, TH["panel-2"]);
+    if(!S.hideF) tag(g, fmtF(Fp)+" pN, "+(s.attract?"attractive":"repulsive"),
+        (x1+x2)/2, yIon-Math.max(r1, r2, 12)-40, "center", "bottom", TH.deep, TH["panel-2"]);
   }
 
   // ---------- energy chart ----------
@@ -667,14 +788,14 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
 
     // the Bjerrum length, where the curve for two singly charged ions crosses 1,
     // and where the chosen pair's own curve crosses 1 if that is somewhere else
-    if(s.lB >= rMin && s.lB <= rMax){
+    if(s.lB >= rMin && s.lB <= rMax && !S.hideLb){
       var xb = X(s.lB);
       g.strokeStyle = TH.teal; g.lineWidth = 1.4; g.setLineDash([4,3]);
       g.beginPath(); g.moveTo(xb, T); g.lineTo(xb, T+ph); g.stroke(); g.setLineDash([]);
       mono(g,10.5,500);
       tag(g, "lʙ = " + fmtLB(s.lB) + " nm", xb + 4, T + 4, xb > L + pw*0.7 ? "right" : "left", "top", TH.teal, TH.panel);
     }
-    if(Math.abs(s.cross - s.lB) > 1e-6 && s.cross >= rMin && s.cross <= rMax){
+    if(Math.abs(s.cross - s.lB) > 1e-6 && s.cross >= rMin && s.cross <= rMax && !S.hideLb){
       var xc = X(s.cross), yc = Y(1);
       g.strokeStyle = TH.teal; g.lineWidth = 2; g.fillStyle = TH.panel;
       g.beginPath(); g.arc(xc, yc, 5, 0, 6.2832); g.fill(); g.stroke();
@@ -720,7 +841,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     $("roX").textContent = fmtLB(s.cross);
 
     var pill = $("roPill");
-    if(s.ratio >= 2){ pill.className = "pill bound"; pill.textContent = s.attract ? "effectively bound" : "strongly kept apart"; }
+    if(s.ratio >= 2){ pill.className = "pill bound"; pill.textContent = s.attract ? (s.ratio >= 5 ? "effectively bound" : "ion pair by Bjerrum's test") : "strongly kept apart"; }
     else if(s.ratio >= 1){ pill.className = "pill marg"; pill.textContent = "marginal"; }
     else { pill.className = "pill free"; pill.textContent = s.attract ? "free, thermal motion wins" : "barely felt"; }
 
@@ -731,8 +852,8 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     var n = "";
     var sname = SOLVENTS[S.eps].name, lowEps = s.eps < 10;
     if(s.ratio >= 2 && s.attract) n = lowEps
-      ? "Thermal motion cannot pull these two apart. In a solvent like " + sname + " a salt does not dissolve as free ions; it stays as neutral pairs or as solid."
-      : "By Bjerrum's 2kʙT test this is a bound pair. In " + sname + " such pairs keep forming and breaking, so the salt still dissolves, but a fraction of it is paired at any moment, and more so the higher the charges.";
+      ? "Thermal motion cannot pull these two apart. In a solvent like " + sname + " a salt does not dissolve as free ions; it stays as ion pairs and larger clusters, or as solid."
+      : "By Bjerrum's 2kʙT test this is an ion pair. In " + sname + " such pairs keep forming and breaking, so the salt still dissolves, but a fraction of it is paired at any moment, and more so the higher the charges.";
     else if(s.ratio >= 1 && s.attract) n = "The two are pulled together and knocked apart again. At this separation in " + sname + ", pairing is a marginal effect rather than a dominant one.";
     else if(s.attract) n = (s.ratio < 0.5 ? "Thermal agitation wins comfortably." : "Thermal agitation wins, though not by much.") + " The ions feel each other but do not stay together.";
     else n = "Like charges, so the interaction pushes them apart. The same comparison with kʙT decides whether that push survives thermal motion.";
@@ -775,6 +896,357 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
   window.addEventListener("resize", paint);
   if(document.fonts && document.fonts.ready) document.fonts.ready.then(paint);
   sync();
+
+  // ===================== guided lesson (shared engine) =====================
+  // Predict, then reveal. Each step puts the demo into a stated condition, asks one
+  // multiple-choice question (one attempt, so the final score is honest), hides any
+  // readout that would give the answer away, and only after the student commits moves
+  // the demo to the new condition and explains. The page-specific part is the object
+  // passed in: its steps, which readouts to show beside the question, and apply(),
+  // which sets the demo through its own internals so that values are exact.
+  function lessonEngine(C){
+    var $l = function(id){ return document.getElementById(id); };
+    var root = document.documentElement;
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var lessonEl = $l("lesson"), lBody = $l("lBody"), cta = $l("lessonCta");
+    var anchor = document.querySelector(C.anchor || ".stage .card");
+    anchor.appendChild(lessonEl);                     // the lesson sits under the picture it is about
+    // the picture to scroll back to; a page whose picture changes with its mode passes a function
+    // a step can name its own picture when its answer is on a chart rather than the main view
+    function picture(){
+      var st = C.steps[LS.i], pc = (st && st.picture) || C.picture;
+      return typeof pc === "function" ? pc() : (pc ? document.querySelector(pc) : anchor);
+    }
+    var N = C.steps.length;
+    var LS = {i:0, answered:[], score:0};
+
+    function veil(ids, step){
+      (C.veilable || []).forEach(function(id){
+        var el = $l(id); if(!el) return;
+        var on = ids.indexOf(id) >= 0, box = el.closest(".ro") || el.parentNode;
+        box.classList.toggle("veiled", on);
+        [].forEach.call(box.querySelectorAll(".v,.n"), function(x){
+          if(on) x.setAttribute("aria-hidden", "true"); else x.removeAttribute("aria-hidden");
+        });
+      });
+      // hide: what the picture holds back while the question is open; hideAfter: what stays
+      // hidden once it is answered (for a later step that asks about the same thing)
+      root.classList.toggle("l-answered", !!(step && LS.answered[LS.i]));
+      if(C.onVeil) C.onVeil(step ? (LS.answered[LS.i] ? (step.hideAfter || 0) : (step.hide || 0)) : 0);
+    }
+    function chips(s, done){
+      var keys = (done && s.show2) ? s.show2 : (s.show || []), vs = done ? (s.veilAfter || []) : (s.veil || []);
+      if(!keys.length) return "";
+      return "<div class=\"lchips\" id=\"lChips\">" + keys.map(function(k){
+        // a chip reads a readout by its id, or calls a function for values the page has no readout for
+        var c = C.chips[k], v = typeof c[0] === "function" ? c[0]() : (($l(c[0]) || {}).textContent || "").trim();
+        var hid = vs.indexOf(k) >= 0 || (typeof c[0] === "string" && vs.indexOf(c[0]) >= 0);
+        return "<span class=\"chip" + (hid ? " veiled" : "") + "\"><span>" + c[1] + "</span>" +
+          (hid ? "<b aria-hidden=\"true\">" + v + c[2] + "</b><span class=\"sr\">hidden until you answer</span>"
+               : "<b>" + v + c[2] + "</b>") + "</span>";
+      }).join("") + "</div>";
+    }
+    // the line that says what the demo is showing; it is told the step, so it can hold back a value
+    function nowText(){ var s = C.steps[LS.i]; return C.now(s, !!LS.answered[LS.i]); }
+    function nowLine(){ return C.now ? "<p class=\"lnow\" id=\"lNow\">" + nowText() + "</p>" : ""; }
+    function scrollTo(el){ if(el && el.scrollIntoView) el.scrollIntoView({block:"start", behavior: reduce ? "auto" : "smooth"}); }
+
+    function render(focusWhat){
+      $l("lBar").style.width = (100*LS.i/N) + "%";
+      if(LS.i >= N) return summary();
+      var s = C.steps[LS.i], done = LS.answered[LS.i];
+      $l("lStep").textContent = "Step " + (LS.i+1) + " of " + N;
+      var h = "<h3 tabindex=\"-1\" id=\"lTitle\">" + s.title + "</h3><p class=\"ltext\">" + s.text + "</p>" + nowLine() +
+        "<p class=\"lq\" id=\"lQ\">" + s.q + "</p><div class=\"lopts\" role=\"group\" aria-labelledby=\"lQ\">";
+      s.opts.forEach(function(o, k){
+        var cls = "lopt", mk = String.fromCharCode(65+k), sr = "";
+        if(done){
+          if(o.ok){ cls += " right"; mk = "✓"; sr = done.pick === k ? " (your answer, correct)" : " (correct answer)"; }
+          else if(done.pick === k){ cls += " wrong"; mk = "✗"; sr = " (your answer)"; }
+          else cls += " dim";
+        }
+        h += "<button type=\"button\" class=\"" + cls + "\" data-k=\"" + k + "\"" + (done ? " aria-disabled=\"true\"" : "") +
+             "><span class=\"mk\" aria-hidden=\"true\">" + mk + "</span><span>" + o.t + "<span class=\"sr\">" + sr + "</span></span></button>";
+      });
+      h += "</div>" + chips(s, done) + "<div class=\"lfb\" id=\"lFb\" aria-live=\"polite\">";
+      if(done){
+        var picked = s.opts[done.pick], right = s.opts.filter(function(o){ return o.ok; })[0];
+        h += "<span class=\"verdict " + (picked.ok ? "ok" : "no") + "\" tabindex=\"-1\" id=\"lVerdict\">" + (picked.ok ? "Right." : "Not quite.") + "</span>" +
+             picked.why + (picked.ok ? "" : "<span class=\"ans\">The right answer was: <b>" + right.t + "</b>. " + right.why + "</span>") +
+             "<span class=\"more\">" + s.more + "</span>" +
+             (s.after || s.hide || s.veil ? "<button type=\"button\" class=\"lsee\" id=\"lSee\">See it in the demo &uarr;</button>" : "") +
+             (C.replay && s.after && s.after.run ? "<button type=\"button\" class=\"lsee\" id=\"lAgainRun\">Run it again</button>" : "");
+      }
+      h += "</div><div class=\"lnav\">" +
+        (LS.i > 0 ? "<button type=\"button\" class=\"btn\" id=\"lBack\">Back</button>" : "") +
+        "<button type=\"button\" class=\"btn go\" id=\"lNext\"" + (done ? "" : " disabled") + ">" + (LS.i === N-1 ? "Finish" : "Continue") + "</button>" +
+        (done ? "" : "<span class=\"lhint\">Choose an answer to continue</span>") + "</div>";
+      lBody.innerHTML = h;
+      [].forEach.call(lBody.querySelectorAll(".lopt"), function(b){
+        b.addEventListener("click", function(){ if(!LS.answered[LS.i]) answer(+b.dataset.k); });
+      });
+      if($l("lBack")) $l("lBack").addEventListener("click", function(){ LS.i--; go(); });
+      $l("lNext").addEventListener("click", function(){ LS.i++; go(); });
+      if($l("lAgainRun")) $l("lAgainRun").addEventListener("click", function(){ C.replay(s); pollChips(s); });
+      if($l("lSee")) $l("lSee").addEventListener("click", function(){
+        var pic = picture(); if(!pic) return;
+        if(!pic.hasAttribute("tabindex")) pic.setAttribute("tabindex", "-1");
+        scrollTo(pic); pic.focus({preventScroll:true});
+      });
+      var f = focusWhat === "verdict" ? $l("lVerdict") : (focusWhat === "title" ? $l("lTitle") : null);
+      if(f) f.focus({preventScroll: focusWhat === "title"});
+    }
+    function refreshChips(){
+      var s = C.steps[LS.i], el = $l("lChips");
+      if(!s || !el) return;
+      var tmp = document.createElement("div"); tmp.innerHTML = chips(s, LS.answered[LS.i]);
+      el.parentNode.replaceChild(tmp.firstChild, el);
+      if(C.now && $l("lNow")) $l("lNow").innerHTML = nowText();
+    }
+    function answer(k){
+      var s = C.steps[LS.i];
+      LS.answered[LS.i] = {pick:k};
+      if(s.opts[k].ok) LS.score++;
+      if(s.after) C.apply(s.after, "after", s);
+      veil(s.veilAfter || [], s);
+      render("verdict");
+      pollChips(s);
+    }
+    // values that change over time (a race, a simulation) are read again until they settle; a page
+    // whose runs go at the display's frame rate says through busy() whether one is still going
+    function pollChips(s){
+      var at = LS.i, t0 = Date.now(), until = Math.max(1600, s.settle || 0);
+      clearInterval(LS.timer);
+      LS.timer = setInterval(function(){
+        var el = Date.now() - t0;
+        if(LS.i !== at || !LS.answered[at] || el > 180000 || (el > until + 50 && !(C.busy && C.busy()))){
+          clearInterval(LS.timer); refreshChips(); return;
+        }
+        refreshChips();
+      }, 500);
+    }
+    function go(auto){
+      var s = C.steps[LS.i];
+      if(s){
+        C.apply(s.setup, "setup", s);
+        if(LS.answered[LS.i]){ if(s.after) C.apply(s.after, "after", s); veil(s.veilAfter || [], s); }
+        else veil(s.veil || [], s);
+      }
+      clearInterval(LS.timer);
+      render(auto ? null : "title");
+      syncPause();
+      // on entry, go to the step's own picture only if it is on show (a held-back chart is not)
+      if(!auto){
+        var pc = picture();
+        if(!pc || !pc.getClientRects().length || getComputedStyle(pc).visibility === "hidden") pc = (typeof C.picture === "string" && document.querySelector(C.picture)) || anchor;
+        scrollTo(pc);
+      }
+    }
+    function summary(){
+      $l("lStep").textContent = "Lesson complete";
+      veil([], null);
+      lBody.innerHTML = "<div class=\"lsum\"><h3 tabindex=\"-1\" id=\"lTitle\">What you have seen</h3>" +
+        "<p class=\"lscore\">You predicted <b>" + LS.score + " of " + N + "</b> correctly at the first attempt.</p><ul>" +
+        C.summary.points.map(function(p){ return "<li>" + p + "</li>"; }).join("") + "</ul>" +
+        "<p class=\"ltext\">" + C.summary.next + "</p>" +
+        "<div class=\"lnav\"><button type=\"button\" class=\"btn go\" id=\"lFree\">Explore freely</button>" +
+        "<button type=\"button\" class=\"btn\" id=\"lAgain\">Start again</button></div></div>";
+      $l("lFree").addEventListener("click", function(){ leave(); });
+      $l("lAgain").addEventListener("click", function(){ start(true); });
+      $l("lTitle").focus({preventScroll:true});
+    }
+    function updateCta(){
+      var n = LS.answered.filter(Boolean).length;
+      var resume = n > 0 && LS.i < N;
+      $l("lessonStart").textContent = resume ? "Resume the guided lesson (step " + (LS.i+1) + ")" : "Start the guided lesson";
+      $l("lessonRestart").hidden = !resume;
+    }
+    function leave(){
+      clearInterval(LS.timer);
+      root.classList.remove("lesson-on");
+      veil([], null);
+      if(C.onLeave) C.onLeave();
+      updateCta();
+      $l("lessonStart").focus({preventScroll:true});
+    }
+    function start(fresh, auto){
+      if(fresh || LS.i >= N){ LS.i = 0; LS.answered = []; LS.score = 0; }
+      root.classList.add("lesson-on");
+      go(auto);
+    }
+    $l("lessonStart").addEventListener("click", function(){ start(false); });
+    $l("lessonRestart").addEventListener("click", function(){ start(true); });
+    $l("lExit").addEventListener("click", leave);
+    // a link ending in #lesson opens the page straight into the lesson, without scrolling
+    // a Canvas page that holds it in an iframe
+    if(location.hash === "#lesson") setTimeout(function(){ start(true, true); }, 0);
+    // a pause control for the moving picture, since the demo's own controls are hidden
+    // sliders announce the value the page prints beside them (with its unit), not the raw slider number
+    [].forEach.call(document.querySelectorAll("input[type=range]"), function(r){
+      var box = r.closest(".ctl");
+      var lab = (r.id && document.querySelector("label[for=\"" + r.id + "\"] .val")) ||
+                (box && box.querySelectorAll("input[type=range]").length === 1 ? box.querySelector(".val") : null);
+      if(!lab) return;
+      var set = function(){ r.setAttribute("aria-valuetext", lab.textContent.replace(/\s+/g, " ").trim()); };
+      set(); new MutationObserver(set).observe(lab, {childList:true, characterData:true, subtree:true});
+    });
+    // (a fixed label with aria-pressed, so a screen reader hears the state, not a new name)
+    var mv = C.motion ? $l(C.motion) : null, pz = $l("lPause");
+    function syncPause(){ if(mv && pz) pz.setAttribute("aria-pressed", String(!mv.checked)); }
+    if(mv && pz){
+      pz.hidden = false;
+      pz.addEventListener("click", function(){ mv.checked = !mv.checked; mv.dispatchEvent(new Event("change", {bubbles:true})); syncPause(); });
+      mv.addEventListener("change", syncPause);
+      // the demo's Reset sets the box back without firing change, so check again after any click on the page
+      document.addEventListener("click", function(){ setTimeout(syncPause, 0); });
+      syncPause();
+    }
+  }
+
+
+  // ---------- L5.1 lesson ----------
+  function lessonApply(cfg, phase){
+    var o = {};
+    if(phase === "setup"){ Object.keys(DEF).forEach(function(k){ o[k] = DEF[k]; }); }
+    Object.keys(cfg).forEach(function(k){ o[k] = cfg[k]; });
+    apply(o);
+  }
+  lessonEngine({
+    picture: "#sceneBox",
+    veilable: ["roF","roV","roR","roPill","roB","roX"],
+    chips: {
+      F: [function(){ return fmtF(Math.abs(st().F)*1e12) + " pN"; }, "force", ""],
+      R: [function(){ var r = st().ratio; return r >= 100 ? num(r,0) : num(r, r < 10 ? 2 : 1); }, "|<em>V</em>| / <em>k</em><sub>B</sub><em>T</em>", ""],
+      lB: [function(){ return fmtLB(st().lB) + " nm"; }, "<em>l</em><sub>B</sub>", ""],
+      X: [function(){ return fmtLB(st().cross) + " nm"; }, "|<em>V</em>| = <em>k</em><sub>B</sub><em>T</em> at", ""]
+    },
+    apply: lessonApply,
+    onVeil: function(level){
+      // 1: the l_B marks; 2: those and the energy chart; 3: all that and the force label in the scene
+      S.hideLb = level >= 1;
+      S.hideF = level >= 3;
+      document.documentElement.classList.toggle("veil-charts", level >= 2);
+      paint();
+    },
+    now: function(){
+      var zs = function(z){ return (z > 0 ? "+" : "−") + Math.abs(z); };
+      return "Showing charges <b>" + zs(S.z1) + "</b> and <b>" + zs(S.z2) + "</b>, " + num(S.sep/100,2) + " nm apart, in <b>" +
+        SOLVENTS[S.eps].name + "</b> (ε<sub>r</sub> = " + S.eps + ") at " + S.T + " K.";
+    },
+    steps: [
+    { title:"The force between two ions",
+      setup:{sep:50, z1:1, z2:-1, eps:"78.4"}, show:["F"], veil:["roF","roV","roR","roPill","roB","roX","F"], hide:3,
+      veilAfter:["roV","roR","roPill","roB","roX"], hideAfter:2,
+      text:"This is Example 5.1. A singly charged cation and anion are 0.50 nm apart in water, ε<sub>r</sub> = 78.4, at 298 K. Coulomb's law (eqn 5.4) gives the force, <em>F</em> = <em>q</em><sub>1</sub><em>q</em><sub>2</sub>/4πε<sub>0</sub>ε<sub>r</sub><em>r</em><sup>2</sup>.",
+      q:"About how large is the attraction?",
+      opts:[
+        {t:"About 0.12 pN", why:"Check the square: (0.50 × 10<sup>&minus;9</sup> m)<sup>2</sup> = 2.5 × 10<sup>&minus;19</sup> m<sup>2</sup>."},
+        {t:"About 12 pN", ok:true, why:"(1.602 × 10<sup>&minus;19</sup>)<sup>2</sup>/[(1.113 × 10<sup>&minus;10</sup>)(78.4)(0.50 × 10<sup>&minus;9</sup>)<sup>2</sup>] = 1.18 × 10<sup>&minus;11</sup> N."},
+        {t:"About 920 pN", why:"That is the force in a vacuum. Water divides it by ε<sub>r</sub> = 78.4."},
+        {t:"About 12 nN", why:"That is a thousand times too large; check the powers of ten."}
+      ],
+      show2:["F"],
+      more:"Twelve piconewtons sounds tiny, but it acts on a single ion. What matters is how it compares with the thermal jostling, which comes next." },
+
+    { title:"A different solvent",
+      setup:{sep:50, z1:1, z2:-1, eps:"78.4"}, show:["F"],
+      veil:["roV","roR","roPill","roB","roX"], veilAfter:["roV","roR","roPill","roB","roX"], hide:2, hideAfter:2,
+      text:"Keep the same two ions at the same separation, but replace the water by hexane, ε<sub>r</sub> = 1.88.",
+      q:"What happens to the force?",
+      opts:[
+        {t:"It rises about 42 times", ok:true, why:"Only ε<sub>r</sub> changes, so the force rises by 78.4/1.88 = 41.7, to about 490 pN."},
+        {t:"It falls about 42 times", why:"ε<sub>r</sub> is in the denominator. A smaller ε<sub>r</sub> means a larger force."},
+        {t:"It does not change, since the charges and the distance are the same", why:"The solvent screens the charges. Water, whose dipoles turn to oppose the field, screens far more than hexane."}
+      ],
+      after:{eps:"1.88"}, show2:["F"],
+      more:"Hexane barely screens at all, because its molecules have no permanent dipole to turn and line up with the field (Section 5.3.3)." },
+
+    { title:"Against thermal energy",
+      setup:{sep:50, z1:1, z2:-1, eps:"78.4"}, show:["R"], veil:["roV","roR","roPill","roB","roX","R"], hide:2,
+      veilAfter:["roB","roX"], hideAfter:1, picture:"#enBox",
+      text:"To decide whether the attraction can hold the ions together, compare the potential energy |<em>V</em>| = |<em>F</em>|<em>r</em> with the thermal energy <em>k</em><sub>B</sub><em>T</em> = 4.114 × 10<sup>&minus;21</sup> J at 298 K. The pair is back in water at 0.50 nm.",
+      q:"What is |<em>V</em>|/<em>k</em><sub>B</sub><em>T</em> in water?",
+      opts:[
+        {t:"About 2.4 × 10<sup>&minus;24</sup>", why:"That divides the energy of one pair by <em>RT</em> = 2478 J mol<sup>&minus;1</sup>, which is an energy per mole. For a single pair, use <em>k</em><sub>B</sub><em>T</em>."},
+        {t:"About 1.4", ok:true, why:"|<em>V</em>| = 5.89 × 10<sup>&minus;21</sup> J, and 5.89/4.114 = 1.43."},
+        {t:"About 14", why:"That is ten times too large; check the powers of ten."},
+        {t:"About 60", why:"That is the value in hexane, where the energy is 41.7 times larger."}
+      ],
+      show2:["R"],
+      more:"In water the attraction is about the size of the thermal energy, so the ions are drawn together but knocked apart again all the time. In hexane the ratio is 60 and they stay together, which is part of the reason salts dissolve as free ions in water but not in hydrocarbons." },
+
+    { title:"The Bjerrum length",
+      setup:{sep:50, z1:1, z2:-1, eps:"78.4"}, show:["lB"], veil:["roB","roX","lB"], hide:2,
+      text:"The Bjerrum length, <em>l</em><sub>B</sub> = <em>e</em><sup>2</sup>/4πε<sub>0</sub>ε<sub>r</sub><em>k</em><sub>B</sub><em>T</em> (eqn 5.6), is the separation at which |<em>V</em>| = <em>k</em><sub>B</sub><em>T</em> for two singly charged ions. At 0.50 nm in water the ratio is 1.43.",
+      q:"What is <em>l</em><sub>B</sub> in water at 298 K?",
+      opts:[
+        {t:"About 0.30 nm", why:"That is roughly the contact distance of two ions, where the energy is about 2.4 <em>k</em><sub>B</sub><em>T</em>."},
+        {t:"About 0.72 nm", ok:true, why:"<em>V</em> goes as 1/<em>r</em>, so the ratio falls from 1.43 at 0.50 nm to 1 at 0.50 × 1.43 = 0.715 nm."},
+        {t:"About 0.35 nm", why:"That is closer than the Bjerrum length, where |<em>V</em>| is still larger than <em>k</em><sub>B</sub><em>T</em>, not equal to it."},
+        {t:"About 7 nm", why:"That would need the energy to fall off ten times more slowly. It goes as 1/<em>r</em>."}
+      ],
+      show2:["lB"],
+      more:"The dashed teal line now marks <em>l</em><sub>B</sub> = 0.715 nm on both pictures. It depends on the solvent and the temperature, but not on the concentration." },
+
+    { title:"The Bjerrum length in hexane",
+      setup:{sep:50, z1:1, z2:-1, eps:"78.4"}, show:["lB"], hide:1,
+      text:"In water <em>l</em><sub>B</sub> = 0.715 nm. When you answer, the solvent will change to hexane, ε<sub>r</sub> = 1.88.",
+      q:"What is <em>l</em><sub>B</sub> in hexane?",
+      opts:[
+        {t:"About 0.017 nm", why:"That divides by 41.7 instead of multiplying. A weaker solvent stretches the reach of the attraction."},
+        {t:"About 0.72 nm, the same", why:"<em>l</em><sub>B</sub> contains ε<sub>r</sub>, so it depends on the solvent."},
+        {t:"About 30 nm", ok:true, why:"<em>l</em><sub>B</sub> ∝ 1/ε<sub>r</sub>, so it is 41.7 times larger: 0.715 × 41.7 = 29.8 nm."}
+      ],
+      after:{eps:"1.88"}, show2:["lB"],
+      more:"Two ions in contact are about 0.3 nm apart. In hexane that is a hundredth of <em>l</em><sub>B</sub>, so they are locked together. In water it is a little under half of <em>l</em><sub>B</sub>, which is why ion pairing in water is modest rather than dominant." },
+
+    { title:"Doubly charged ions",
+      setup:{sep:50, z1:1, z2:-1, eps:"78.4"}, show:["X"], veil:["roX","X"], hide:2, picture:"#enBox",
+      text:"This is the second part of the Try this task in the book's box for this demo. When you answer, the singly charged pair will be replaced by Mg<sup>2+</sup> and SO<sub>4</sub><sup>2&minus;</sup>, as in Self-test 5.1, still in water.",
+      q:"At what separation does |<em>V</em>| fall to <em>k</em><sub>B</sub><em>T</em> for this pair?",
+      opts:[
+        {t:"0.715 nm, the Bjerrum length", why:"<em>l</em><sub>B</sub> is defined for two singly charged ions. This pair interacts four times as strongly."},
+        {t:"1.43 nm", why:"That doubles <em>l</em><sub>B</sub>, but the energy scales as |<em>z</em><sub>1</sub><em>z</em><sub>2</sub>| = 4, not 2."},
+        {t:"2.86 nm", ok:true, why:"The energy scales as |<em>z</em><sub>1</sub><em>z</em><sub>2</sub>| = 4, so the separation is 4 × 0.715 = 2.86 nm."},
+        {t:"11.4 nm", why:"That multiplies by 16. Each charge enters once, so the factor is |<em>z</em><sub>1</sub><em>z</em><sub>2</sub>| = 2 × 2 = 4."}
+      ],
+      after:{z1:2, z2:-2}, show2:["X","R"],
+      more:"At 0.50 nm this pair has |<em>V</em>|/<em>k</em><sub>B</sub><em>T</em> = 5.7, the answer to Self-test 5.1. Doubly charged ions in water pair much more readily than singly charged ones." },
+
+    { title:"Warmer water",
+      setup:{sep:50, z1:1, z2:-1, eps:"78.4"}, show:["lB"],
+      text:"Back to a singly charged pair in water at 298 K, <em>l</em><sub>B</sub> = 0.715 nm. When you answer, the temperature will rise to 350 K, with ε<sub>r</sub> held fixed.",
+      q:"What happens to <em>l</em><sub>B</sub>?",
+      opts:[
+        {t:"It shrinks, to about 0.61 nm", ok:true, why:"<em>l</em><sub>B</sub> ∝ 1/<em>T</em>, so it becomes 0.715 × 298/350 = 0.609 nm. The thermal energy is larger, so it outweighs the attraction down to shorter separations."},
+        {t:"It grows, to about 0.84 nm", why:"That would follow if the attraction got stronger with temperature. Here only <em>k</em><sub>B</sub><em>T</em> changes, and it grows."},
+        {t:"It does not change", why:"<em>l</em><sub>B</sub> contains <em>T</em> directly."}
+      ],
+      after:{T:350}, show2:["lB"],
+      more:"In real water ε<sub>r</sub> also falls as the liquid warms, to about 62 at 350 K, and that effect is larger, so the real Bjerrum length rises, to about 0.77 nm. Problem 5.3 asks you to think about this." },
+
+    { title:"Is it an ion pair?",
+      setup:{sep:50, z1:1, z2:-1, eps:"78.4"}, show:["R"], veil:["roR","roPill","R"], hide:2, picture:"#enBox",
+      text:"Bjerrum counts two ions as paired when |<em>V</em>| exceeds 2<em>k</em><sub>B</sub><em>T</em>, that is, when they are closer than <em>l</em><sub>B</sub>/2. When you answer, the two singly charged ions in water will move to 0.35 nm, as in Problem 5.4.",
+      q:"At 0.35 nm, does this pair count as an ion pair?",
+      opts:[
+        {t:"Yes, just: |<em>V</em>| is about 2.0 <em>k</em><sub>B</sub><em>T</em>", ok:true, why:"|<em>V</em>|/<em>k</em><sub>B</sub><em>T</em> = <em>l</em><sub>B</sub>/<em>r</em> = 0.715/0.35 = 2.04, right at Bjerrum's threshold."},
+        {t:"No: |<em>V</em>| is well below <em>k</em><sub>B</sub><em>T</em>", why:"At 0.50 nm it was already 1.43 <em>k</em><sub>B</sub><em>T</em>, and closer means stronger."},
+        {t:"Yes, by a wide margin: |<em>V</em>| is about 20 <em>k</em><sub>B</sub><em>T</em>", why:"That would be the case in a solvent of much lower ε<sub>r</sub>. In water the energy is only about twice <em>k</em><sub>B</sub><em>T</em>."}
+      ],
+      after:{sep:35}, show2:["R"],
+      more:"Ions in contact are typically 0.28 to 0.35 nm apart, just inside <em>l</em><sub>B</sub>/2 = 0.36 nm, so in a concentrated 1:1 aqueous solution a small but not negligible fraction of the ions is paired. For Ca<sup>2+</sup> and SO<sub>4</sub><sup>2&minus;</sup> at the same distance the ratio is 8.2." }
+    ],
+    summary: {
+      points:[
+        "Coulomb's law is divided by ε<sub>r</sub>, so water weakens the force between ions nearly eighty times and hexane by less than a factor of two.",
+        "Whether ions stay together depends on |<em>V</em>| compared with <em>k</em><sub>B</sub><em>T</em>, not on the force alone.",
+        "The Bjerrum length, 0.715 nm in water at 298 K, is where the two are equal for singly charged ions. It scales as 1/(ε<sub>r</sub><em>T</em>), and for other charges |<em>V</em>| = <em>k</em><sub>B</sub><em>T</em> at |<em>z</em><sub>1</sub><em>z</em><sub>2</sub>|<em>l</em><sub>B</sub>.",
+        "Two ions closer than <em>l</em><sub>B</sub>/2 count as a pair, which in water happens only near contact for singly charged ions."
+      ],
+      next:"Now try Problem 5.3(b) and Problem 5.4 in the free explorer, and Problem 5.3(a) by hand."
+    }
+  });
 })();
 </script>
 </body>

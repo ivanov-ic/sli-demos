@@ -298,6 +298,101 @@
   }
 </style>
 </head>
+<style>
+  /* ---------- guided lesson ---------- */
+  .lesson-cta{display:flex; flex-wrap:wrap; align-items:center; gap:10px 16px; margin:0 0 14px;
+    padding:11px 15px; background:var(--panel); border:1px solid var(--line); border-left:3px solid var(--teal);
+    border-radius:8px; box-shadow:var(--shadow); font-size:14px; color:var(--ink-2)}
+  .lesson-cta p{margin:0; flex:1 1 260px}
+  .lesson-cta b{color:var(--ink)}
+  .btn.go{background:var(--teal); border-color:var(--teal); color:#fff; font-weight:600}
+  .btn.go:hover{filter:brightness(1.06); color:#fff}
+  .btn.go:disabled{background:var(--panel-2); border-color:var(--line); color:var(--muted); filter:none; cursor:default}
+
+  .lesson{display:none; margin:0 0 14px; background:var(--panel); border:1px solid var(--line);
+    border-radius:10px; box-shadow:var(--shadow); padding:14px 16px 16px; scroll-margin-top:10px}
+  .lesson-on .lesson{display:block}
+  .lesson-on .lesson-cta, .lesson-on .controls, .lesson-on .work, .lesson-on .point, .lesson-on .lesson-hide{display:none}
+  .lesson-top{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap}
+  .lesson-step{font-size:11.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); font-weight:500}
+  .lesson-exit{background:none; border:none; padding:4px 0; color:var(--blue); font:inherit; font-size:13px; cursor:pointer; text-decoration:underline; text-underline-offset:2px}
+  .lesson-bar{height:5px; border-radius:3px; background:var(--panel-2); margin:8px 0 12px; overflow:hidden}
+  .lesson-bar span{display:block; height:100%; width:0; background:var(--teal); border-radius:3px; transition:width .3s ease}
+  .lesson h3{font-family:"Source Serif 4", Georgia, serif; font-size:19px; font-weight:600; margin:0 0 6px; color:var(--ink)}
+  .lesson .ltext{margin:0 0 8px; font-size:15px; line-height:1.55; color:var(--ink-2); max-width:72ch}
+  .lesson .lnow{margin:0 0 10px; font-size:12.5px; color:var(--muted)}
+  .lesson .lnow b{color:var(--ink-2); font-weight:600}
+  .lesson .lq{margin:4px 0 9px; font-size:15.5px; font-weight:600; color:var(--ink); max-width:72ch}
+  .lopts{display:grid; gap:8px; max-width:640px}
+  .lopt{display:flex; align-items:flex-start; gap:10px; width:100%; text-align:left; padding:10px 12px; min-height:44px;
+    background:var(--panel); color:var(--ink); border:1.5px solid var(--line); border-radius:8px;
+    font:inherit; font-size:14.5px; line-height:1.4; cursor:pointer}
+  .lopt:hover:not([aria-disabled="true"]){border-color:var(--blue)}
+  .lopt .mk{flex:none; width:22px; height:22px; border-radius:50%; border:1.5px solid var(--line); display:flex;
+    align-items:center; justify-content:center; font-size:12px; font-weight:700; color:var(--muted); margin-top:-1px}
+  .lopt[aria-disabled="true"]{cursor:default}
+  .lopt:focus-visible, .btn:focus-visible, .lesson-exit:focus-visible, .lsee:focus-visible{outline:2px solid var(--focus); outline-offset:2px}
+  .lopt.right{border-color:var(--teal); background:var(--teal-soft)}
+  .lopt.right .mk{border-color:var(--teal); background:var(--teal); color:#fff}
+  .lopt.wrong{border-color:var(--red); background:var(--red-soft)}
+  .lopt.wrong .mk{border-color:var(--red); background:var(--red); color:#fff}
+  .lopt.dim{opacity:.55}
+  .lfb{margin:10px 0 0; max-width:72ch; font-size:14.5px; line-height:1.55; color:var(--ink-2)}
+  .lfb:empty{display:none}
+  .lfb .verdict{display:block; font-weight:700; margin-bottom:3px}
+  .lfb .verdict.ok{color:var(--teal)} .lfb .verdict.no{color:var(--red)}
+  .lfb .more{display:block; margin-top:7px; padding-top:7px; border-top:1px solid var(--line)}
+  .lnav{display:flex; gap:10px; margin-top:14px; flex-wrap:wrap}
+  .lsum ul{margin:6px 0 10px; padding-left:20px; max-width:72ch; color:var(--ink-2); font-size:14.5px; line-height:1.55}
+  .lsum li{margin:3px 0}
+  .lscore{font-size:15px; color:var(--ink); margin:0 0 6px}
+  /* readouts held back until the student has committed to an answer */
+  .ro.veiled .v, .ro.veiled .n{filter:blur(7px); user-select:none}
+  .ro.veiled{position:relative}
+  .ro.veiled::after{content:"answer first"; position:absolute; right:8px; bottom:8px; font-size:10.5px;
+    letter-spacing:.06em; text-transform:uppercase; color:var(--muted); background:var(--panel);
+    padding:1px 5px; border-radius:4px}
+  @media (max-width:560px){
+    .lesson{padding:12px 13px 14px}
+    .lesson h3{font-size:18px}
+    .lesson .ltext{font-size:14.5px}
+  }
+  @media (prefers-reduced-motion: reduce){ .lesson-bar span{transition:none} }
+  /* the lesson sits under the picture it is about */
+  .card .lesson{margin:12px 0 0; border:none; border-top:1px solid var(--line); border-radius:0; box-shadow:none; padding:12px 0 2px}
+  .lesson-on .stage{align-items:start}
+  .lchips{display:flex; flex-wrap:wrap; gap:6px 8px; margin:12px 0 0}
+  .lchips .chip{display:inline-flex; align-items:baseline; gap:6px; padding:5px 10px; border-radius:6px; background:var(--panel-2);
+    font-size:13px; color:var(--ink-2)}
+  .lchips .chip b{font-family:"IBM Plex Mono", monospace; font-weight:500; color:var(--ink); font-variant-numeric:tabular-nums}
+  .lchips .chip.veiled b{filter:blur(6px); user-select:none}
+  .lfb .ans{display:block; margin-top:6px}
+  .lcta-btns{display:flex; flex-wrap:wrap; align-items:center; gap:8px 14px}
+  .ltop-btns{display:flex; gap:14px; flex-wrap:wrap}
+  .sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
+  .lfb .verdict:focus{outline:none}
+  .lesson h3:focus{outline:none}
+  .lsee{display:inline-block; margin-top:8px; background:none; border:1px solid var(--line); border-radius:6px;
+    padding:6px 10px; font:inherit; font-size:13px; color:var(--blue); cursor:pointer}
+  .lesson-exit[aria-pressed="true"]{font-weight:600; text-decoration:none; color:var(--ink);
+    background:var(--panel-2); border-radius:5px; padding:4px 8px}
+  .lhint{align-self:center; font-size:12.5px; color:var(--muted)}
+  /* a blurred verdict pill keeps no colour, since the colour alone would give the answer */
+  .ro.veiled .pill{background:var(--panel-2) !important; border-color:var(--line) !important; color:transparent !important}
+  .lsee + .lsee{margin-left:8px}
+  /* readouts and charts held back: stacked on a phone they are removed; on a wide screen the column
+     keeps its place with a note, so the layout does not jump when the answer is revealed */
+  @media (max-width:1040px){ .veil-charts .col-right, .veil-charts .lveilbox{display:none} }
+  @media (min-width:1041px){
+    .veil-charts .col-right, .veil-charts .lveilbox{visibility:hidden; position:relative}
+    .veil-charts .col-right::after, .veil-charts .lveilbox::after{content:"These charts and readouts appear when you answer.";
+      visibility:visible; position:absolute; top:60px; left:12%; right:12%; padding:16px 18px; text-align:center;
+      border:1px dashed var(--line); border-radius:10px; color:var(--muted); font-size:14px; line-height:1.5; background:var(--panel)}
+    .l-answered.veil-charts .col-right::after, .l-answered.veil-charts .lveilbox::after{content:"Held back for now: a later question asks about it."}
+  }
+  .lesson-on .tg{display:none}
+
+</style>
 <body>
 <script>if(window.self!==window.top)document.documentElement.classList.add("in-frame");</script>
 <noscript><div style="max-width:60ch;margin:40px auto;padding:18px 22px;border:1px solid #CF4520;border-radius:8px;background:#fff;color:#0F1E2B;font:15px/1.55 'IBM Plex Sans',system-ui,sans-serif">
@@ -313,6 +408,26 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     </div>
   </header>
   <p class="point">A thousandfold increase in distance costs a millionfold increase in time. That is why cells are small and why nobody waits for a beaker to mix itself.</p>
+
+  <div class="lesson-cta" id="lessonCta">
+    <p><b>Guided lesson.</b> Eight short questions on how far and how fast diffusion goes, about ten minutes. Each step asks you to predict first, then shows you the answer in the demo.</p>
+    <div class="lcta-btns">
+      <button type="button" class="btn go" id="lessonStart">Start the guided lesson</button>
+      <button type="button" class="lesson-exit" id="lessonRestart" hidden>Start again from step 1</button>
+    </div>
+  </div>
+
+  <section class="lesson" id="lesson" aria-label="Guided lesson">
+    <div class="lesson-top">
+      <span class="lesson-step" id="lStep">Step 1</span>
+      <span class="ltop-btns">
+        <button type="button" class="lesson-exit" id="lPause" hidden>Pause motion</button>
+        <button type="button" class="lesson-exit" id="lExit">Leave the lesson</button>
+      </span>
+    </div>
+    <div class="lesson-bar" aria-hidden="true"><span id="lBar"></span></div>
+    <div id="lBody"></div>
+  </section>
 
   <section class="controls">
     <div class="ctl">
@@ -493,7 +608,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     Na:       {html:"Na<sup>+</sup>", txt:"Na⁺", D:1.33e-9, note:"23 Da, D = 1.33 × 10⁻⁹ m² s⁻¹"},
     glucose:  {html:"glucose", txt:"glucose", D:6.7e-10, note:"180 Da, D = 6.7 × 10⁻¹⁰ m² s⁻¹"},
     lysozyme: {html:"lysozyme", txt:"lysozyme", D:1.1e-10, note:"14 kDa, D = 1.1 × 10⁻¹⁰ m² s⁻¹"},
-    ecoli:    {html:"<em>E. coli</em>", txt:"E. coli", D:5e-13, note:"a cell 1 µm across, D estimated from eqn 8.5"}
+    ecoli:    {html:"<em>E. coli</em>", txt:"E. coli", D:5e-13, note:"a cell 1 µm across, D ≈ 5 × 10⁻¹³ m² s⁻¹ from eqn 8.5"}
   };
   var TARGETS = [
     {v:2e-8,  label:"20 nm",  what:"a synaptic cleft"},
@@ -538,13 +653,14 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     if(m < 1e-3) return p3(m*1e6) + " µm";
     if(m < 1e-2) return p3(m*1e3) + " mm";
     if(m < 1) return p3(m*1e2) + " cm";
+    if(m >= 1000) return p3(m/1000) + " km";
     return p3(m) + " m";
   }
 
   function crossText(){
     var el = document.getElementById("crossNote"); if(!el) return;
     var txt = S.crossed !== null
-      ? "The swarm's rms spread reached " + fmtLen(S.target) + " at " + fmtT(S.crossed) + " of simulated time"
+      ? "The swarm's rms spread reached " + fmtLen(S.target) + " at " + fmtT(S.crossed) + " of simulated time (x²/2D gives " + fmtT(tCross(S.target)) + "; a swarm of 400 scatters by about 5 per cent)"
       : (S.t > 0 ? "Timing the swarm…" : "Press Start to time the swarm");
     if(el.textContent !== txt) el.textContent = txt;
   }
@@ -565,9 +681,11 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     S.t += dtSim;
     // the spread along one direction, averaged over x and y for a steadier estimate,
     // each measured about the swarm's centre so that a drift drops out
-    var sx = 0, sxx = 0, sy = 0, syy = 0;
-    for(var j=0;j<N;j++){ var x = P[2*j], yv = P[2*j+1]; sx += x; sxx += x*x; sy += yv; syy += yv*yv; }
-    var mx = sx/N, my = sy/N, msd = 0.5*((sxx/N - mx*mx) + (syy/N - my*my));
+    var sx = 0, sy = 0, sxx = 0, syy = 0;
+    for(var j=0;j<N;j++){ sx += P[2*j]; sy += P[2*j+1]; }
+    var mx = sx/N, my = sy/N;
+    for(var j2=0;j2<N;j2++){ var dx = P[2*j2] - mx, dy = P[2*j2+1] - my; sxx += dx*dx; syy += dy*dy; }
+    var msd = 0.5*(sxx/N + syy/N);
     S.cx = mx;
     HIST.push({t:S.t, msd:msd});
     if(HIST.length > 1200) HIST = HIST.filter(function(h,i){ return i % 2 === 0 || i === HIST.length-1; });
@@ -591,7 +709,8 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     var half = viewHalf();
     var scale = Math.min(W,H)/(2*half);
     // once the solvent has carried the swarm well downstream, the view follows it
-    var pan = Math.max(0, (S.cx||0) - 0.45*half);
+    var pan = S.conv ? driftV()*S.t : 0;
+    var panShown = pan > 0.02*half;
     var cx = W/2 - pan*scale, cy = H/2;
 
     // the target distance
@@ -599,7 +718,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     g.strokeStyle = TH.red; g.lineWidth = 1.6;
     g.beginPath(); g.arc(cx, cy, rt, 0, 6.2832); g.stroke();
     mono(g,11,500);
-    tag(g, fmtLen(S.target), cx, cy-rt-4, "center", "bottom", TH.red, TH["panel-2"]);
+
 
     // rms displacement
     var msd = HIST.length ? HIST[HIST.length-1].msd : 0;
@@ -620,6 +739,9 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     g.globalAlpha = 1;
     g.fillStyle = TH.ink;
     g.beginPath(); g.arc(cx, cy, 2.5, 0, 6.2832); g.fill();
+    mono(g,11,500);
+    if(cx >= 0) tag(g, fmtLen(S.target), cx, cy-rt-4, "center", "bottom", TH.red, TH["panel-2"]);
+    else if(cx + rt < 0) tag(g, "← start, " + fmtLen(pan) + " upstream", 10, H-36, "left", "middle", TH.red, TH["panel-2"]);
 
     // scale bar
     var barM = S.target/2, barPx = barM*scale;
@@ -635,11 +757,12 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     tag(g, "simulated time  " + fmtT(S.t), W-12, 16, "right", "middle", TH.ink, TH["panel-2"]);
     if(S.conv){
       mono(g,11,500);
-      tag(g, "solvent drift →" + (pan > 0 ? "  view follows the swarm, carried " + fmtLen(S.cx) : ""), W-12, 36, "right", "middle", TH.gold, TH["panel-2"]);
+      tag(g, "solvent drift →" + (panShown ? " view follows the swarm" : ""), W-12, 36, "right", "middle", TH.gold, TH["panel-2"]);
+      if(panShown) tag(g, "carried " + fmtLen(pan), W-12, 56, "right", "middle", TH.gold, TH["panel-2"]);
     }
     if(S.crossed !== null){
       mono(g,11,500);
-      tag(g, "reached " + fmtLen(S.target) + " at " + fmtT(S.crossed), W-12, S.conv ? 56 : 36, "right", "middle", TH.red, TH["panel-2"]);
+      tag(g, "reached " + fmtLen(S.target) + " at " + fmtT(S.crossed), W-12, S.conv ? (panShown ? 76 : 56) : 36, "right", "middle", TH.red, TH["panel-2"]);
     }
   }
 
@@ -703,7 +826,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     $("tbody").innerHTML = html;
 
     $("stopCap").innerHTML = "For " + sp.html + " crossing " + fmtLen(S.target) +
-      ", from &lang;x<sup>2</sup>&rang; = 2<em>Dt</em>. Any row can be clicked.";
+      ", from &lang;x<sup>2</sup>&rang; = 2<em>Dt</em>.<span class=\"lesson-hide\"> Any row can be clicked.</span>";
     $("stopwatch").textContent = fmtT(tCross(S.target));
     crossText();
 
@@ -716,7 +839,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     var peTail = pe >= 3 ? ", so the solvent is doing most of the work"
                : (pe > 0.33 ? ", so the two are comparable over this distance" : ", so diffusion still wins");
     $("peNote").innerHTML = S.conv
-      ? "Pe = vL/D = " + (pe>=1000?sci(pe,1):num(pe,pe<10?2:1)) + peTail
+      ? "Pe = vL/D = " + (pe>=1000 || pe<0.01 ? sci(pe,1) : num(pe, pe<0.1 ? 3 : (pe<10 ? 2 : (pe<100 ? 1 : 0)))) + peTail
       : "Diffusion only";
     $("velVal").textContent = S.conv ? fmtLen(driftV()) + " s⁻¹" : "off";
 
@@ -763,7 +886,8 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
 
   // ---------- wiring ----------
   var setSpec = group("spec", function(d){ S.spec = d.v; reset(); paint(); });
-  var setTarg = group("targ", function(d){ S.target = +d.v; reset(); paint(); });
+  var setTarg0 = group("targ", function(d){ S.target = +d.v; reset(); paint(); });
+  var setTarg = function(v){ setTarg0((+v).toExponential()); };
   $("tbody").addEventListener("click", function(ev){
     var tr = ev.target.closest("tr"); if(!tr || !tr.dataset.v) return;
     S.target = +tr.dataset.v; setTarg(tr.dataset.v); reset(); paint();
@@ -787,6 +911,363 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
   window.addEventListener("resize", function(){ drawWalk(); drawCharts(); });
   if(document.fonts && document.fonts.ready) document.fonts.ready.then(paint);
   paint();
+
+  // ===================== guided lesson (shared engine) =====================
+  // Predict, then reveal. Each step puts the demo into a stated condition, asks one
+  // multiple-choice question (one attempt, so the final score is honest), hides any
+  // readout that would give the answer away, and only after the student commits moves
+  // the demo to the new condition and explains. The page-specific part is the object
+  // passed in: its steps, which readouts to show beside the question, and apply(),
+  // which sets the demo through its own internals so that values are exact.
+  function lessonEngine(C){
+    var $l = function(id){ return document.getElementById(id); };
+    var root = document.documentElement;
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var lessonEl = $l("lesson"), lBody = $l("lBody"), cta = $l("lessonCta");
+    var anchor = document.querySelector(C.anchor || ".stage .card");
+    anchor.appendChild(lessonEl);                     // the lesson sits under the picture it is about
+    // the picture to scroll back to; a page whose picture changes with its mode passes a function
+    // a step can name its own picture when its answer is on a chart rather than the main view
+    function picture(){
+      var st = C.steps[LS.i], pc = (st && st.picture) || C.picture;
+      return typeof pc === "function" ? pc() : (pc ? document.querySelector(pc) : anchor);
+    }
+    var N = C.steps.length;
+    var LS = {i:0, answered:[], score:0};
+
+    function veil(ids, step){
+      (C.veilable || []).forEach(function(id){
+        var el = $l(id); if(!el) return;
+        var on = ids.indexOf(id) >= 0, box = el.closest(".ro") || el.parentNode;
+        box.classList.toggle("veiled", on);
+        [].forEach.call(box.querySelectorAll(".v,.n"), function(x){
+          if(on) x.setAttribute("aria-hidden", "true"); else x.removeAttribute("aria-hidden");
+        });
+      });
+      // hide: what the picture holds back while the question is open; hideAfter: what stays
+      // hidden once it is answered (for a later step that asks about the same thing)
+      root.classList.toggle("l-answered", !!(step && LS.answered[LS.i]));
+      if(C.onVeil) C.onVeil(step ? (LS.answered[LS.i] ? (step.hideAfter || 0) : (step.hide || 0)) : 0);
+    }
+    function chips(s, done){
+      var keys = (done && s.show2) ? s.show2 : (s.show || []), vs = done ? (s.veilAfter || []) : (s.veil || []);
+      if(!keys.length) return "";
+      return "<div class=\"lchips\" id=\"lChips\">" + keys.map(function(k){
+        // a chip reads a readout by its id, or calls a function for values the page has no readout for
+        var c = C.chips[k], v = typeof c[0] === "function" ? c[0]() : (($l(c[0]) || {}).textContent || "").trim();
+        var hid = vs.indexOf(k) >= 0 || (typeof c[0] === "string" && vs.indexOf(c[0]) >= 0);
+        return "<span class=\"chip" + (hid ? " veiled" : "") + "\"><span>" + c[1] + "</span>" +
+          (hid ? "<b aria-hidden=\"true\">" + v + c[2] + "</b><span class=\"sr\">hidden until you answer</span>"
+               : "<b>" + v + c[2] + "</b>") + "</span>";
+      }).join("") + "</div>";
+    }
+    // the line that says what the demo is showing; it is told the step, so it can hold back a value
+    function nowText(){ var s = C.steps[LS.i]; return C.now(s, !!LS.answered[LS.i]); }
+    function nowLine(){ return C.now ? "<p class=\"lnow\" id=\"lNow\">" + nowText() + "</p>" : ""; }
+    function scrollTo(el){ if(el && el.scrollIntoView) el.scrollIntoView({block:"start", behavior: reduce ? "auto" : "smooth"}); }
+
+    function render(focusWhat){
+      $l("lBar").style.width = (100*LS.i/N) + "%";
+      if(LS.i >= N) return summary();
+      var s = C.steps[LS.i], done = LS.answered[LS.i];
+      $l("lStep").textContent = "Step " + (LS.i+1) + " of " + N;
+      var h = "<h3 tabindex=\"-1\" id=\"lTitle\">" + s.title + "</h3><p class=\"ltext\">" + s.text + "</p>" + nowLine() +
+        "<p class=\"lq\" id=\"lQ\">" + s.q + "</p><div class=\"lopts\" role=\"group\" aria-labelledby=\"lQ\">";
+      s.opts.forEach(function(o, k){
+        var cls = "lopt", mk = String.fromCharCode(65+k), sr = "";
+        if(done){
+          if(o.ok){ cls += " right"; mk = "✓"; sr = done.pick === k ? " (your answer, correct)" : " (correct answer)"; }
+          else if(done.pick === k){ cls += " wrong"; mk = "✗"; sr = " (your answer)"; }
+          else cls += " dim";
+        }
+        h += "<button type=\"button\" class=\"" + cls + "\" data-k=\"" + k + "\"" + (done ? " aria-disabled=\"true\"" : "") +
+             "><span class=\"mk\" aria-hidden=\"true\">" + mk + "</span><span>" + o.t + "<span class=\"sr\">" + sr + "</span></span></button>";
+      });
+      h += "</div>" + chips(s, done) + "<div class=\"lfb\" id=\"lFb\" aria-live=\"polite\">";
+      if(done){
+        var picked = s.opts[done.pick], right = s.opts.filter(function(o){ return o.ok; })[0];
+        h += "<span class=\"verdict " + (picked.ok ? "ok" : "no") + "\" tabindex=\"-1\" id=\"lVerdict\">" + (picked.ok ? "Right." : "Not quite.") + "</span>" +
+             picked.why + (picked.ok ? "" : "<span class=\"ans\">The right answer was: <b>" + right.t + "</b>. " + right.why + "</span>") +
+             "<span class=\"more\">" + s.more + "</span>" +
+             (s.after || s.hide || s.veil ? "<button type=\"button\" class=\"lsee\" id=\"lSee\">See it in the demo &uarr;</button>" : "") +
+             (C.replay && s.after && s.after.run ? "<button type=\"button\" class=\"lsee\" id=\"lAgainRun\">Run it again</button>" : "");
+      }
+      h += "</div><div class=\"lnav\">" +
+        (LS.i > 0 ? "<button type=\"button\" class=\"btn\" id=\"lBack\">Back</button>" : "") +
+        "<button type=\"button\" class=\"btn go\" id=\"lNext\"" + (done ? "" : " disabled") + ">" + (LS.i === N-1 ? "Finish" : "Continue") + "</button>" +
+        (done ? "" : "<span class=\"lhint\">Choose an answer to continue</span>") + "</div>";
+      lBody.innerHTML = h;
+      [].forEach.call(lBody.querySelectorAll(".lopt"), function(b){
+        b.addEventListener("click", function(){ if(!LS.answered[LS.i]) answer(+b.dataset.k); });
+      });
+      if($l("lBack")) $l("lBack").addEventListener("click", function(){ LS.i--; go(); });
+      $l("lNext").addEventListener("click", function(){ LS.i++; go(); });
+      if($l("lAgainRun")) $l("lAgainRun").addEventListener("click", function(){ C.replay(s); pollChips(s); });
+      if($l("lSee")) $l("lSee").addEventListener("click", function(){
+        var pic = picture(); if(!pic) return;
+        if(!pic.hasAttribute("tabindex")) pic.setAttribute("tabindex", "-1");
+        scrollTo(pic); pic.focus({preventScroll:true});
+      });
+      var f = focusWhat === "verdict" ? $l("lVerdict") : (focusWhat === "title" ? $l("lTitle") : null);
+      if(f) f.focus({preventScroll: focusWhat === "title"});
+    }
+    function refreshChips(){
+      var s = C.steps[LS.i], el = $l("lChips");
+      if(!s || !el) return;
+      var tmp = document.createElement("div"); tmp.innerHTML = chips(s, LS.answered[LS.i]);
+      el.parentNode.replaceChild(tmp.firstChild, el);
+      if(C.now && $l("lNow")) $l("lNow").innerHTML = nowText();
+    }
+    function answer(k){
+      var s = C.steps[LS.i];
+      LS.answered[LS.i] = {pick:k};
+      if(s.opts[k].ok) LS.score++;
+      if(s.after) C.apply(s.after, "after", s);
+      veil(s.veilAfter || [], s);
+      render("verdict");
+      pollChips(s);
+    }
+    // values that change over time (a race, a simulation) are read again until they settle; a page
+    // whose runs go at the display's frame rate says through busy() whether one is still going
+    function pollChips(s){
+      var at = LS.i, t0 = Date.now(), until = Math.max(1600, s.settle || 0);
+      clearInterval(LS.timer);
+      LS.timer = setInterval(function(){
+        var el = Date.now() - t0;
+        if(LS.i !== at || !LS.answered[at] || el > 180000 || (el > until + 50 && !(C.busy && C.busy()))){
+          clearInterval(LS.timer); refreshChips(); return;
+        }
+        refreshChips();
+      }, 500);
+    }
+    function go(auto){
+      var s = C.steps[LS.i];
+      if(s){
+        C.apply(s.setup, "setup", s);
+        if(LS.answered[LS.i]){ if(s.after) C.apply(s.after, "after", s); veil(s.veilAfter || [], s); }
+        else veil(s.veil || [], s);
+      }
+      clearInterval(LS.timer);
+      render(auto ? null : "title");
+      syncPause();
+      // on entry, go to the step's own picture only if it is on show (a held-back chart is not)
+      if(!auto){
+        var pc = picture();
+        if(!pc || !pc.getClientRects().length || getComputedStyle(pc).visibility === "hidden") pc = (typeof C.picture === "string" && document.querySelector(C.picture)) || anchor;
+        scrollTo(pc);
+      }
+    }
+    function summary(){
+      $l("lStep").textContent = "Lesson complete";
+      veil([], null);
+      lBody.innerHTML = "<div class=\"lsum\"><h3 tabindex=\"-1\" id=\"lTitle\">What you have seen</h3>" +
+        "<p class=\"lscore\">You predicted <b>" + LS.score + " of " + N + "</b> correctly at the first attempt.</p><ul>" +
+        C.summary.points.map(function(p){ return "<li>" + p + "</li>"; }).join("") + "</ul>" +
+        "<p class=\"ltext\">" + C.summary.next + "</p>" +
+        "<div class=\"lnav\"><button type=\"button\" class=\"btn go\" id=\"lFree\">Explore freely</button>" +
+        "<button type=\"button\" class=\"btn\" id=\"lAgain\">Start again</button></div></div>";
+      $l("lFree").addEventListener("click", function(){ leave(); });
+      $l("lAgain").addEventListener("click", function(){ start(true); });
+      $l("lTitle").focus({preventScroll:true});
+    }
+    function updateCta(){
+      var n = LS.answered.filter(Boolean).length;
+      var resume = n > 0 && LS.i < N;
+      $l("lessonStart").textContent = resume ? "Resume the guided lesson (step " + (LS.i+1) + ")" : "Start the guided lesson";
+      $l("lessonRestart").hidden = !resume;
+    }
+    function leave(){
+      clearInterval(LS.timer);
+      root.classList.remove("lesson-on");
+      veil([], null);
+      if(C.onLeave) C.onLeave();
+      updateCta();
+      $l("lessonStart").focus({preventScroll:true});
+    }
+    function start(fresh, auto){
+      if(fresh || LS.i >= N){ LS.i = 0; LS.answered = []; LS.score = 0; }
+      root.classList.add("lesson-on");
+      go(auto);
+    }
+    $l("lessonStart").addEventListener("click", function(){ start(false); });
+    $l("lessonRestart").addEventListener("click", function(){ start(true); });
+    $l("lExit").addEventListener("click", leave);
+    // a link ending in #lesson opens the page straight into the lesson, without scrolling
+    // a Canvas page that holds it in an iframe
+    if(location.hash === "#lesson") setTimeout(function(){ start(true, true); }, 0);
+    // a pause control for the moving picture, since the demo's own controls are hidden
+    // sliders announce the value the page prints beside them (with its unit), not the raw slider number
+    [].forEach.call(document.querySelectorAll("input[type=range]"), function(r){
+      var box = r.closest(".ctl");
+      var lab = (r.id && document.querySelector("label[for=\"" + r.id + "\"] .val")) ||
+                (box && box.querySelectorAll("input[type=range]").length === 1 ? box.querySelector(".val") : null);
+      if(!lab) return;
+      var set = function(){ r.setAttribute("aria-valuetext", lab.textContent.replace(/\s+/g, " ").trim()); };
+      set(); new MutationObserver(set).observe(lab, {childList:true, characterData:true, subtree:true});
+    });
+    // (a fixed label with aria-pressed, so a screen reader hears the state, not a new name)
+    var mv = C.motion ? $l(C.motion) : null, pz = $l("lPause");
+    function syncPause(){ if(mv && pz) pz.setAttribute("aria-pressed", String(!mv.checked)); }
+    if(mv && pz){
+      pz.hidden = false;
+      pz.addEventListener("click", function(){ mv.checked = !mv.checked; mv.dispatchEvent(new Event("change", {bubbles:true})); syncPause(); });
+      mv.addEventListener("change", syncPause);
+      // the demo's Reset sets the box back without firing change, so check again after any click on the page
+      document.addEventListener("click", function(){ setTimeout(syncPause, 0); });
+      syncPause();
+    }
+  }
+
+  // ---------- L8.1 lesson ----------
+  function lessonApply(cfg, phase){
+    if(phase === "setup"){
+      stop(); S.spec = "Na"; S.target = 1e-5; S.conv = false; S.vel = 50;
+    }
+    if(cfg.spec !== undefined) S.spec = cfg.spec;
+    if(cfg.target !== undefined) S.target = cfg.target;
+    if(cfg.conv !== undefined) S.conv = cfg.conv;
+    if(cfg.vel !== undefined) S.vel = cfg.vel;
+    $("conv").checked = S.conv; $("vel").disabled = !S.conv; $("vel").value = S.vel;
+    setSpec(S.spec); setTarg(S.target);
+    reset(); $("wall").textContent = "0.0 s on the wall"; paint();
+    if(cfg.run) start();
+  }
+  function tFor(spec, x){ return fmtT(tCross(x, SPECIES[spec].D)); }
+  lessonEngine({
+    picture: "#walkBox",
+    chips: {
+      t: [function(){ return fmtT(tCross(S.target)); }, "time to cross", ""],
+      na: [function(){ return tFor("Na", 1e-5); }, "Na⁺, 10 µm", ""],
+      lys: [function(){ return tFor("lysozyme", 1e-5); }, "lysozyme, 10 µm", ""],
+      pe: [function(){ return num(peclet(), peclet() < 10 ? 3 : 1); }, "<em>Pe</em> = <em>vL</em>/<em>D</em>", ""],
+      v: [function(){ return S.conv ? fmtLen(driftV()) + " s⁻¹" : "none"; }, "solvent speed", ""],
+      // rms spread at the end of the run so far against the spread at half that time
+      r2: [function(){
+        if(HIST.length < 4) return "–";
+        var e = HIST[HIST.length-1], h = HIST.reduce(function(b, x){ return Math.abs(x.t - e.t/2) < Math.abs(b.t - e.t/2) ? x : b; });
+        return h.msd > 0 ? num(Math.sqrt(e.msd/h.msd), 2) : "–";
+      }, "spread at 2<em>t</em> ÷ spread at <em>t</em>", ""]
+    },
+    apply: lessonApply,
+    onVeil: function(level){ document.documentElement.classList.toggle("veil-charts", level >= 1); },
+    busy: function(){ return S.running; },
+    replay: function(){ stop(); reset(); paint(); start(); },
+    now: function(){
+      var sp = SPECIES[S.spec];
+      return "Showing <b>" + sp.html + "</b> (<em>D</em> = " + sci(sp.D, sp.D < 1e-12 ? 0 : 2) + " m<sup>2</sup> s<sup>&minus;1</sup>), distance <b>" + fmtLen(S.target) + "</b>" +
+        (S.conv ? ", with the solvent moving at " + fmtLen(driftV()) + " s<sup>&minus;1</sup>" : ", no stirring") + ".";
+    },
+    steps: [
+    { title:"Across one cell",
+      setup:{}, show:[], hide:1,
+      text:"A sodium ion in water at 298 K has <em>D</em> = 1.33 × 10<sup>&minus;9</sup> m<sup>2</sup> s<sup>&minus;1</sup> (Table 8.1). The red circle has a radius of 10 µm, about the size of a cell. The time to spread that far is <em>t</em> = <em>x</em><sup>2</sup>/2<em>D</em>, from eqn 8.7.",
+      q:"About how long does Na⁺ take to diffuse 10 µm?",
+      opts:[
+        {t:"About 40 µs", why:"That would be the time for about 0.3 µm. Square the distance: (10<sup>&minus;5</sup> m)<sup>2</sup> = 10<sup>&minus;10</sup> m<sup>2</sup>."},
+        {t:"About 40 ms", ok:true, why:"(1.0 × 10<sup>&minus;5</sup>)<sup>2</sup>/(2 × 1.33 × 10<sup>&minus;9</sup>) = 0.0376 s."},
+        {t:"About 40 s", why:"That would be the time for about 0.3 mm. Check the powers of ten when you square the distance."},
+        {t:"About 6 minutes", why:"That is the time for 1 mm, a hundred times further (Example 8.2)."}
+      ],
+      after:{run:true}, show2:["t"],
+      more:"The swarm is now running, and the note under the stopwatch records when its spread reaches the red circle. Across a cell, diffusion is fast enough to do the job." },
+
+    { title:"A hundred times further",
+      setup:{}, show:["t"], hide:1,
+      text:"The same ion now has to cover 1 mm, a hundred times further than the cell, as in Example 8.2(b).",
+      q:"How much longer does it take?",
+      opts:[
+        {t:"A hundred times longer", why:"That would be true if distance grew in proportion to time. It grows only as the square root."},
+        {t:"Ten thousand times longer", ok:true, why:"<em>t</em> ∝ <em>x</em><sup>2</sup>, so a hundredfold distance costs (100)<sup>2</sup> = 10<sup>4</sup> times the time: 0.0376 s becomes 376 s."},
+        {t:"Ten times longer", why:"That is the square root of a hundred, the wrong way round. The time goes as the square of the distance."}
+      ],
+      after:{target:1e-3, run:true}, show2:["t"],
+      more:"376 s is 6.27 minutes. A thousandfold increase in distance costs a millionfold increase in time, which is why cells are small." },
+
+    { title:"Across a beaker",
+      setup:{target:1e-3}, show:["t"], hide:1,
+      text:"Example 8.2(c): the same sodium ion, now across 1 cm, about the distance across a small beaker.",
+      q:"Roughly how long does it take?",
+      opts:[
+        {t:"About ten seconds", why:"That would be the time for about 0.2 mm."},
+        {t:"About ten minutes", why:"That is close to the time for 1 mm. Ten times further takes a hundred times longer."},
+        {t:"About ten hours", ok:true, why:"(10<sup>&minus;2</sup>)<sup>2</sup>/(2 × 1.33 × 10<sup>&minus;9</sup>) = 3.76 × 10<sup>4</sup> s = 10.4 h."},
+        {t:"About ten days", why:"That is the scale for an <em>E. coli</em> cell over 1 mm, which comes later."}
+      ],
+      after:{target:1e-2}, show2:["t"],
+      more:"Nobody waits ten hours for a beaker to mix itself. Over laboratory distances it is stirring and convection that do the work." },
+
+    { title:"A protein against a small ion",
+      setup:{}, show:[], hide:1,
+      text:"This is the Predict first task in the book's box for this demo. Lysozyme has <em>D</em> = 1.1 × 10<sup>&minus;10</sup> m<sup>2</sup> s<sup>&minus;1</sup> and Na⁺ has 1.33 × 10<sup>&minus;9</sup> m<sup>2</sup> s<sup>&minus;1</sup> (Table 8.1). Answer without any other calculation.",
+      q:"How much longer does lysozyme take than Na⁺ to diffuse across a 10 µm cell?",
+      opts:[
+        {t:"About the same time", why:"At a fixed distance <em>t</em> ∝ 1/<em>D</em>, and the two values of <em>D</em> differ by a factor of twelve."},
+        {t:"About 12 times longer", ok:true, why:"At a fixed distance <em>t</em> ∝ 1/<em>D</em>, so the factor is (1.33 × 10<sup>&minus;9</sup>)/(1.1 × 10<sup>&minus;10</sup>) ≈ 12."},
+        {t:"About 600 times longer, the ratio of their masses", why:"<em>D</em> depends on the size of the particle (eqn 8.5), not on its mass, and size grows only as the cube root of mass."},
+        {t:"About 150 times longer, the square of the ratio of <em>D</em>", why:"The time goes as 1/<em>D</em>, not 1/<em>D</em><sup>2</sup>. The square belongs to the distance."}
+      ],
+      after:{spec:"lysozyme", run:true}, show2:["na","lys"],
+      more:"0.038 s for Na⁺ and 0.45 s for lysozyme. Even a protein crosses a cell in under a second." },
+
+    { title:"A bacterium",
+      setup:{spec:"ecoli", target:1e-3}, show:[], hide:1,
+      text:"An <em>E. coli</em> cell is about 1 µm across. Stokes–Einstein (eqn 8.5) gives it <em>D</em> ≈ 5 × 10<sup>&minus;13</sup> m<sup>2</sup> s<sup>&minus;1</sup>.",
+      q:"How long would it take to diffuse 1 mm?",
+      opts:[
+        {t:"About twelve minutes", why:"That is about twice as long as Na⁺ takes over the same millimetre, but <em>D</em> here is nearly three thousand times smaller."},
+        {t:"About twelve hours", why:"Too short by a factor of 24: (10<sup>&minus;3</sup>)<sup>2</sup>/(2 × 5 × 10<sup>&minus;13</sup>) = 10<sup>6</sup> s."},
+        {t:"About twelve days", ok:true, why:"(10<sup>&minus;3</sup>)<sup>2</sup>/(2 × 5 × 10<sup>&minus;13</sup>) = 1.0 × 10<sup>6</sup> s, which is 11.6 days."},
+        {t:"About twelve years", why:"Too long by a factor of 365. Check the units of the final step."}
+      ],
+      show2:["t"],
+      more:"Real bacteria cover a millimetre in a minute or two because they swim (Section 8.1.5). Once a body is much bigger than a molecule, diffusion stops being a way of getting anywhere." },
+
+    { title:"Twice the time",
+      setup:{}, show:[], hide:1,
+      text:"The dashed teal circle has a radius equal to the rms spread, (2<em>Dt</em>)<sup>1/2</sup>. After you answer, watch it as the swarm spreads.",
+      q:"When the time doubles, how much larger does the rms spread become?",
+      opts:[
+        {t:"Twice as large", why:"That would be steady motion in one direction. Random steps partly cancel."},
+        {t:"About 1.4 times as large", ok:true, why:"The spread goes as <em>t</em><sup>1/2</sup>, so doubling the time multiplies it by 2<sup>1/2</sup> = 1.41."},
+        {t:"Four times as large", why:"It is the mean <em>square</em> displacement that doubles. Its square root rises by 2<sup>1/2</sup>."}
+      ],
+      after:{run:true}, show2:["r2"], settle:21000,
+      more:"The chip reads the swarm itself: the spread at the end of the run so far, against the spread at half that time. The two small charts under the stopwatch show the same thing: ⟨<em>x</em><sup>2</sup>⟩ grows in a straight line with time, and its square root only as <em>t</em><sup>1/2</sup>." },
+
+    { title:"Add a current",
+      setup:{conv:true, vel:50}, show:["v"], hide:1,
+      text:"Now the solvent itself flows at 10 µm s<sup>&minus;1</sup>, a gentle current, and carries the swarm with it. The Péclet number, <em>Pe</em> = <em>vL</em>/<em>D</em>, compares carrying with spreading over a length <em>L</em> (Section 8.2.3).",
+      q:"Over the 10 µm of a cell, for Na⁺, which wins?",
+      opts:[
+        {t:"Diffusion, with <em>Pe</em> well below 1", ok:true, why:"<em>Pe</em> = (10<sup>&minus;5</sup>)(10<sup>&minus;5</sup>)/(1.33 × 10<sup>&minus;9</sup>) = 0.075."},
+        {t:"The flow, with <em>Pe</em> well above 1", why:"Over such a short distance diffusion is quick: it covers 10 µm in 0.04 s, while the flow takes a whole second."},
+        {t:"They are evenly matched, with <em>Pe</em> close to 1", why:"<em>Pe</em> = 1 here would need a flow about 13 times faster, 133 µm s<sup>&minus;1</sup>. At 10 µm s<sup>&minus;1</sup> the flow is well behind."}
+      ],
+      after:{run:true}, show2:["v","pe"],
+      more:"On the scale of a cell, a current this slow hardly matters. The swarm spreads almost as if the water were still." },
+
+    { title:"The same current, further away",
+      setup:{conv:true, vel:50}, show:["v","pe"],
+      text:"Keep the same flow, 10 µm s<sup>&minus;1</sup>, but now ask about 1 cm instead of 10 µm.",
+      q:"What is the Péclet number over 1 cm?",
+      opts:[
+        {t:"Still 0.075, since the flow is the same", why:"<em>Pe</em> grows in proportion to the length <em>L</em>."},
+        {t:"About 75, so the flow dominates", ok:true, why:"The length is a thousand times larger, so <em>Pe</em> is too: 0.075 × 1000 = 75."},
+        {t:"About 7.5 × 10<sup>&minus;5</sup>", why:"That divides by the thousandfold change in length instead of multiplying."}
+      ],
+      after:{target:1e-2, run:true}, show2:["v","pe"],
+      more:"Watch the gold tag at the top of the picture: the distance the swarm has been carried soon outgrows its spread, the dashed circle. In a stirred beaker <em>Pe</em> is enormous, and diffusion matters only in a thin unstirred layer next to a surface. That layer is where the electrochemistry of Lectures 12 to 15 happens." }
+    ],
+    summary: {
+      points:[
+        "The rms spread of a diffusing particle grows as (2<em>Dt</em>)<sup>1/2</sup>, so the time to cover a distance <em>x</em> is <em>x</em><sup>2</sup>/2<em>D</em>.",
+        "Ten times further takes a hundred times longer: fast across a cell, hopeless across a beaker.",
+        "At a fixed distance the time goes as 1/<em>D</em>, and <em>D</em> follows the size of the particle, not its mass.",
+        "The Péclet number <em>vL</em>/<em>D</em> grows with distance, so flow wins over long distances and diffusion over short ones."
+      ],
+      next:"Now go back to the free explorer, time the swarm for each species and distance, and check your answers to the end-of-lecture problems on diffusion times."
+    }
+  });
 })();
 </script>
 </body>

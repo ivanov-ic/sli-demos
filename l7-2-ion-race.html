@@ -293,6 +293,102 @@
   }
 </style>
 </head>
+<style>
+  /* ---------- guided lesson ---------- */
+  .lesson-cta{display:flex; flex-wrap:wrap; align-items:center; gap:10px 16px; margin:0 0 14px;
+    padding:11px 15px; background:var(--panel); border:1px solid var(--line); border-left:3px solid var(--teal);
+    border-radius:8px; box-shadow:var(--shadow); font-size:14px; color:var(--ink-2)}
+  .lesson-cta p{margin:0; flex:1 1 260px}
+  .lesson-cta b{color:var(--ink)}
+  .btn.go{background:var(--teal); border-color:var(--teal); color:#fff; font-weight:600}
+  .btn.go:hover{filter:brightness(1.06); color:#fff}
+  .btn.go:disabled{background:var(--panel-2); border-color:var(--line); color:var(--muted); filter:none; cursor:default}
+
+  .lesson{display:none; margin:0 0 14px; background:var(--panel); border:1px solid var(--line);
+    border-radius:10px; box-shadow:var(--shadow); padding:14px 16px 16px; scroll-margin-top:10px}
+  .lesson-on .lesson{display:block}
+  .lesson-on .lesson-cta, .lesson-on .controls, .lesson-on .work, .lesson-on .point, .lesson-on .lesson-hide{display:none}
+  .lesson-top{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap}
+  .lesson-step{font-size:11.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); font-weight:500}
+  .lesson-exit{background:none; border:none; padding:4px 0; color:var(--blue); font:inherit; font-size:13px; cursor:pointer; text-decoration:underline; text-underline-offset:2px}
+  .lesson-bar{height:5px; border-radius:3px; background:var(--panel-2); margin:8px 0 12px; overflow:hidden}
+  .lesson-bar span{display:block; height:100%; width:0; background:var(--teal); border-radius:3px; transition:width .3s ease}
+  .lesson h3{font-family:"Source Serif 4", Georgia, serif; font-size:19px; font-weight:600; margin:0 0 6px; color:var(--ink)}
+  .lesson .ltext{margin:0 0 8px; font-size:15px; line-height:1.55; color:var(--ink-2); max-width:72ch}
+  .lesson .lnow{margin:0 0 10px; font-size:12.5px; color:var(--muted)}
+  .lesson .lnow b{color:var(--ink-2); font-weight:600}
+  .lesson .lq{margin:4px 0 9px; font-size:15.5px; font-weight:600; color:var(--ink); max-width:72ch}
+  .lopts{display:grid; gap:8px; max-width:640px}
+  .lopt{display:flex; align-items:flex-start; gap:10px; width:100%; text-align:left; padding:10px 12px; min-height:44px;
+    background:var(--panel); color:var(--ink); border:1.5px solid var(--line); border-radius:8px;
+    font:inherit; font-size:14.5px; line-height:1.4; cursor:pointer}
+  .lopt:hover:not([aria-disabled="true"]){border-color:var(--blue)}
+  .lopt .mk{flex:none; width:22px; height:22px; border-radius:50%; border:1.5px solid var(--line); display:flex;
+    align-items:center; justify-content:center; font-size:12px; font-weight:700; color:var(--muted); margin-top:-1px}
+  .lopt[aria-disabled="true"]{cursor:default}
+  .lopt:focus-visible, .btn:focus-visible, .lesson-exit:focus-visible, .lsee:focus-visible{outline:2px solid var(--focus); outline-offset:2px}
+  .lopt.right{border-color:var(--teal); background:var(--teal-soft)}
+  .lopt.right .mk{border-color:var(--teal); background:var(--teal); color:#fff}
+  .lopt.wrong{border-color:var(--red); background:var(--red-soft)}
+  .lopt.wrong .mk{border-color:var(--red); background:var(--red); color:#fff}
+  .lopt.dim{opacity:.55}
+  .lfb{margin:10px 0 0; max-width:72ch; font-size:14.5px; line-height:1.55; color:var(--ink-2)}
+  .lfb:empty{display:none}
+  .lfb .verdict{display:block; font-weight:700; margin-bottom:3px}
+  .lfb .verdict.ok{color:var(--teal)} .lfb .verdict.no{color:var(--red)}
+  .lfb .more{display:block; margin-top:7px; padding-top:7px; border-top:1px solid var(--line)}
+  .lnav{display:flex; gap:10px; margin-top:14px; flex-wrap:wrap}
+  .lsum ul{margin:6px 0 10px; padding-left:20px; max-width:72ch; color:var(--ink-2); font-size:14.5px; line-height:1.55}
+  .lsum li{margin:3px 0}
+  .lscore{font-size:15px; color:var(--ink); margin:0 0 6px}
+  /* readouts held back until the student has committed to an answer */
+  .ro.veiled .v, .ro.veiled .n{filter:blur(7px); user-select:none}
+  .ro.veiled{position:relative}
+  .ro.veiled::after{content:"answer first"; position:absolute; right:8px; bottom:8px; font-size:10.5px;
+    letter-spacing:.06em; text-transform:uppercase; color:var(--muted); background:var(--panel);
+    padding:1px 5px; border-radius:4px}
+  @media (max-width:560px){
+    .lesson{padding:12px 13px 14px}
+    .lesson h3{font-size:18px}
+    .lesson .ltext{font-size:14.5px}
+  }
+  @media (prefers-reduced-motion: reduce){ .lesson-bar span{transition:none} }
+  /* the lesson sits under the picture it is about */
+  .card .lesson{margin:12px 0 0; border:none; border-top:1px solid var(--line); border-radius:0; box-shadow:none; padding:12px 0 2px}
+  .lesson-on .stage{align-items:start}
+  .lchips{display:flex; flex-wrap:wrap; gap:6px 8px; margin:12px 0 0}
+  .lchips .chip{display:inline-flex; align-items:baseline; gap:6px; padding:5px 10px; border-radius:6px; background:var(--panel-2);
+    font-size:13px; color:var(--ink-2)}
+  .lchips .chip b{font-family:"IBM Plex Mono", monospace; font-weight:500; color:var(--ink); font-variant-numeric:tabular-nums}
+  .lchips .chip.veiled b{filter:blur(6px); user-select:none}
+  .lfb .ans{display:block; margin-top:6px}
+  .lcta-btns{display:flex; flex-wrap:wrap; align-items:center; gap:8px 14px}
+  .ltop-btns{display:flex; gap:14px; flex-wrap:wrap}
+  .sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
+  .lfb .verdict:focus{outline:none}
+  .lesson h3:focus{outline:none}
+  .lsee{display:inline-block; margin-top:8px; background:none; border:1px solid var(--line); border-radius:6px;
+    padding:6px 10px; font:inherit; font-size:13px; color:var(--blue); cursor:pointer}
+  .lesson-exit[aria-pressed="true"]{font-weight:600; text-decoration:none; color:var(--ink);
+    background:var(--panel-2); border-radius:5px; padding:4px 8px}
+  .lhint{align-self:center; font-size:12.5px; color:var(--muted)}
+  /* a blurred verdict pill keeps no colour, since the colour alone would give the answer */
+  .ro.veiled .pill{background:var(--panel-2) !important; border-color:var(--line) !important; color:transparent !important}
+  .lsee + .lsee{margin-left:8px}
+  /* readouts and charts held back: stacked on a phone they are removed; on a wide screen the column
+     keeps its place with a note, so the layout does not jump when the answer is revealed */
+  @media (max-width:1040px){ .veil-charts .col-right, .veil-charts .lveilbox{display:none} }
+  @media (min-width:1041px){
+    .veil-charts .col-right, .veil-charts .lveilbox{visibility:hidden; position:relative}
+    .veil-charts .col-right::after, .veil-charts .lveilbox::after{content:"These charts and readouts appear when you answer.";
+      visibility:visible; position:absolute; top:60px; left:12%; right:12%; padding:16px 18px; text-align:center;
+      border:1px dashed var(--line); border-radius:10px; color:var(--muted); font-size:14px; line-height:1.5; background:var(--panel)}
+    .l-answered.veil-charts .col-right::after, .l-answered.veil-charts .lveilbox::after{content:"Held back for now: a later question asks about it."}
+  }
+  .lesson-on #raceCap{display:none}
+  .veil-charts #shellKey{display:none}
+
+</style>
 <body>
 <script>if(window.self!==window.top)document.documentElement.classList.add("in-frame");</script>
 <noscript><div style="max-width:60ch;margin:40px auto;padding:18px 22px;border:1px solid #CF4520;border-radius:8px;background:#fff;color:#0F1E2B;font:15px/1.55 'IBM Plex Sans',system-ui,sans-serif">
@@ -308,6 +404,26 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     </div>
   </header>
   <p class="point">The smallest bare ion is the largest moving entity, and the ion that moves slowest can still carry the most current, because charge enters the problem twice.</p>
+
+  <div class="lesson-cta" id="lessonCta">
+    <p><b>Guided lesson.</b> Eight short questions on how ions move in an electric field, about ten minutes. Each step asks you to predict first, then shows you the answer in the demo.</p>
+    <div class="lcta-btns">
+      <button type="button" class="btn go" id="lessonStart">Start the guided lesson</button>
+      <button type="button" class="lesson-exit" id="lessonRestart" hidden>Start again from step 1</button>
+    </div>
+  </div>
+
+  <section class="lesson" id="lesson" aria-label="Guided lesson">
+    <div class="lesson-top">
+      <span class="lesson-step" id="lStep">Step 1</span>
+      <span class="ltop-btns">
+        <button type="button" class="lesson-exit" id="lPause" hidden>Pause motion</button>
+        <button type="button" class="lesson-exit" id="lExit">Leave the lesson</button>
+      </span>
+    </div>
+    <div class="lesson-bar" aria-hidden="true"><span id="lBar"></span></div>
+    <div id="lBody"></div>
+  </section>
 
   <section class="controls">
     <div class="ctl">
@@ -353,7 +469,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       <p class="cap" id="raceCap">Lanes are ordered by mobility. Sizes are to a common scale for the ions, not to the scale of the track.</p>
       <div class="canvas-box" id="raceBox"><canvas role="img" id="race" aria-label="Seven ions drifting along lanes under an applied field"></canvas></div>
       <div class="legend">
-        <span class="key"><span class="dot" style="background:var(--muted); opacity:.5"></span>hydration shell, drawn to scale</span>
+        <span class="key" id="shellKey"><span class="dot" style="background:var(--muted); opacity:.5"></span>hydration shell, drawn to scale</span>
         <span class="key"><span class="bar" style="border-color:var(--ink-2)"></span>finish line</span>
       </div>
     </div>
@@ -545,7 +661,9 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     g.fillStyle = TH["panel-2"]; g.fillRect(0,0,W,H2);
 
     var padL = 56, padR = 34, padT = 10, padB = 24;
-    var lanes = ordered("u");
+    var lanes = S.neutralLanes
+      ? ["H","Li","Na","K","Rb","Ca","Zn"].map(function(id){ return IONS.filter(function(I){ return I.id === id; })[0]; })
+      : ordered("u");
     var n = lanes.length;
     var lh = (H2-padT-padB)/n;
     // pixels per picometre for the ion glyphs, small enough that the largest shell fits its lane
@@ -579,15 +697,17 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       var frac = Math.min(1, speedUm(I)*S.t/S.dist);
       var x = x0 + frac*(x1-x0);
 
-      if(I.hop && S.grot){
+      var rOut = 8;
+      if(I.hop && S.grot && !S.neutralLanes){
         drawChain(g, x0, x1, y, lh, x, I);
       } else {
         var rPm = radiusPm(I), bareR = I.hop ? I.rcSwim : I.rc;
         // with the shells on the ion is drawn at its Stokes radius; where that is smaller than the
         // bare ion (K+, Rb+) the ion itself is drawn that small, since that is the sphere that moves
-        var core = Math.max(3.5, Math.min(bareR, rPm)*PMPX);
-        if(!S.bare && rPm*PMPX > core + 1){
-          var shell = rPm*PMPX;
+        var core = Math.max(3.5, (S.neutralLanes ? bareR : Math.min(bareR, rPm))*PMPX);
+        rOut = core;
+        if(!S.bare && !S.neutralLanes && rPm*PMPX > core + 1){
+          var shell = rPm*PMPX; rOut = shell;
           g.fillStyle = TH[I.colour]; g.globalAlpha = 0.18;
           g.beginPath(); g.arc(x, y, shell, 0, 6.2832); g.fill(); g.globalAlpha = 1;
           g.strokeStyle = TH[I.colour]; g.lineWidth = 1.2; g.setLineDash([3,3]);
@@ -599,7 +719,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
 
       if(frac >= 1){
         mono(g,10.5,500);
-        tag(g, "home in " + fmtT(finishTime(I)) + " s", x1-6, y-2, "right", "bottom", TH[I.colour], TH["panel-2"]);
+        tag(g, "home in " + fmtT(finishTime(I)) + " s", x1 - rOut - 6, y-2, "right", "bottom", TH[I.colour], TH["panel-2"]);
       }
     });
   }
@@ -684,10 +804,11 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     $("tbody").innerHTML = html;
 
     $("tblCap").innerHTML = "In a field of " + num(fieldVcm(),1) + " V cm<sup>&minus;1</sup> over " + S.dist +
-      " &micro;m, with <em>u</em> / (10<sup>&minus;8</sup> m<sup>2</sup> s<sup>&minus;1</sup> V<sup>&minus;1</sup>) and 10<sup>4</sup>&lambda;&deg; / (S m<sup>2</sup> mol<sup>&minus;1</sup>). Rows are in order of mobility. The two doubly charged ions, Ca<sup>2+</sup> and Zn<sup>2+</sup>, move more slowly than K<sup>+</sup> and Rb<sup>+</sup> but carry more current, so they swap places with them between the two bar charts below." +
-      (S.bare ? " With the shells removed, the r<sub>Stokes</sub>, <em>u</em>, &lambda;&deg; and speed columns are what a bare sphere of the crystallographic radius would give." : "") +
+      " &micro;m, with <em>u</em> / (10<sup>&minus;8</sup> m<sup>2</sup> s<sup>&minus;1</sup> V<sup>&minus;1</sup>) and 10<sup>4</sup>&lambda;&deg; / (S m<sup>2</sup> mol<sup>&minus;1</sup>). " + (S.bare
+        ? "Rows are in order of the mobility a bare sphere would have: with the shells removed, the r<sub>Stokes</sub>, <em>u</em>, &lambda;&deg;, and speed columns are what a sphere of the crystallographic radius would give. In the bar charts below, which keep the measured values, Ca<sup>2+</sup> and Zn<sup>2+</sup> move more slowly than K<sup>+</sup> and Rb<sup>+</sup> but carry more current."
+        : "Rows are in order of mobility. The two doubly charged ions, Ca<sup>2+</sup> and Zn<sup>2+</sup>, move more slowly than K<sup>+</sup> and Rb<sup>+</sup> but carry more current, so they swap places with them between the two bar charts below.") +
       (S.grot ? "" : " With hopping switched off, the proton's entries are for a swimming H<sub>3</sub>O<sup>+</sup> of radius " + swimRadius() + " pm.") +
-      ((S.bare || !S.grot) ? " The bar charts keep the measured values throughout." : "");
+      ((!S.bare && !S.grot) ? " The bar charts keep the measured values throughout." : "");
 
     $("drawNote").textContent = S.bare
       ? "Ions are drawn, and move, at their crystallographic radii, as if they carried no water"
@@ -763,7 +884,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     $("fieldVal").innerHTML = num(fieldVcm(),1) + " V cm<sup>&minus;1</sup>";
     $("distVal").innerHTML = S.dist + " &micro;m";
     var nc = S.dist/10;
-    $("distNote").innerHTML = "About " + (nc === 1 ? "one cell diameter" : (nc===10?"ten":num(nc,0)) + " cell diameters") + ", taking a cell as 10 &micro;m";
+    $("distNote").innerHTML = "About " + (Math.round(nc) === 1 ? "one cell diameter" : (Math.round(nc) <= 10 ? ["","","two","three","four","five","six","seven","eight","nine","ten"][Math.round(nc)] : num(nc,0)) + " cell diameters") + ", taking a cell as 10 &micro;m";
     paint();
   }
 
@@ -774,6 +895,371 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
   window.addEventListener("resize", function(){ drawRace(); drawBars(); });
   if(document.fonts && document.fonts.ready) document.fonts.ready.then(paint);
   sync();
+
+  // ===================== guided lesson (shared engine) =====================
+  // Predict, then reveal. Each step puts the demo into a stated condition, asks one
+  // multiple-choice question (one attempt, so the final score is honest), hides any
+  // readout that would give the answer away, and only after the student commits moves
+  // the demo to the new condition and explains. The page-specific part is the object
+  // passed in: its steps, which readouts to show beside the question, and apply(),
+  // which sets the demo through its own internals so that values are exact.
+  function lessonEngine(C){
+    var $l = function(id){ return document.getElementById(id); };
+    var root = document.documentElement;
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var lessonEl = $l("lesson"), lBody = $l("lBody"), cta = $l("lessonCta");
+    var anchor = document.querySelector(C.anchor || ".stage .card");
+    anchor.appendChild(lessonEl);                     // the lesson sits under the picture it is about
+    // the picture to scroll back to; a page whose picture changes with its mode passes a function
+    // a step can name its own picture when its answer is on a chart rather than the main view
+    function picture(){
+      var st = C.steps[LS.i], pc = (st && st.picture) || C.picture;
+      return typeof pc === "function" ? pc() : (pc ? document.querySelector(pc) : anchor);
+    }
+    var N = C.steps.length;
+    var LS = {i:0, answered:[], score:0};
+
+    function veil(ids, step){
+      (C.veilable || []).forEach(function(id){
+        var el = $l(id); if(!el) return;
+        var on = ids.indexOf(id) >= 0, box = el.closest(".ro") || el.parentNode;
+        box.classList.toggle("veiled", on);
+        [].forEach.call(box.querySelectorAll(".v,.n"), function(x){
+          if(on) x.setAttribute("aria-hidden", "true"); else x.removeAttribute("aria-hidden");
+        });
+      });
+      // hide: what the picture holds back while the question is open; hideAfter: what stays
+      // hidden once it is answered (for a later step that asks about the same thing)
+      root.classList.toggle("l-answered", !!(step && LS.answered[LS.i]));
+      if(C.onVeil) C.onVeil(step ? (LS.answered[LS.i] ? (step.hideAfter || 0) : (step.hide || 0)) : 0);
+    }
+    function chips(s, done){
+      var keys = (done && s.show2) ? s.show2 : (s.show || []), vs = done ? (s.veilAfter || []) : (s.veil || []);
+      if(!keys.length) return "";
+      return "<div class=\"lchips\" id=\"lChips\">" + keys.map(function(k){
+        // a chip reads a readout by its id, or calls a function for values the page has no readout for
+        var c = C.chips[k], v = typeof c[0] === "function" ? c[0]() : (($l(c[0]) || {}).textContent || "").trim();
+        var hid = vs.indexOf(k) >= 0 || (typeof c[0] === "string" && vs.indexOf(c[0]) >= 0);
+        return "<span class=\"chip" + (hid ? " veiled" : "") + "\"><span>" + c[1] + "</span>" +
+          (hid ? "<b aria-hidden=\"true\">" + v + c[2] + "</b><span class=\"sr\">hidden until you answer</span>"
+               : "<b>" + v + c[2] + "</b>") + "</span>";
+      }).join("") + "</div>";
+    }
+    // the line that says what the demo is showing; it is told the step, so it can hold back a value
+    function nowText(){ var s = C.steps[LS.i]; return C.now(s, !!LS.answered[LS.i]); }
+    function nowLine(){ return C.now ? "<p class=\"lnow\" id=\"lNow\">" + nowText() + "</p>" : ""; }
+    function scrollTo(el){ if(el && el.scrollIntoView) el.scrollIntoView({block:"start", behavior: reduce ? "auto" : "smooth"}); }
+
+    function render(focusWhat){
+      $l("lBar").style.width = (100*LS.i/N) + "%";
+      if(LS.i >= N) return summary();
+      var s = C.steps[LS.i], done = LS.answered[LS.i];
+      $l("lStep").textContent = "Step " + (LS.i+1) + " of " + N;
+      var h = "<h3 tabindex=\"-1\" id=\"lTitle\">" + s.title + "</h3><p class=\"ltext\">" + s.text + "</p>" + nowLine() +
+        "<p class=\"lq\" id=\"lQ\">" + s.q + "</p><div class=\"lopts\" role=\"group\" aria-labelledby=\"lQ\">";
+      s.opts.forEach(function(o, k){
+        var cls = "lopt", mk = String.fromCharCode(65+k), sr = "";
+        if(done){
+          if(o.ok){ cls += " right"; mk = "✓"; sr = done.pick === k ? " (your answer, correct)" : " (correct answer)"; }
+          else if(done.pick === k){ cls += " wrong"; mk = "✗"; sr = " (your answer)"; }
+          else cls += " dim";
+        }
+        h += "<button type=\"button\" class=\"" + cls + "\" data-k=\"" + k + "\"" + (done ? " aria-disabled=\"true\"" : "") +
+             "><span class=\"mk\" aria-hidden=\"true\">" + mk + "</span><span>" + o.t + "<span class=\"sr\">" + sr + "</span></span></button>";
+      });
+      h += "</div>" + chips(s, done) + "<div class=\"lfb\" id=\"lFb\" aria-live=\"polite\">";
+      if(done){
+        var picked = s.opts[done.pick], right = s.opts.filter(function(o){ return o.ok; })[0];
+        h += "<span class=\"verdict " + (picked.ok ? "ok" : "no") + "\" tabindex=\"-1\" id=\"lVerdict\">" + (picked.ok ? "Right." : "Not quite.") + "</span>" +
+             picked.why + (picked.ok ? "" : "<span class=\"ans\">The right answer was: <b>" + right.t + "</b>. " + right.why + "</span>") +
+             "<span class=\"more\">" + s.more + "</span>" +
+             (s.after || s.hide || s.veil ? "<button type=\"button\" class=\"lsee\" id=\"lSee\">See it in the demo &uarr;</button>" : "") +
+             (C.replay && s.after && s.after.run ? "<button type=\"button\" class=\"lsee\" id=\"lAgainRun\">Run it again</button>" : "");
+      }
+      h += "</div><div class=\"lnav\">" +
+        (LS.i > 0 ? "<button type=\"button\" class=\"btn\" id=\"lBack\">Back</button>" : "") +
+        "<button type=\"button\" class=\"btn go\" id=\"lNext\"" + (done ? "" : " disabled") + ">" + (LS.i === N-1 ? "Finish" : "Continue") + "</button>" +
+        (done ? "" : "<span class=\"lhint\">Choose an answer to continue</span>") + "</div>";
+      lBody.innerHTML = h;
+      [].forEach.call(lBody.querySelectorAll(".lopt"), function(b){
+        b.addEventListener("click", function(){ if(!LS.answered[LS.i]) answer(+b.dataset.k); });
+      });
+      if($l("lBack")) $l("lBack").addEventListener("click", function(){ LS.i--; go(); });
+      $l("lNext").addEventListener("click", function(){ LS.i++; go(); });
+      if($l("lAgainRun")) $l("lAgainRun").addEventListener("click", function(){ C.replay(s); pollChips(s); });
+      if($l("lSee")) $l("lSee").addEventListener("click", function(){
+        var pic = picture(); if(!pic) return;
+        if(!pic.hasAttribute("tabindex")) pic.setAttribute("tabindex", "-1");
+        scrollTo(pic); pic.focus({preventScroll:true});
+      });
+      var f = focusWhat === "verdict" ? $l("lVerdict") : (focusWhat === "title" ? $l("lTitle") : null);
+      if(f) f.focus({preventScroll: focusWhat === "title"});
+    }
+    function refreshChips(){
+      var s = C.steps[LS.i], el = $l("lChips");
+      if(!s || !el) return;
+      var tmp = document.createElement("div"); tmp.innerHTML = chips(s, LS.answered[LS.i]);
+      el.parentNode.replaceChild(tmp.firstChild, el);
+      if(C.now && $l("lNow")) $l("lNow").innerHTML = nowText();
+    }
+    function answer(k){
+      var s = C.steps[LS.i];
+      LS.answered[LS.i] = {pick:k};
+      if(s.opts[k].ok) LS.score++;
+      if(s.after) C.apply(s.after, "after", s);
+      veil(s.veilAfter || [], s);
+      render("verdict");
+      pollChips(s);
+    }
+    // values that change over time (a race, a simulation) are read again until they settle; a page
+    // whose runs go at the display's frame rate says through busy() whether one is still going
+    function pollChips(s){
+      var at = LS.i, t0 = Date.now(), until = Math.max(1600, s.settle || 0);
+      clearInterval(LS.timer);
+      LS.timer = setInterval(function(){
+        var el = Date.now() - t0;
+        if(LS.i !== at || !LS.answered[at] || el > 180000 || (el > until + 50 && !(C.busy && C.busy()))){
+          clearInterval(LS.timer); refreshChips(); return;
+        }
+        refreshChips();
+      }, 500);
+    }
+    function go(auto){
+      var s = C.steps[LS.i];
+      if(s){
+        C.apply(s.setup, "setup", s);
+        if(LS.answered[LS.i]){ if(s.after) C.apply(s.after, "after", s); veil(s.veilAfter || [], s); }
+        else veil(s.veil || [], s);
+      }
+      clearInterval(LS.timer);
+      render(auto ? null : "title");
+      syncPause();
+      // on entry, go to the step's own picture only if it is on show (a held-back chart is not)
+      if(!auto){
+        var pc = picture();
+        if(!pc || !pc.getClientRects().length || getComputedStyle(pc).visibility === "hidden") pc = (typeof C.picture === "string" && document.querySelector(C.picture)) || anchor;
+        scrollTo(pc);
+      }
+    }
+    function summary(){
+      $l("lStep").textContent = "Lesson complete";
+      veil([], null);
+      lBody.innerHTML = "<div class=\"lsum\"><h3 tabindex=\"-1\" id=\"lTitle\">What you have seen</h3>" +
+        "<p class=\"lscore\">You predicted <b>" + LS.score + " of " + N + "</b> correctly at the first attempt.</p><ul>" +
+        C.summary.points.map(function(p){ return "<li>" + p + "</li>"; }).join("") + "</ul>" +
+        "<p class=\"ltext\">" + C.summary.next + "</p>" +
+        "<div class=\"lnav\"><button type=\"button\" class=\"btn go\" id=\"lFree\">Explore freely</button>" +
+        "<button type=\"button\" class=\"btn\" id=\"lAgain\">Start again</button></div></div>";
+      $l("lFree").addEventListener("click", function(){ leave(); });
+      $l("lAgain").addEventListener("click", function(){ start(true); });
+      $l("lTitle").focus({preventScroll:true});
+    }
+    function updateCta(){
+      var n = LS.answered.filter(Boolean).length;
+      var resume = n > 0 && LS.i < N;
+      $l("lessonStart").textContent = resume ? "Resume the guided lesson (step " + (LS.i+1) + ")" : "Start the guided lesson";
+      $l("lessonRestart").hidden = !resume;
+    }
+    function leave(){
+      clearInterval(LS.timer);
+      root.classList.remove("lesson-on");
+      veil([], null);
+      if(C.onLeave) C.onLeave();
+      updateCta();
+      $l("lessonStart").focus({preventScroll:true});
+    }
+    function start(fresh, auto){
+      if(fresh || LS.i >= N){ LS.i = 0; LS.answered = []; LS.score = 0; }
+      root.classList.add("lesson-on");
+      go(auto);
+    }
+    $l("lessonStart").addEventListener("click", function(){ start(false); });
+    $l("lessonRestart").addEventListener("click", function(){ start(true); });
+    $l("lExit").addEventListener("click", leave);
+    // a link ending in #lesson opens the page straight into the lesson, without scrolling
+    // a Canvas page that holds it in an iframe
+    if(location.hash === "#lesson") setTimeout(function(){ start(true, true); }, 0);
+    // a pause control for the moving picture, since the demo's own controls are hidden
+    // sliders announce the value the page prints beside them (with its unit), not the raw slider number
+    [].forEach.call(document.querySelectorAll("input[type=range]"), function(r){
+      var box = r.closest(".ctl");
+      var lab = (r.id && document.querySelector("label[for=\"" + r.id + "\"] .val")) ||
+                (box && box.querySelectorAll("input[type=range]").length === 1 ? box.querySelector(".val") : null);
+      if(!lab) return;
+      var set = function(){ r.setAttribute("aria-valuetext", lab.textContent.replace(/\s+/g, " ").trim()); };
+      set(); new MutationObserver(set).observe(lab, {childList:true, characterData:true, subtree:true});
+    });
+    // (a fixed label with aria-pressed, so a screen reader hears the state, not a new name)
+    var mv = C.motion ? $l(C.motion) : null, pz = $l("lPause");
+    function syncPause(){ if(mv && pz) pz.setAttribute("aria-pressed", String(!mv.checked)); }
+    if(mv && pz){
+      pz.hidden = false;
+      pz.addEventListener("click", function(){ mv.checked = !mv.checked; mv.dispatchEvent(new Event("change", {bubbles:true})); syncPause(); });
+      mv.addEventListener("change", syncPause);
+      // the demo's Reset sets the box back without firing change, so check again after any click on the page
+      document.addEventListener("click", function(){ setTimeout(syncPause, 0); });
+      syncPause();
+    }
+  }
+
+  // ---------- L7.2 lesson ----------
+  function ionById(id){ return IONS.filter(function(I){ return I.id === id; })[0]; }
+  var userSpeed = null;                            // the playback speed the student had chosen before the lesson
+  function lessonApply(cfg, phase){
+    if(userSpeed === null) userSpeed = String(S.speed);
+    if(phase === "setup"){
+      stop(); S.t = 0; $("clock").textContent = "0.0 s";
+      S.field = 10; S.dist = 100; S.bare = false; S.grot = true;
+    }
+    if(cfg.bare !== undefined) S.bare = cfg.bare;
+    if(cfg.grot !== undefined) S.grot = cfg.grot;
+    if(cfg.field !== undefined) S.field = cfg.field;
+    $("field").value = S.field; $("dist").value = S.dist;
+    $("bare").checked = S.bare; $("grot").checked = S.grot;
+    S.speed = 5; setSpeed("5");                    // a lesson race takes about five seconds
+    sync();
+    if(cfg.run){ S.t = 0; start(); }
+  }
+  function raceOrder(ids){
+    return ordered("u").filter(function(I){ return ids.indexOf(I.id) >= 0; }).map(function(I){ return I.txt; }).join(" > ");
+  }
+  lessonEngine({
+    picture: "#raceBox",
+    chips: {
+      order: [function(){ return raceOrder(["Li","Na","K","Rb","Zn"]); }, "fastest first", ""],
+      all: [function(){ return raceOrder(["H","Li","Na","K","Rb","Ca","Zn"]); }, "fastest first", ""],
+      rs: [function(){ return "Li⁺ " + ionById("Li").rs + ", Na⁺ " + ionById("Na").rs; }, "Stokes radius / pm", ""],
+      rsK: [function(){ return ionById("K").rs + " pm"; }, "Stokes radius of K⁺", ""],
+      rc: [function(){ return "Li⁺ 76, Na⁺ 102"; }, "bare radius / pm", ""],
+      kzn: [function(){ return "K⁺ " + num(ionById("K").u*1e8,2) + ", Zn²⁺ " + num(ionById("Zn").u*1e8,2); }, "<em>u</em> / (10<sup>&minus;8</sup> m<sup>2</sup> s<sup>&minus;1</sup> V<sup>&minus;1</sup>)", ""],
+      lam: [function(){ return "K⁺ " + num(ionById("K").lam,1) + ", Zn²⁺ " + num(ionById("Zn").lam,1); }, "10<sup>4</sup>λ° / (S m<sup>2</sup> mol<sup>&minus;1</sup>)", ""],
+      tH: [function(){ return num(finishTime(ionById("H")),1) + " s"; }, "H⁺ finishes in", ""],
+      tLi: [function(){ return num(finishTime(ionById("Li")),1) + " s"; }, "Li⁺ finishes in", ""],
+      field: [function(){ return num(fieldVcm(),1) + " V cm⁻¹"; }, "field", ""]
+    },
+    apply: lessonApply,
+    onVeil: function(level){
+      S.neutralLanes = level >= 1;
+      document.documentElement.classList.toggle("veil-charts", level >= 1);
+      drawRace();
+    },
+    busy: function(){ return S.running; },
+    replay: function(){ stop(); S.t = 0; drawRace(); start(); },
+    onLeave: function(){ if(userSpeed !== null){ S.speed = +userSpeed; setSpeed(userSpeed); userSpeed = null; } },
+    now: function(){
+      return "A field of <b>" + num(fieldVcm(),1) + " V cm<sup>&minus;1</sup></b> over " + S.dist + " µm, hydration shells <b>" +
+        (S.bare ? "removed" : "in place") + "</b>, proton relay <b>" + (S.grot ? "on" : "off") + "</b>.";
+    },
+    steps: [
+    { title:"Seven ions, one field",
+      setup:{}, show:[], hide:1,
+      text:"Seven cations sit at the start line of a 100 µm track in water, all in the same field of 1.0 V cm<sup>&minus;1</sup>. The lanes are in group order for now, not in the order they will finish.",
+      q:"Which ion do you expect to cross the finish line first?",
+      opts:[
+        {t:"Li⁺, the smallest", why:"Small bare ions are not small moving ions: Li⁺ holds the most water and moves as the largest of the alkali metal ions."},
+        {t:"Zn²⁺, because its charge is doubled", why:"The doubled charge doubles the force, but Zn²⁺ also carries a great deal of water, and the drag wins."},
+        {t:"H⁺", ok:true, why:"From Table 7.1 and <em>u</em> = λ°/|<em>z</em>|<em>F</em>, its mobility is 36.25 × 10<sup>&minus;8</sup> m<sup>2</sup> s<sup>&minus;1</sup> V<sup>&minus;1</sup>, more than four times that of any metal ion."},
+        {t:"Rb⁺, the largest", why:"The largest bare ion carries little water and moves quickly, but H⁺ is more than four times faster than any metal ion."}
+      ],
+      hideAfter:1, show2:["tH"],
+      more:"The proton is not a small sphere pushing through the water: its charge is relayed along hydrogen bonds, which Section 7.6.4 explains. We come back to it in step 6. The race itself is run in the next step, so the order of the others stays hidden for now." },
+
+    { title:"The alkali metals and zinc",
+      setup:{}, show:[], hide:1,
+      text:"This is the Predict first task in the book's box for this demo. Use Table 7.1, <em>u</em> = λ°/|<em>z</em>|<em>F</em>, and <em>u</em>(Rb⁺) = 8.06 × 10<sup>&minus;8</sup> m<sup>2</sup> s<sup>&minus;1</sup> V<sup>&minus;1</sup>.",
+      q:"With the hydration shells in place, in what order do Li⁺, Na⁺, K⁺, Rb⁺, and Zn²⁺ finish, fastest first?",
+      opts:[
+        {t:"Zn²⁺, Li⁺, Na⁺, K⁺, Rb⁺", why:"That is the order of bare size, with the doubly charged ion in front. It would be right if the ions carried no water."},
+        {t:"Rb⁺, K⁺, Na⁺, Li⁺, Zn²⁺", why:"Zn²⁺ is heavily hydrated, but its doubled charge also doubles the force on it, which is enough to lift it above Na⁺ and Li⁺."},
+        {t:"Rb⁺, K⁺, Zn²⁺, Na⁺, Li⁺", ok:true, why:"The mobilities, in 10<sup>&minus;8</sup> m<sup>2</sup> s<sup>&minus;1</sup> V<sup>&minus;1</sup>, are 8.06, 7.62, 5.47, 5.19, and 4.01."},
+        {t:"Li⁺, Na⁺, K⁺, Zn²⁺, Rb⁺", why:"That is the order of mass, lightest first. Mass does not set the drift speed: an ion reaches its steady speed within about 10<sup>&minus;14</sup> s, and from then on only the force and the drag matter."}
+      ],
+      after:{run:true}, show2:["order"],
+      more:"The doubly charged zinc ion beats sodium but not potassium, and lithium, the smallest bare ion, comes last." },
+
+    { title:"Why lithium comes last",
+      setup:{}, show:["rc"], hide:1,
+      text:"Li⁺ is the smallest of the alkali metal ions as a bare ion, yet it is the slowest in water.",
+      q:"Why?",
+      opts:[
+        {t:"It carries the most water, so it moves as the largest sphere", ok:true, why:"Li⁺ has the highest electric field at its surface, holds its primary hydration shell most tightly, and the moving species is the ion plus that shell."},
+        {t:"It is the lightest, so the field accelerates it least", why:"Mass does not enter: an ion reaches its drift speed within about 10<sup>&minus;14</sup> s (Section 5.1.2), and the drift speed depends only on the force and the drag."},
+        {t:"It carries a smaller charge than the others", why:"Li⁺, Na⁺, K⁺, and Rb⁺ all carry a single positive charge, so the force on each is the same."}
+      ],
+      show2:["rc","rs"],
+      more:"The Stokes radii, worked out from the mobilities, run the other way from the bare radii. This is the inversion of Fig. 7.3, and the hydration shells drawn round each ion show it." },
+
+    { title:"Take the shells away",
+      setup:{}, show:[], hide:1,
+      text:"Suppose each ion could be stripped of its hydration shell and moved as a bare sphere of its crystallographic radius. This is the first Try this task in the book's box.",
+      q:"What would the order of the alkali metal ions be then?",
+      opts:[
+        {t:"Li⁺ fastest, Rb⁺ slowest", ok:true, why:"For bare spheres the drag goes as the radius, so the smallest ion is the fastest."},
+        {t:"Unchanged: Rb⁺ fastest, Li⁺ slowest", why:"The real order comes from the water each ion carries. Remove that and only the bare size is left."},
+        {t:"All four at the same speed, since they carry the same charge", why:"The force is the same, but Stokes' law still makes the drag depend on the radius."}
+      ],
+      after:{bare:true, run:true}, show2:["order"],
+      more:"With the shells removed the order is Li⁺, Na⁺, K⁺, Rb⁺. Put the shells back and it reverses, which is why the hydrodynamic radius, not the crystallographic one, belongs in Stokes' law." },
+
+    { title:"Slower, but carrying more current",
+      setup:{}, show:["kzn"], hide:1,
+      text:"Zn²⁺ moves more slowly than K⁺ in the same field. The limiting ionic conductivity, though, is λ° = |<em>z</em>|<em>uF</em> (eqn 7.11).",
+      q:"Which ion has the larger λ°?",
+      opts:[
+        {t:"K⁺, because it moves faster", why:"Speed is only half the story: each Zn²⁺ ion carries twice the charge."},
+        {t:"Zn²⁺, because its charge enters a second time", ok:true, why:"λ° = |<em>z</em>|<em>uF</em>: 2 × 5.47 against 1 × 7.62, in the same units, so zinc carries about 44 per cent more current per mole."},
+        {t:"They are equal, because both are measured in the same field", why:"λ° does not depend on the field at all; it is a property of the ion and the solvent."}
+      ],
+      show2:["kzn","lam"],
+      more:"The two bar charts are back. Mobility and ionic conductivity order the ions differently, and Section 7.6.3 makes this argument. Ca²⁺ against K⁺ and Rb⁺ shows the same swap." },
+
+    { title:"Make the proton swim",
+      setup:{}, show:[], hide:1,
+      text:"Now switch off the Grotthuss relay, so the proton has to move as an ordinary hydrated H₃O⁺ ion, pushing through the water like the others. The demo gives this H₃O⁺ ion as much water as Li⁺. This is the last Try this task in the book's box.",
+      q:"Where would it finish?",
+      opts:[
+        {t:"Still first by a wide margin", why:"Its huge lead comes from the relay. Without it, the proton is a small, strongly hydrated ion like the rest."},
+        {t:"Among the slowest", ok:true, why:"On the Stokes picture the proton is tiny and very strongly hydrated, so it ought to be one of the slowest ions (Section 7.6.4)."},
+        {t:"In the middle, next to K⁺", why:"K⁺ is fast because it carries little water. A strongly hydrated proton would not be."}
+      ],
+      after:{grot:false, run:true}, show2:["all"],
+      more:"Its measured mobility would need a Stokes radius of 26 pm, smaller than any atom, which is not a radius at all. That is the evidence for the relay." },
+
+    { title:"Double the field",
+      setup:{}, show:["field","tLi"],
+      text:"The field is 1.0 V cm<sup>&minus;1</sup>. When you answer, it will double to 2.0 V cm<sup>&minus;1</sup>.",
+      q:"What happens to the race?",
+      opts:[
+        {t:"Same order, and every ion takes half as long", ok:true, why:"The drift speed is <em>s</em> = <em>uE</em>, and the mobility is a property of the ion, so every speed doubles."},
+        {t:"The faster ions gain more than the slow ones, so the order can change", why:"Every speed doubles by the same factor, so the order cannot change and every time halves."},
+        {t:"Nothing changes, because the mobility is fixed", why:"The mobility is fixed, but the speed is mobility times field."}
+      ],
+      after:{field:20, run:true}, show2:["field","tLi"],
+      more:"In a field of 2 V cm<sup>&minus;1</sup> even the fastest metal ion moves only about 16 µm s<sup>&minus;1</sup>. Ions drift slowly; what makes conductivity large is how many of them there are." },
+
+    { title:"A radius from a mobility",
+      setup:{}, show:[], hide:1,
+      text:"Stokes' law turns a mobility into a radius: <em>a</em> = |<em>z</em>|<em>e</em>/6π<em>ηu</em>, with η = 8.90 × 10<sup>&minus;4</sup> Pa s for water at 298 K.",
+      q:"For K⁺, with <em>u</em> = 7.62 × 10<sup>&minus;8</sup> m<sup>2</sup> s<sup>&minus;1</sup> V<sup>&minus;1</sup>, what is the Stokes radius?",
+      opts:[
+        {t:"12.5 pm", why:"Check the powers of ten: 6π(8.90 × 10<sup>&minus;4</sup>)(7.62 × 10<sup>&minus;8</sup>) = 1.28 × 10<sup>&minus;9</sup>."},
+        {t:"125 pm", ok:true, why:"<em>a</em> = (1.602 × 10<sup>&minus;19</sup>)/[6π(8.90 × 10<sup>&minus;4</sup>)(7.62 × 10<sup>&minus;8</sup>)] = 1.25 × 10<sup>&minus;10</sup> m."},
+        {t:"138 pm", why:"That is the crystallographic radius of K⁺. The Stokes radius comes out a little smaller."},
+        {t:"1.25 nm", why:"That is ten times too large; check the powers of ten."}
+      ],
+      show2:["rsK"],
+      more:"The Stokes radius of K⁺ is smaller than its bare radius, a sign that it carries almost no firmly bound water. Rb⁺ (118 pm against 152 pm) is the same, which is Problem 7.4." }
+    ],
+    summary: {
+      points:[
+        "In a field every ion reaches a steady drift speed <em>s</em> = <em>uE</em>, with <em>u</em> = |<em>z</em>|<em>e</em>/6π<em>ηa</em>.",
+        "The radius that matters is the hydrodynamic one, ion plus water, so the smallest bare alkali metal ion is the slowest.",
+        "λ° = |<em>z</em>|<em>uF</em> counts the charge twice, so a doubly charged ion can be slower yet carry more current.",
+        "The proton is fast because its charge is relayed along hydrogen bonds, not because it is small."
+      ],
+      next:"Now try Problems 7.4, 7.5, and 7.7 in the free explorer."
+    }
+  });
 })();
 </script>
 </body>

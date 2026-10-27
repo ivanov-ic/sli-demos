@@ -256,6 +256,7 @@
 <style>
   .stage{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr); align-items:start}
   #cellBox{height:min(46vh, 360px); flex:none}
+  @media (max-width:1040px){ #cellBox{height:auto; aspect-ratio:3/2; max-height:min(46vh, 360px)} .in-frame #cellBox.canvas-box{min-height:0} }
   #traceBox{height:min(26vh, 210px); flex:none}
   #sideBox{height:min(30vh, 240px); flex:none}
   .col-right{grid-template-rows:auto auto}
@@ -289,6 +290,101 @@
   }
 </style>
 </head>
+<style>
+  /* ---------- guided lesson ---------- */
+  .lesson-cta{display:flex; flex-wrap:wrap; align-items:center; gap:10px 16px; margin:0 0 14px;
+    padding:11px 15px; background:var(--panel); border:1px solid var(--line); border-left:3px solid var(--teal);
+    border-radius:8px; box-shadow:var(--shadow); font-size:14px; color:var(--ink-2)}
+  .lesson-cta p{margin:0; flex:1 1 260px}
+  .lesson-cta b{color:var(--ink)}
+  .btn.go{background:var(--teal); border-color:var(--teal); color:#fff; font-weight:600}
+  .btn.go:hover{filter:brightness(1.06); color:#fff}
+  .btn.go:disabled{background:var(--panel-2); border-color:var(--line); color:var(--muted); filter:none; cursor:default}
+
+  .lesson{display:none; margin:0 0 14px; background:var(--panel); border:1px solid var(--line);
+    border-radius:10px; box-shadow:var(--shadow); padding:14px 16px 16px; scroll-margin-top:10px}
+  .lesson-on .lesson{display:block}
+  .lesson-on .lesson-cta, .lesson-on .controls, .lesson-on .work, .lesson-on .point, .lesson-on .lesson-hide{display:none}
+  .lesson-top{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap}
+  .lesson-step{font-size:11.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); font-weight:500}
+  .lesson-exit{background:none; border:none; padding:4px 0; color:var(--blue); font:inherit; font-size:13px; cursor:pointer; text-decoration:underline; text-underline-offset:2px}
+  .lesson-bar{height:5px; border-radius:3px; background:var(--panel-2); margin:8px 0 12px; overflow:hidden}
+  .lesson-bar span{display:block; height:100%; width:0; background:var(--teal); border-radius:3px; transition:width .3s ease}
+  .lesson h3{font-family:"Source Serif 4", Georgia, serif; font-size:19px; font-weight:600; margin:0 0 6px; color:var(--ink)}
+  .lesson .ltext{margin:0 0 8px; font-size:15px; line-height:1.55; color:var(--ink-2); max-width:72ch}
+  .lesson .lnow{margin:0 0 10px; font-size:12.5px; color:var(--muted)}
+  .lesson .lnow b{color:var(--ink-2); font-weight:600}
+  .lesson .lq{margin:4px 0 9px; font-size:15.5px; font-weight:600; color:var(--ink); max-width:72ch}
+  .lopts{display:grid; gap:8px; max-width:640px}
+  .lopt{display:flex; align-items:flex-start; gap:10px; width:100%; text-align:left; padding:10px 12px; min-height:44px;
+    background:var(--panel); color:var(--ink); border:1.5px solid var(--line); border-radius:8px;
+    font:inherit; font-size:14.5px; line-height:1.4; cursor:pointer}
+  .lopt:hover:not([aria-disabled="true"]){border-color:var(--blue)}
+  .lopt .mk{flex:none; width:22px; height:22px; border-radius:50%; border:1.5px solid var(--line); display:flex;
+    align-items:center; justify-content:center; font-size:12px; font-weight:700; color:var(--muted); margin-top:-1px}
+  .lopt[aria-disabled="true"]{cursor:default}
+  .lopt:focus-visible, .btn:focus-visible, .lesson-exit:focus-visible, .lsee:focus-visible{outline:2px solid var(--focus); outline-offset:2px}
+  .lopt.right{border-color:var(--teal); background:var(--teal-soft)}
+  .lopt.right .mk{border-color:var(--teal); background:var(--teal); color:#fff}
+  .lopt.wrong{border-color:var(--red); background:var(--red-soft)}
+  .lopt.wrong .mk{border-color:var(--red); background:var(--red); color:#fff}
+  .lopt.dim{opacity:.55}
+  .lfb{margin:10px 0 0; max-width:72ch; font-size:14.5px; line-height:1.55; color:var(--ink-2)}
+  .lfb:empty{display:none}
+  .lfb .verdict{display:block; font-weight:700; margin-bottom:3px}
+  .lfb .verdict.ok{color:var(--teal)} .lfb .verdict.no{color:var(--red)}
+  .lfb .more{display:block; margin-top:7px; padding-top:7px; border-top:1px solid var(--line)}
+  .lnav{display:flex; gap:10px; margin-top:14px; flex-wrap:wrap}
+  .lsum ul{margin:6px 0 10px; padding-left:20px; max-width:72ch; color:var(--ink-2); font-size:14.5px; line-height:1.55}
+  .lsum li{margin:3px 0}
+  .lscore{font-size:15px; color:var(--ink); margin:0 0 6px}
+  /* readouts held back until the student has committed to an answer */
+  .ro.veiled .v, .ro.veiled .n{filter:blur(7px); user-select:none}
+  .ro.veiled{position:relative}
+  .ro.veiled::after{content:"answer first"; position:absolute; right:8px; bottom:8px; font-size:10.5px;
+    letter-spacing:.06em; text-transform:uppercase; color:var(--muted); background:var(--panel);
+    padding:1px 5px; border-radius:4px}
+  @media (max-width:560px){
+    .lesson{padding:12px 13px 14px}
+    .lesson h3{font-size:18px}
+    .lesson .ltext{font-size:14.5px}
+  }
+  @media (prefers-reduced-motion: reduce){ .lesson-bar span{transition:none} }
+  /* the lesson sits under the picture it is about */
+  .card .lesson{margin:12px 0 0; border:none; border-top:1px solid var(--line); border-radius:0; box-shadow:none; padding:12px 0 2px}
+  .lesson-on .stage{align-items:start}
+  .lchips{display:flex; flex-wrap:wrap; gap:6px 8px; margin:12px 0 0}
+  .lchips .chip{display:inline-flex; align-items:baseline; gap:6px; padding:5px 10px; border-radius:6px; background:var(--panel-2);
+    font-size:13px; color:var(--ink-2)}
+  .lchips .chip b{font-family:"IBM Plex Mono", monospace; font-weight:500; color:var(--ink); font-variant-numeric:tabular-nums}
+  .lchips .chip.veiled b{filter:blur(6px); user-select:none}
+  .lfb .ans{display:block; margin-top:6px}
+  .lcta-btns{display:flex; flex-wrap:wrap; align-items:center; gap:8px 14px}
+  .ltop-btns{display:flex; gap:14px; flex-wrap:wrap}
+  .sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
+  .lfb .verdict:focus{outline:none}
+  .lesson h3:focus{outline:none}
+  .lsee{display:inline-block; margin-top:8px; background:none; border:1px solid var(--line); border-radius:6px;
+    padding:6px 10px; font:inherit; font-size:13px; color:var(--blue); cursor:pointer}
+  .lesson-exit[aria-pressed="true"]{font-weight:600; text-decoration:none; color:var(--ink);
+    background:var(--panel-2); border-radius:5px; padding:4px 8px}
+  .lhint{align-self:center; font-size:12.5px; color:var(--muted)}
+  /* a blurred verdict pill keeps no colour, since the colour alone would give the answer */
+  .ro.veiled .pill{background:var(--panel-2) !important; border-color:var(--line) !important; color:transparent !important}
+  .lsee + .lsee{margin-left:8px}
+  /* readouts and charts held back: stacked on a phone they are removed; on a wide screen the column
+     keeps its place with a note, so the layout does not jump when the answer is revealed */
+  @media (max-width:1040px){ .veil-charts .col-right, .veil-charts .lveilbox{display:none} }
+  @media (min-width:1041px){
+    .veil-charts .col-right, .veil-charts .lveilbox{visibility:hidden; position:relative}
+    .veil-charts .col-right::after, .veil-charts .lveilbox::after{content:"These charts and readouts appear when you answer.";
+      visibility:visible; position:absolute; top:60px; left:12%; right:12%; padding:16px 18px; text-align:center;
+      border:1px dashed var(--line); border-radius:10px; color:var(--muted); font-size:14px; line-height:1.5; background:var(--panel)}
+    .l-answered.veil-charts .col-right::after, .l-answered.veil-charts .lveilbox::after{content:"Held back for now: a later question asks about it."}
+  }
+  .lesson-on #cellCap, .lesson-on #traceCap{display:none}
+
+</style>
 <body>
 <script>if(window.self!==window.top)document.documentElement.classList.add("in-frame");</script>
 <noscript><div style="max-width:60ch;margin:40px auto;padding:18px 22px;border:1px solid #CF4520;border-radius:8px;background:#fff;color:#0F1E2B;font:15px/1.55 'IBM Plex Sans',system-ui,sans-serif">
@@ -304,6 +400,26 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     </div>
   </header>
   <p class="point">Thermophoresis does not erase the temperature gradient. It builds a concentration gradient that opposes it, and the steady state between the two is what an instrument measures.</p>
+
+  <div class="lesson-cta" id="lessonCta">
+    <p><b>Guided lesson.</b> Eight short questions on how a temperature gradient moves molecules, about ten minutes. Each step asks you to predict first, then shows you the answer in the demo.</p>
+    <div class="lcta-btns">
+      <button type="button" class="btn go" id="lessonStart">Start the guided lesson</button>
+      <button type="button" class="lesson-exit" id="lessonRestart" hidden>Start again from step 1</button>
+    </div>
+  </div>
+
+  <section class="lesson" id="lesson" aria-label="Guided lesson">
+    <div class="lesson-top">
+      <span class="lesson-step" id="lStep">Step 1</span>
+      <span class="ltop-btns">
+        <button type="button" class="lesson-exit" id="lPause" hidden>Pause motion</button>
+        <button type="button" class="lesson-exit" id="lExit">Leave the lesson</button>
+      </span>
+    </div>
+    <div class="lesson-bar" aria-hidden="true"><span id="lBar"></span></div>
+    <div id="lBody"></div>
+  </section>
 
   <section class="controls">
     <div class="ctl wide">
@@ -531,6 +647,8 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       var txt = (S.letters || "SLI").toUpperCase().slice(0,5) || "SLI";
       var size = Math.min(NY*0.62, NX*1.5/Math.max(1,txt.length));
       og.font = "700 " + size + "px 'IBM Plex Sans', system-ui, sans-serif";
+      var tw = og.measureText(txt).width;
+      if(tw > 0.92*NX){ size *= 0.92*NX/tw; og.font = "700 " + size + "px 'IBM Plex Sans', system-ui, sans-serif"; }
       og.fillText(txt, NX/2, NY/2);
       var d = og.getImageData(0,0,NX,NY).data;
       for(k=0;k<NX*NY;k++) Tf[k] = d[4*k]/255;
@@ -682,6 +800,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     mono(g,10.5,500);
     // the trace settles on the side of the line nearer 1, so the label goes on the other side
     if(plateau(st) <= 1) tag(g, "e^(−SᴛΔT) = " + num(plateau(st),3), L+pw-4, yp+5, "right", "top", TH.teal, TH.panel);
+    else if(yp - 20 < T) tag(g, "e^(−SᴛΔT) = " + num(plateau(st),3), L+pw-4, yp+5, "right", "top", TH.teal, TH.panel);
     else tag(g, "e^(−SᴛΔT) = " + num(plateau(st),3), L+pw-4, yp-4, "right", "bottom", TH.teal, TH.panel);
 
     g.strokeStyle = TH.blue; g.lineWidth = 2.4; g.beginPath();
@@ -740,6 +859,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     return Math.pow(10, (lo+hi)/2);
   }
   function drawSide(){
+    sideCv.setAttribute("aria-label", "Steady state concentration ratio against temperature difference");
     var f = fit(sideCv), g = f.g, W = f.w, Hh = f.h;
     if(W < 50 || Hh < 40) return;
     var L = 56, R = 16, T = 12, B = 30;
@@ -802,6 +922,9 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       sans(g,11,500); g.fillStyle = TH["ink-2"];
       g.textAlign="center"; g.textBaseline="bottom";
       g.fillText("unlabelled partner / nmol dm⁻³", L+pw/2, Hh-3);
+      g.save(); g.translate(4, T+ph/2); g.rotate(-Math.PI/2); g.textAlign="center"; g.textBaseline="top";
+      g.fillText("F / F₀", 0, 0); g.restore();
+      sideCv.setAttribute("aria-label", "Titration: plateau fluorescence against the concentration of the unlabelled partner, with the fitted binding curve");
       return;
     }
 
@@ -875,7 +998,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       $("sideTitle").innerHTML = "The titration, and the <em>K</em><sub>d</sub> it gives";
       $("sideCap").innerHTML = "Each point is the plateau depletion at one partner concentration. The curve is the fit, which takes the labelled molecule to be far more dilute than <em>K</em><sub>d</sub>, so the bound fraction is <em>L</em>/(<em>L</em> + <em>K</em><sub>d</sub>).";
       $("cellCap").innerHTML = "At this partner concentration the labelled molecule is " + num(f*100,0) +
-        " per cent bound, so its Soret coefficient is " + num(st,3) + " K<sup>&minus;1</sup>.";
+        " per cent bound, so its Soret coefficient is " + num(st,4) + " K<sup>&minus;1</sup>.";
       $("workK").textContent = "From a depletion to a dissociation constant";
       $("eq1").textContent = "bound fraction = L/(L+Kd) = " + sig3(ligNm()) + "/(" + sig3(ligNm()) + " + " + sig3(kdNm()) + ") = " + num(f,3);
       $("eq2").textContent = "Sᴛ = " + num(ST_FREE,3) + " + " + num(f,3) + "(" + num(ST_BOUND,3) + " − " + num(ST_FREE,3) +
@@ -884,11 +1007,11 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
           ? ".  With this little heating, bound and free give the same reading to within the scatter, so there is nothing to fit"
           : ".  Fitting the twelve points returns Kd = " + sig3(Kfit) + " nmol dm⁻³ against a true " + sig3(kdNm()) +
             ", out by " + num(Math.abs(Kfit-kdNm())/kdNm()*100,1) + " per cent");
-      $("eqNote").innerHTML = "Binding buries surface area, rearranges the hydration water and usually changes the effective charge. Any of those shifts <em>S</em><sub>T</sub>, and the shift is what the fluorescence reports. The method does not say which of the three did it.";
+      $("eqNote").innerHTML = "Binding buries surface area, rearranges the hydration water, and usually changes the effective charge. Any of those shifts <em>S</em><sub>T</sub>, and the shift is what the fluorescence reports. The method does not say which of the three did it.";
     } else if(S.mode === "duhr"){
       $("sideTitle").innerHTML = "Steady state against &Delta;<em>T</em>";
       $("sideCap").innerHTML = "The same exponential applies pixel by pixel across the pattern.";
-      $("cellCap").innerHTML = "The laser traces letters instead of a spot. With S<sub>T</sub> positive the solute is driven out of them, so the letters take the depleted end of the colour bar. Make S<sub>T</sub> negative and the same letters move to the enriched end.";
+      $("cellCap").innerHTML = "The laser traces letters instead of a spot. With <em>S</em><sub>T</sub> positive the solute is driven out of them, so the letters take the depleted end of the colour bar. Make <em>S</em><sub>T</sub> negative and the same letters move to the enriched end.";
       $("workK").textContent = "Writing with a temperature field";
       $("eq1").textContent = "c(T₂)/c(T₁) = e^(−Sᴛ ΔT) = e^(−(" + sn(st,3) + ")(" + num(dT(),1) + ")) = " + num(pl,3);
       $("eq2").textContent = "the pattern is the temperature field, and the solute merely obeys it";
@@ -974,7 +1097,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     S.st = 50; S.dT = Math.round(Math.log(2)/0.05*10);   // 139, that is 13.9 K
     $("st").value = S.st; $("dT").value = S.dT;
     buildField(); resetField(); $("clock").textContent = "0.0 s"; paint(); start();
-    $("hint").innerHTML = "At 13.9 K the ideal ratio e<sup>&minus;<em>S</em><sub>T</sub>&Delta;<em>T</em></sup> in the Steady state readout is 0.50, which is the Self-test answer. The simulated trace settles nearer 0.55, closer to 1 for the reason given under the trace.";
+    $("hint").innerHTML = "At 13.9 K the ideal ratio e<sup>&minus;<em>S</em><sub>T</sub>&Delta;<em>T</em></sup> in the Steady state readout is 0.499, which is 0.50 to two figures, the Self-test answer (exactly 0.50 at the unrounded 13.86 K). The simulated trace settles nearer 0.55, closer to 1 for the reason given under the trace.";
   });
   $("resetBtn").addEventListener("click", function(){
     stop();
@@ -994,6 +1117,362 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
   window.addEventListener("resize", function(){ drawCell(); drawTrace(); drawSide(); });
   if(document.fonts && document.fonts.ready) document.fonts.ready.then(paint);
   buildField(); resetField(); paint();
+
+  // ===================== guided lesson (shared engine) =====================
+  // Predict, then reveal. Each step puts the demo into a stated condition, asks one
+  // multiple-choice question (one attempt, so the final score is honest), hides any
+  // readout that would give the answer away, and only after the student commits moves
+  // the demo to the new condition and explains. The page-specific part is the object
+  // passed in: its steps, which readouts to show beside the question, and apply(),
+  // which sets the demo through its own internals so that values are exact.
+  function lessonEngine(C){
+    var $l = function(id){ return document.getElementById(id); };
+    var root = document.documentElement;
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var lessonEl = $l("lesson"), lBody = $l("lBody"), cta = $l("lessonCta");
+    var anchor = document.querySelector(C.anchor || ".stage .card");
+    anchor.appendChild(lessonEl);                     // the lesson sits under the picture it is about
+    // the picture to scroll back to; a page whose picture changes with its mode passes a function
+    // a step can name its own picture when its answer is on a chart rather than the main view
+    function picture(){
+      var st = C.steps[LS.i], pc = (st && st.picture) || C.picture;
+      return typeof pc === "function" ? pc() : (pc ? document.querySelector(pc) : anchor);
+    }
+    var N = C.steps.length;
+    var LS = {i:0, answered:[], score:0};
+
+    function veil(ids, step){
+      (C.veilable || []).forEach(function(id){
+        var el = $l(id); if(!el) return;
+        var on = ids.indexOf(id) >= 0, box = el.closest(".ro") || el.parentNode;
+        box.classList.toggle("veiled", on);
+        [].forEach.call(box.querySelectorAll(".v,.n"), function(x){
+          if(on) x.setAttribute("aria-hidden", "true"); else x.removeAttribute("aria-hidden");
+        });
+      });
+      // hide: what the picture holds back while the question is open; hideAfter: what stays
+      // hidden once it is answered (for a later step that asks about the same thing)
+      root.classList.toggle("l-answered", !!(step && LS.answered[LS.i]));
+      if(C.onVeil) C.onVeil(step ? (LS.answered[LS.i] ? (step.hideAfter || 0) : (step.hide || 0)) : 0);
+    }
+    function chips(s, done){
+      var keys = (done && s.show2) ? s.show2 : (s.show || []), vs = done ? (s.veilAfter || []) : (s.veil || []);
+      if(!keys.length) return "";
+      return "<div class=\"lchips\" id=\"lChips\">" + keys.map(function(k){
+        // a chip reads a readout by its id, or calls a function for values the page has no readout for
+        var c = C.chips[k], v = typeof c[0] === "function" ? c[0]() : (($l(c[0]) || {}).textContent || "").trim();
+        var hid = vs.indexOf(k) >= 0 || (typeof c[0] === "string" && vs.indexOf(c[0]) >= 0);
+        return "<span class=\"chip" + (hid ? " veiled" : "") + "\"><span>" + c[1] + "</span>" +
+          (hid ? "<b aria-hidden=\"true\">" + v + c[2] + "</b><span class=\"sr\">hidden until you answer</span>"
+               : "<b>" + v + c[2] + "</b>") + "</span>";
+      }).join("") + "</div>";
+    }
+    // the line that says what the demo is showing; it is told the step, so it can hold back a value
+    function nowText(){ var s = C.steps[LS.i]; return C.now(s, !!LS.answered[LS.i]); }
+    function nowLine(){ return C.now ? "<p class=\"lnow\" id=\"lNow\">" + nowText() + "</p>" : ""; }
+    function scrollTo(el){ if(el && el.scrollIntoView) el.scrollIntoView({block:"start", behavior: reduce ? "auto" : "smooth"}); }
+
+    function render(focusWhat){
+      $l("lBar").style.width = (100*LS.i/N) + "%";
+      if(LS.i >= N) return summary();
+      var s = C.steps[LS.i], done = LS.answered[LS.i];
+      $l("lStep").textContent = "Step " + (LS.i+1) + " of " + N;
+      var h = "<h3 tabindex=\"-1\" id=\"lTitle\">" + s.title + "</h3><p class=\"ltext\">" + s.text + "</p>" + nowLine() +
+        "<p class=\"lq\" id=\"lQ\">" + s.q + "</p><div class=\"lopts\" role=\"group\" aria-labelledby=\"lQ\">";
+      s.opts.forEach(function(o, k){
+        var cls = "lopt", mk = String.fromCharCode(65+k), sr = "";
+        if(done){
+          if(o.ok){ cls += " right"; mk = "✓"; sr = done.pick === k ? " (your answer, correct)" : " (correct answer)"; }
+          else if(done.pick === k){ cls += " wrong"; mk = "✗"; sr = " (your answer)"; }
+          else cls += " dim";
+        }
+        h += "<button type=\"button\" class=\"" + cls + "\" data-k=\"" + k + "\"" + (done ? " aria-disabled=\"true\"" : "") +
+             "><span class=\"mk\" aria-hidden=\"true\">" + mk + "</span><span>" + o.t + "<span class=\"sr\">" + sr + "</span></span></button>";
+      });
+      h += "</div>" + chips(s, done) + "<div class=\"lfb\" id=\"lFb\" aria-live=\"polite\">";
+      if(done){
+        var picked = s.opts[done.pick], right = s.opts.filter(function(o){ return o.ok; })[0];
+        h += "<span class=\"verdict " + (picked.ok ? "ok" : "no") + "\" tabindex=\"-1\" id=\"lVerdict\">" + (picked.ok ? "Right." : "Not quite.") + "</span>" +
+             picked.why + (picked.ok ? "" : "<span class=\"ans\">The right answer was: <b>" + right.t + "</b>. " + right.why + "</span>") +
+             "<span class=\"more\">" + s.more + "</span>" +
+             (s.after || s.hide || s.veil ? "<button type=\"button\" class=\"lsee\" id=\"lSee\">See it in the demo &uarr;</button>" : "") +
+             (C.replay && s.after && s.after.run ? "<button type=\"button\" class=\"lsee\" id=\"lAgainRun\">Run it again</button>" : "");
+      }
+      h += "</div><div class=\"lnav\">" +
+        (LS.i > 0 ? "<button type=\"button\" class=\"btn\" id=\"lBack\">Back</button>" : "") +
+        "<button type=\"button\" class=\"btn go\" id=\"lNext\"" + (done ? "" : " disabled") + ">" + (LS.i === N-1 ? "Finish" : "Continue") + "</button>" +
+        (done ? "" : "<span class=\"lhint\">Choose an answer to continue</span>") + "</div>";
+      lBody.innerHTML = h;
+      [].forEach.call(lBody.querySelectorAll(".lopt"), function(b){
+        b.addEventListener("click", function(){ if(!LS.answered[LS.i]) answer(+b.dataset.k); });
+      });
+      if($l("lBack")) $l("lBack").addEventListener("click", function(){ LS.i--; go(); });
+      $l("lNext").addEventListener("click", function(){ LS.i++; go(); });
+      if($l("lAgainRun")) $l("lAgainRun").addEventListener("click", function(){ C.replay(s); pollChips(s); });
+      if($l("lSee")) $l("lSee").addEventListener("click", function(){
+        var pic = picture(); if(!pic) return;
+        if(!pic.hasAttribute("tabindex")) pic.setAttribute("tabindex", "-1");
+        scrollTo(pic); pic.focus({preventScroll:true});
+      });
+      var f = focusWhat === "verdict" ? $l("lVerdict") : (focusWhat === "title" ? $l("lTitle") : null);
+      if(f) f.focus({preventScroll: focusWhat === "title"});
+    }
+    function refreshChips(){
+      var s = C.steps[LS.i], el = $l("lChips");
+      if(!s || !el) return;
+      var tmp = document.createElement("div"); tmp.innerHTML = chips(s, LS.answered[LS.i]);
+      el.parentNode.replaceChild(tmp.firstChild, el);
+      if(C.now && $l("lNow")) $l("lNow").innerHTML = nowText();
+    }
+    function answer(k){
+      var s = C.steps[LS.i];
+      LS.answered[LS.i] = {pick:k};
+      if(s.opts[k].ok) LS.score++;
+      if(s.after) C.apply(s.after, "after", s);
+      veil(s.veilAfter || [], s);
+      render("verdict");
+      pollChips(s);
+    }
+    // values that change over time (a race, a simulation) are read again until they settle; a page
+    // whose runs go at the display's frame rate says through busy() whether one is still going
+    function pollChips(s){
+      var at = LS.i, t0 = Date.now(), until = Math.max(1600, s.settle || 0);
+      clearInterval(LS.timer);
+      LS.timer = setInterval(function(){
+        var el = Date.now() - t0;
+        if(LS.i !== at || !LS.answered[at] || el > 180000 || (el > until + 50 && !(C.busy && C.busy()))){
+          clearInterval(LS.timer); refreshChips(); return;
+        }
+        refreshChips();
+      }, 500);
+    }
+    function go(auto){
+      var s = C.steps[LS.i];
+      if(s){
+        C.apply(s.setup, "setup", s);
+        if(LS.answered[LS.i]){ if(s.after) C.apply(s.after, "after", s); veil(s.veilAfter || [], s); }
+        else veil(s.veil || [], s);
+      }
+      clearInterval(LS.timer);
+      render(auto ? null : "title");
+      syncPause();
+      // on entry, go to the step's own picture only if it is on show (a held-back chart is not)
+      if(!auto){
+        var pc = picture();
+        if(!pc || !pc.getClientRects().length || getComputedStyle(pc).visibility === "hidden") pc = (typeof C.picture === "string" && document.querySelector(C.picture)) || anchor;
+        scrollTo(pc);
+      }
+    }
+    function summary(){
+      $l("lStep").textContent = "Lesson complete";
+      veil([], null);
+      lBody.innerHTML = "<div class=\"lsum\"><h3 tabindex=\"-1\" id=\"lTitle\">What you have seen</h3>" +
+        "<p class=\"lscore\">You predicted <b>" + LS.score + " of " + N + "</b> correctly at the first attempt.</p><ul>" +
+        C.summary.points.map(function(p){ return "<li>" + p + "</li>"; }).join("") + "</ul>" +
+        "<p class=\"ltext\">" + C.summary.next + "</p>" +
+        "<div class=\"lnav\"><button type=\"button\" class=\"btn go\" id=\"lFree\">Explore freely</button>" +
+        "<button type=\"button\" class=\"btn\" id=\"lAgain\">Start again</button></div></div>";
+      $l("lFree").addEventListener("click", function(){ leave(); });
+      $l("lAgain").addEventListener("click", function(){ start(true); });
+      $l("lTitle").focus({preventScroll:true});
+    }
+    function updateCta(){
+      var n = LS.answered.filter(Boolean).length;
+      var resume = n > 0 && LS.i < N;
+      $l("lessonStart").textContent = resume ? "Resume the guided lesson (step " + (LS.i+1) + ")" : "Start the guided lesson";
+      $l("lessonRestart").hidden = !resume;
+    }
+    function leave(){
+      clearInterval(LS.timer);
+      root.classList.remove("lesson-on");
+      veil([], null);
+      if(C.onLeave) C.onLeave();
+      updateCta();
+      $l("lessonStart").focus({preventScroll:true});
+    }
+    function start(fresh, auto){
+      if(fresh || LS.i >= N){ LS.i = 0; LS.answered = []; LS.score = 0; }
+      root.classList.add("lesson-on");
+      go(auto);
+    }
+    $l("lessonStart").addEventListener("click", function(){ start(false); });
+    $l("lessonRestart").addEventListener("click", function(){ start(true); });
+    $l("lExit").addEventListener("click", leave);
+    // a link ending in #lesson opens the page straight into the lesson, without scrolling
+    // a Canvas page that holds it in an iframe
+    if(location.hash === "#lesson") setTimeout(function(){ start(true, true); }, 0);
+    // a pause control for the moving picture, since the demo's own controls are hidden
+    // sliders announce the value the page prints beside them (with its unit), not the raw slider number
+    [].forEach.call(document.querySelectorAll("input[type=range]"), function(r){
+      var box = r.closest(".ctl");
+      var lab = (r.id && document.querySelector("label[for=\"" + r.id + "\"] .val")) ||
+                (box && box.querySelectorAll("input[type=range]").length === 1 ? box.querySelector(".val") : null);
+      if(!lab) return;
+      var set = function(){ r.setAttribute("aria-valuetext", lab.textContent.replace(/\s+/g, " ").trim()); };
+      set(); new MutationObserver(set).observe(lab, {childList:true, characterData:true, subtree:true});
+    });
+    // (a fixed label with aria-pressed, so a screen reader hears the state, not a new name)
+    var mv = C.motion ? $l(C.motion) : null, pz = $l("lPause");
+    function syncPause(){ if(mv && pz) pz.setAttribute("aria-pressed", String(!mv.checked)); }
+    if(mv && pz){
+      pz.hidden = false;
+      pz.addEventListener("click", function(){ mv.checked = !mv.checked; mv.dispatchEvent(new Event("change", {bubbles:true})); syncPause(); });
+      mv.addEventListener("change", syncPause);
+      // the demo's Reset sets the box back without firing change, so check again after any click on the page
+      document.addEventListener("click", function(){ setTimeout(syncPause, 0); });
+      syncPause();
+    }
+  }
+
+  // ---------- L8.2 lesson ----------
+  function lessonApply(cfg, phase){
+    function press(v){ document.querySelector("#mode button[data-v=\"" + v + "\"]").click(); }
+    if(phase === "setup"){
+      stop();
+      S.st = 50; S.dT = 50; S.D = 110; S.kd = 500; S.lig = 500; S.letters = "SLI";
+      $("kd").value = S.kd; $("lig").value = S.lig; $("letters").value = S.letters;
+      press(cfg.mode || "one");
+    }
+    if(cfg.mode && phase !== "setup") press(cfg.mode);
+    if(cfg.st !== undefined) S.st = cfg.st;
+    if(cfg.dT !== undefined) S.dT = cfg.dT;
+    if(cfg.D !== undefined) S.D = cfg.D;
+    $("st").value = S.st; $("dT").value = S.dT; $("dcoef").value = S.D;
+    buildField(); resetField(); $("clock").textContent = "0.0 s"; paint();
+    if(cfg.run) start();
+  }
+  lessonEngine({
+    picture: "#cellBox",
+    chips: {
+      now: [function(){ return num(spotMean(),3); }, "warm spot now", ""],
+      ss: [function(){ return num(plateau(stEffective()),3); }, "steady state, e<sup>&minus;<em>S</em><sub>T</sub>Δ<em>T</em></sup>", ""],
+      st: [function(){ return sn(sT(),3) + " K⁻¹"; }, "<em>S</em><sub>T</sub>", ""],
+      dT: [function(){ return num(dT(),1) + " K"; }, "Δ<em>T</em>", ""],
+      D: [function(){ return S.D + " µm² s⁻¹"; }, "<em>D</em>", ""],
+      t: [function(){ return $("clock").textContent; }, "run time", ""],
+      kfit: [function(){ var k = titrSignal() ? fitKd(titrationPoints()) : null; return k === null ? "none" : sig3(k) + " nmol dm⁻³"; }, "fitted <em>K</em><sub>d</sub>", ""],
+      ktrue: [function(){ return sig3(kdNm()) + " nmol dm⁻³"; }, "true <em>K</em><sub>d</sub>", ""]
+    },
+    apply: lessonApply,
+    onVeil: function(level){ document.documentElement.classList.toggle("veil-charts", level >= 1); },
+    onLeave: function(){},
+    busy: function(){ return S.running; },
+    replay: function(){ stop(); resetField(); $("clock").textContent = "0.0 s"; paint(); start(); },
+    now: function(){
+      var m = {one:"one warmed spot", titr:"an MST titration", duhr:"warmed letters"}[S.mode];
+      if(S.mode === "titr") return "Showing <b>" + m + "</b>: <em>S</em><sub>T</sub> = " + num(ST_FREE,3) + " K<sup>&minus;1</sup> for the free labelled molecule and " +
+        num(ST_BOUND,3) + " K<sup>&minus;1</sup> when bound, Δ<em>T</em> = " + num(dT(),1) + " K.";
+      return "Showing <b>" + m + "</b>, <em>S</em><sub>T</sub> = " + sn(sT(),3) + " K<sup>&minus;1</sup>, Δ<em>T</em> = " + num(dT(),1) + " K, <em>D</em> = " + S.D + " µm<sup>2</sup> s<sup>&minus;1</sup>.";
+    },
+    steps: [
+    { title:"Which way does the solute go?",
+      setup:{st:50, dT:50}, show:["st","dT"], hide:1,
+      text:"A laser warms a small spot in a thin cell of protein solution by 5.0 K. The protein has a Soret coefficient <em>S</em><sub>T</sub> = <em>D</em><sub>T</sub>/<em>D</em> = +0.050 K<sup>&minus;1</sup>, and the thermophoretic drift is <em>v</em><sub>T</sub> = &minus;<em>D</em><sub>T</sub>∇<em>T</em> (eqn 8.9).",
+      q:"When the laser comes on, what happens in the warm spot?",
+      opts:[
+        {t:"The protein leaves it, so its concentration falls", ok:true, why:"With <em>S</em><sub>T</sub> > 0, <em>D</em><sub>T</sub> is positive too, so the drift runs down the temperature gradient, from hot to cold, and the warm spot is depleted. Such a solute is called thermophobic."},
+        {t:"The protein gathers in it", why:"That is what happens when <em>S</em><sub>T</sub> is negative. Here it is positive."},
+        {t:"Nothing, until convection stirs the liquid", why:"No flow is needed: the temperature gradient itself drives the solute (Section 8.3)."}
+      ],
+      after:{run:true}, show2:["now","t"], settle:5000,
+      more:"Watch the spot fade as the protein drains out of it. Diffusion pushes back, and the two fluxes come into balance." },
+
+    { title:"How deep is the depletion?",
+      setup:{st:50, dT:50}, show:["st","dT"], hide:1,
+      text:"This is Example 8.3. At steady state the diffusive flux exactly cancels the thermophoretic one, and eqn 8.11 gives <em>c</em>(<em>T</em><sub>2</sub>)/<em>c</em>(<em>T</em><sub>1</sub>) = e<sup>&minus;<em>S</em><sub>T</sub>(<em>T</em><sub>2</sub> &minus; <em>T</em><sub>1</sub>)</sup>.",
+      q:"What is the steady-state ratio for <em>S</em><sub>T</sub> = 0.050 K<sup>&minus;1</sup> and Δ<em>T</em> = 5.0 K?",
+      opts:[
+        {t:"0.25", why:"0.25 is the exponent, <em>S</em><sub>T</sub>Δ<em>T</em>. The ratio is e<sup>&minus;0.25</sup>."},
+        {t:"0.78", ok:true, why:"e<sup>&minus;(0.050)(5.0)</sup> = e<sup>&minus;0.25</sup> = 0.78, a depletion of 22 per cent."},
+        {t:"1.28", why:"That is e<sup>+0.25</sup>, the enrichment a negative <em>S</em><sub>T</sub> would give."},
+        {t:"0.95", why:"That is e<sup>&minus;0.05</sup>, as if the spot were warmed by only 1 K."}
+      ],
+      after:{run:true}, show2:["ss","now"], settle:5000,
+      more:"A rise of a few kelvin, easy to make with an infrared laser and harmless to a protein, changes the concentration by more than a fifth. That is why the effect is useful for analysis." },
+
+    { title:"A little closer to 1",
+      setup:{st:50, dT:50}, show:["ss"], hide:1,
+      text:"When the run settles, the simulated trace for Example 8.3 sits at about 0.81, not at the 0.78 of eqn 8.11.",
+      q:"Why does the simulation settle a little closer to 1?",
+      opts:[
+        {t:"Diffusion slowly erases the depletion", why:"Diffusion only balances the thermophoretic flux. The laser holds the temperature gradient, so the depletion stays as long as the laser is on."},
+        {t:"The simulation has not finished", why:"The trace has levelled off; the gap remains however long the run continues."},
+        {t:"The cell is finite, and the reading averages over the warm region", ok:true, why:"The warm region is not all at the peak temperature, and the protein that leaves it has nowhere distant to go, so the average ratio is nearer 1 than the ideal one."}
+      ],
+      after:{run:true}, show2:["ss","now"], settle:5000,
+      more:"Eqn 8.11 compares two points at fixed temperatures. A real measurement, like this simulated one, averages over a region, which is why the book's box warns that the trace settles a little closer to 1." },
+
+    { title:"Halving the concentration",
+      setup:{st:50, dT:50}, show:["st"], hide:1,
+      text:"This is Self-test 8.3: keep <em>S</em><sub>T</sub> = 0.050 K<sup>&minus;1</sup> and find the temperature rise that halves the concentration in the warm region.",
+      q:"What Δ<em>T</em> is needed?",
+      opts:[
+        {t:"10 K", why:"Twice Example 8.3's rise gives e<sup>&minus;0.50</sup> = 0.61, not 0.50."},
+        {t:"13.9 K", ok:true, why:"e<sup>&minus;<em>S</em><sub>T</sub>Δ<em>T</em></sup> = 0.50 means <em>S</em><sub>T</sub>Δ<em>T</em> = ln 2 = 0.693, so Δ<em>T</em> = 0.693/0.050 = 13.9 K."},
+        {t:"20 K", why:"That gives e<sup>&minus;1.0</sup> = 0.37, more than halving it."},
+        {t:"6.9 K", why:"That would need <em>S</em><sub>T</sub> = 0.10 K<sup>&minus;1</sup>, twice the value here."}
+      ],
+      after:{dT:139, run:true}, show2:["dT","ss","now"], settle:5000,
+      more:"The Steady state readout gives 0.499 at 13.9 K (exactly 0.50 at the unrounded 13.86 K). The simulated trace settles nearer 0.55, for the same reason as before." },
+
+    { title:"Flip the sign",
+      setup:{st:50, dT:139}, show:["st","dT"], hide:1,
+      text:"Keep the 13.9 K rise. When you answer, <em>S</em><sub>T</sub> will be reversed, to &minus;0.050 K<sup>&minus;1</sup>.",
+      q:"What happens to the concentration in the warm spot?",
+      opts:[
+        {t:"It halves, as before", why:"The sign of <em>S</em><sub>T</sub> sets the direction of the drift. Reverse it and depletion becomes enrichment."},
+        {t:"It does not change, because the two signs cancel", why:"Nothing cancels: the drift simply runs the other way, up the temperature gradient."},
+        {t:"It doubles", ok:true, why:"e<sup>&minus;(&minus;0.050)(13.9)</sup> = e<sup>+0.693</sup> = 2.0. A thermophilic solute gathers in the warm region."}
+      ],
+      after:{st:-50, run:true}, show2:["ss","now"], settle:11000,
+      more:"The Steady state readout gives 2.004, which is 2.0; the simulated trace settles nearer 1.8, for the same reason as before. The same solute can change sign when the temperature or the concentration is changed, which is one reason the theory of <em>S</em><sub>T</sub> is still debated (Section 8.3.3)." },
+
+    { title:"A slower solute",
+      setup:{st:50, dT:50, D:110}, show:["D","ss"], hide:1,
+      text:"Back to Example 8.3. When you answer, the diffusion coefficient will fall from 110 to 30 µm<sup>2</sup> s<sup>&minus;1</sup>, as for a larger molecule, with <em>S</em><sub>T</sub> unchanged.",
+      q:"What happens to the steady-state depletion?",
+      opts:[
+        {t:"A deeper depletion, because diffusion pushes back less", why:"With <em>S</em><sub>T</sub> fixed, the thermophoretic drift falls in step with <em>D</em>, so the balance is unchanged."},
+        {t:"The same ratio, reached more slowly", ok:true, why:"<em>S</em><sub>T</sub> = <em>D</em><sub>T</sub>/<em>D</em>, and the steady state depends only on <em>S</em><sub>T</sub>Δ<em>T</em>. A smaller <em>D</em> only stretches the time it takes to get there."},
+        {t:"A shallower depletion, because the protein moves less", why:"It moves less in both directions; the balance between the two is what sets the ratio."}
+      ],
+      after:{D:30, run:true}, show2:["D","now","t"], settle:20000,
+      more:"The warm spot settles at about 0.81, as it did at 110 µm<sup>2</sup> s<sup>&minus;1</sup>, but the run now takes about 100 s of simulated time instead of 30 s. Note that the trace's time axis stretches to match." },
+
+    { title:"Measuring binding",
+      setup:{mode:"titr"}, show:[], hide:1,
+      text:"In microscale thermophoresis (Section 8.3.4) one partner carries a fluorescent label and is held at a low, fixed concentration while the other is titrated in. Binding changes <em>S</em><sub>T</sub>, so the depletion of the labelled molecule moves from its free value to its bound value.",
+      q:"At what concentration of the added partner is half of the labelled molecule bound?",
+      opts:[
+        {t:"At the concentration of the labelled molecule", why:"The labelled molecule is kept far below <em>K</em><sub>d</sub> precisely so that it does not set the midpoint."},
+        {t:"At ten times <em>K</em><sub>d</sub>", why:"At ten times <em>K</em><sub>d</sub> about 91 per cent is bound, well past halfway."},
+        {t:"At the dissociation constant, <em>K</em><sub>d</sub>", ok:true, why:"With the labelled partner far below <em>K</em><sub>d</sub>, the fraction bound is <em>L</em>/(<em>L</em> + <em>K</em><sub>d</sub>), which is one half at <em>L</em> = <em>K</em><sub>d</sub>."}
+      ],
+      after:{run:true}, show2:["kfit","ktrue"], settle:5000,
+      more:"Fitting the titration curve with <em>L</em>/(<em>L</em> + <em>K</em><sub>d</sub>) gives the fitted value, close to the true one the demo was given. The labelled molecule only reports binding; it is the added partner's concentration at half-binding that measures <em>K</em><sub>d</sub>." },
+
+    { title:"Writing with heat",
+      setup:{mode:"duhr", st:50, dT:50}, show:["st"], hide:1,
+      text:"After the experiments of Duhr and Braun, the warm region is shaped into letters. The solute still has <em>S</em><sub>T</sub> = +0.050 K<sup>&minus;1</sup>.",
+      q:"How will the letters appear in the concentration map?",
+      opts:[
+        {t:"At the depleted end of the colour bar, as regions of low concentration", ok:true, why:"A positive <em>S</em><sub>T</sub> drives the solute out of every warm region, so the letters are written as depletion."},
+        {t:"At the enriched end of the colour bar, as regions of high concentration", why:"That needs a negative <em>S</em><sub>T</sub>. Flip the sign in the free explorer and the letters move to the enriched end."},
+        {t:"Not at all, because diffusion blurs them away", why:"The laser holds the temperature pattern, so a steady concentration pattern builds up in its shape."}
+      ],
+      after:{run:true}, show2:["st"], settle:5000,
+      more:"Nothing is being pushed into shape: every part of the liquid runs the same balance between thermophoretic drift and diffusion, and the letters are simply where the temperature is high." }
+    ],
+    summary: {
+      points:[
+        "A temperature gradient drives a drift <em>v</em><sub>T</sub> = &minus;<em>D</em><sub>T</sub>∇<em>T</em>; positive <em>S</em><sub>T</sub> = <em>D</em><sub>T</sub>/<em>D</em> means the solute leaves warm regions.",
+        "At steady state diffusion balances the drift and <em>c</em>(<em>T</em><sub>2</sub>)/<em>c</em>(<em>T</em><sub>1</sub>) = e<sup>&minus;<em>S</em><sub>T</sub>Δ<em>T</em></sup>, independent of <em>D</em>.",
+        "A few kelvin are enough for a depletion of tens of per cent, which is what makes thermophoresis useful.",
+        "Binding changes <em>S</em><sub>T</sub>, so an MST titration reads out <em>K</em><sub>d</sub> as the partner concentration at which <em>S</em><sub>T</sub> is halfway between its free and bound values."
+      ],
+      next:"Now go back to the free explorer, run the titration with a different <em>K</em><sub>d</sub>, and try writing your own letters."
+    }
+  });
 })();
 </script>
 </body>

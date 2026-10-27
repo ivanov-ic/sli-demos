@@ -293,6 +293,99 @@
   }
 </style>
 </head>
+<style>
+  /* ---------- guided lesson ---------- */
+  .lesson-cta{display:flex; flex-wrap:wrap; align-items:center; gap:10px 16px; margin:0 0 14px;
+    padding:11px 15px; background:var(--panel); border:1px solid var(--line); border-left:3px solid var(--teal);
+    border-radius:8px; box-shadow:var(--shadow); font-size:14px; color:var(--ink-2)}
+  .lesson-cta p{margin:0; flex:1 1 260px}
+  .lesson-cta b{color:var(--ink)}
+  .btn.go{background:var(--teal); border-color:var(--teal); color:#fff; font-weight:600}
+  .btn.go:hover{filter:brightness(1.06); color:#fff}
+  .btn.go:disabled{background:var(--panel-2); border-color:var(--line); color:var(--muted); filter:none; cursor:default}
+
+  .lesson{display:none; margin:0 0 14px; background:var(--panel); border:1px solid var(--line);
+    border-radius:10px; box-shadow:var(--shadow); padding:14px 16px 16px; scroll-margin-top:10px}
+  .lesson-on .lesson{display:block}
+  .lesson-on .lesson-cta, .lesson-on .controls, .lesson-on .work, .lesson-on .point, .lesson-on .lesson-hide{display:none}
+  .lesson-top{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap}
+  .lesson-step{font-size:11.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); font-weight:500}
+  .lesson-exit{background:none; border:none; padding:4px 0; color:var(--blue); font:inherit; font-size:13px; cursor:pointer; text-decoration:underline; text-underline-offset:2px}
+  .lesson-bar{height:5px; border-radius:3px; background:var(--panel-2); margin:8px 0 12px; overflow:hidden}
+  .lesson-bar span{display:block; height:100%; width:0; background:var(--teal); border-radius:3px; transition:width .3s ease}
+  .lesson h3{font-family:"Source Serif 4", Georgia, serif; font-size:19px; font-weight:600; margin:0 0 6px; color:var(--ink)}
+  .lesson .ltext{margin:0 0 8px; font-size:15px; line-height:1.55; color:var(--ink-2); max-width:72ch}
+  .lesson .lnow{margin:0 0 10px; font-size:12.5px; color:var(--muted)}
+  .lesson .lnow b{color:var(--ink-2); font-weight:600}
+  .lesson .lq{margin:4px 0 9px; font-size:15.5px; font-weight:600; color:var(--ink); max-width:72ch}
+  .lopts{display:grid; gap:8px; max-width:640px}
+  .lopt{display:flex; align-items:flex-start; gap:10px; width:100%; text-align:left; padding:10px 12px; min-height:44px;
+    background:var(--panel); color:var(--ink); border:1.5px solid var(--line); border-radius:8px;
+    font:inherit; font-size:14.5px; line-height:1.4; cursor:pointer}
+  .lopt:hover:not([aria-disabled="true"]){border-color:var(--blue)}
+  .lopt .mk{flex:none; width:22px; height:22px; border-radius:50%; border:1.5px solid var(--line); display:flex;
+    align-items:center; justify-content:center; font-size:12px; font-weight:700; color:var(--muted); margin-top:-1px}
+  .lopt[aria-disabled="true"]{cursor:default}
+  .lopt:focus-visible, .btn:focus-visible, .lesson-exit:focus-visible, .lsee:focus-visible{outline:2px solid var(--focus); outline-offset:2px}
+  .lopt.right{border-color:var(--teal); background:var(--teal-soft)}
+  .lopt.right .mk{border-color:var(--teal); background:var(--teal); color:#fff}
+  .lopt.wrong{border-color:var(--red); background:var(--red-soft)}
+  .lopt.wrong .mk{border-color:var(--red); background:var(--red); color:#fff}
+  .lopt.dim{opacity:.55}
+  .lfb{margin:10px 0 0; max-width:72ch; font-size:14.5px; line-height:1.55; color:var(--ink-2)}
+  .lfb:empty{display:none}
+  .lfb .verdict{display:block; font-weight:700; margin-bottom:3px}
+  .lfb .verdict.ok{color:var(--teal)} .lfb .verdict.no{color:var(--red)}
+  .lfb .more{display:block; margin-top:7px; padding-top:7px; border-top:1px solid var(--line)}
+  .lnav{display:flex; gap:10px; margin-top:14px; flex-wrap:wrap}
+  .lsum ul{margin:6px 0 10px; padding-left:20px; max-width:72ch; color:var(--ink-2); font-size:14.5px; line-height:1.55}
+  .lsum li{margin:3px 0}
+  .lscore{font-size:15px; color:var(--ink); margin:0 0 6px}
+  /* readouts held back until the student has committed to an answer */
+  .ro.veiled .v, .ro.veiled .n{filter:blur(7px); user-select:none}
+  .ro.veiled{position:relative}
+  .ro.veiled::after{content:"answer first"; position:absolute; right:8px; bottom:8px; font-size:10.5px;
+    letter-spacing:.06em; text-transform:uppercase; color:var(--muted); background:var(--panel);
+    padding:1px 5px; border-radius:4px}
+  @media (max-width:560px){
+    .lesson{padding:12px 13px 14px}
+    .lesson h3{font-size:18px}
+    .lesson .ltext{font-size:14.5px}
+  }
+  @media (prefers-reduced-motion: reduce){ .lesson-bar span{transition:none} }
+  /* the lesson sits under the picture it is about */
+  .card .lesson{margin:12px 0 0; border:none; border-top:1px solid var(--line); border-radius:0; box-shadow:none; padding:12px 0 2px}
+  .lesson-on .stage{align-items:start}
+  .lchips{display:flex; flex-wrap:wrap; gap:6px 8px; margin:12px 0 0}
+  .lchips .chip{display:inline-flex; align-items:baseline; gap:6px; padding:5px 10px; border-radius:6px; background:var(--panel-2);
+    font-size:13px; color:var(--ink-2)}
+  .lchips .chip b{font-family:"IBM Plex Mono", monospace; font-weight:500; color:var(--ink); font-variant-numeric:tabular-nums}
+  .lchips .chip.veiled b{filter:blur(6px); user-select:none}
+  .lfb .ans{display:block; margin-top:6px}
+  .lcta-btns{display:flex; flex-wrap:wrap; align-items:center; gap:8px 14px}
+  .ltop-btns{display:flex; gap:14px; flex-wrap:wrap}
+  .sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
+  .lfb .verdict:focus{outline:none}
+  .lesson h3:focus{outline:none}
+  .lsee{display:inline-block; margin-top:8px; background:none; border:1px solid var(--line); border-radius:6px;
+    padding:6px 10px; font:inherit; font-size:13px; color:var(--blue); cursor:pointer}
+  .lesson-exit[aria-pressed="true"]{font-weight:600; text-decoration:none; color:var(--ink);
+    background:var(--panel-2); border-radius:5px; padding:4px 8px}
+  .lhint{align-self:center; font-size:12.5px; color:var(--muted)}
+  /* a blurred verdict pill keeps no colour, since the colour alone would give the answer */
+  .ro.veiled .pill{background:var(--panel-2) !important; border-color:var(--line) !important; color:transparent !important}
+  .lsee + .lsee{margin-left:8px}
+  /* readouts and charts held back: stacked on a phone they are removed; on a wide screen the column
+     keeps its place with a note, so the layout does not jump when the answer is revealed */
+  @media (max-width:1040px){ .veil-charts .col-right, .veil-charts .lveilbox{display:none} }
+  @media (min-width:1041px){
+    .veil-charts .col-right, .veil-charts .lveilbox{visibility:hidden; position:relative}
+    .veil-charts .col-right::after, .veil-charts .lveilbox::after{content:"These charts and readouts appear when you answer.";
+      visibility:visible; position:absolute; top:60px; left:12%; right:12%; padding:16px 18px; text-align:center;
+      border:1px dashed var(--line); border-radius:10px; color:var(--muted); font-size:14px; line-height:1.5; background:var(--panel)}
+    .l-answered.veil-charts .col-right::after, .l-answered.veil-charts .lveilbox::after{content:"Held back for now: a later question asks about it."}
+  }
+</style>
 <body>
 <script>if(window.self!==window.top)document.documentElement.classList.add("in-frame");</script>
 <noscript><div style="max-width:60ch;margin:40px auto;padding:18px 22px;border:1px solid #CF4520;border-radius:8px;background:#fff;color:#0F1E2B;font:15px/1.55 'IBM Plex Sans',system-ui,sans-serif">
@@ -308,6 +401,26 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     </div>
   </header>
   <p class="point">The limiting law has no fitted parameter and eventually fails. Everything that works further out buys its accuracy with a parameter somebody had to fit.</p>
+
+  <div class="lesson-cta" id="lessonCta">
+    <p><b>Guided lesson.</b> Eight short questions on activity coefficients and when the models fail, about ten minutes. Each step asks you to predict first, then shows you the answer in the demo.</p>
+    <div class="lcta-btns">
+      <button type="button" class="btn go" id="lessonStart">Start the guided lesson</button>
+      <button type="button" class="lesson-exit" id="lessonRestart" hidden>Start again from step 1</button>
+    </div>
+  </div>
+
+  <section class="lesson" id="lesson" aria-label="Guided lesson">
+    <div class="lesson-top">
+      <span class="lesson-step" id="lStep">Step 1</span>
+      <span class="ltop-btns">
+        <button type="button" class="lesson-exit" id="lPause" hidden>Pause motion</button>
+        <button type="button" class="lesson-exit" id="lExit">Leave the lesson</button>
+      </span>
+    </div>
+    <div class="lesson-bar" aria-hidden="true"><span id="lBar"></span></div>
+    <div id="lBody"></div>
+  </section>
 
   <section class="controls">
     <div class="ctl">
@@ -361,10 +474,10 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       <p class="cap" id="mainCap"></p>
       <div class="canvas-box" id="mainBox"><canvas role="img" id="main" aria-label="Logarithm of the mean ionic activity coefficient against the square root of ionic strength, with three models over measured points"></canvas></div>
       <div class="modelkey">
-        <span class="key"><span class="swatch" style="background:var(--red)"></span>limiting law, no fitted parameter</span>
-        <span class="key"><span class="swatch" style="background:var(--blue)"></span>extended law, one fitted <em>a</em></span>
-        <span class="key"><span class="swatch" style="background:var(--teal)"></span>Davies, two fixed empirical constants</span>
-        <span class="key"><span class="dot" style="background:var(--ink); width:8px; height:8px"></span>measured, 298 K</span>
+        <span class="key" id="keyLL"><span class="swatch" style="background:var(--red)"></span>limiting law, no fitted parameter</span>
+        <span class="key" id="keyEX"><span class="swatch" style="background:var(--blue)"></span>extended law, one fitted <em>a</em></span>
+        <span class="key" id="keyDV"><span class="swatch" style="background:var(--teal)"></span>Davies, two fixed empirical constants</span>
+        <span class="key" id="keyPts"><span class="dot" style="background:var(--ink); width:8px; height:8px"></span>measured, 298 K</span>
       </div>
     </div>
 
@@ -549,6 +662,8 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
   // ---------- main chart ----------
   var mainCv = $("main");
   function drawMain(){
+    ["LL","EX","DV"].forEach(function(k){ var el = document.getElementById("key"+k); if(el) el.style.display = S[k] ? "" : "none"; });
+    document.getElementById("keyPts").style.display = (S.hidePts || !salt().m.length) ? "none" : "";
     var f = fit(mainCv), g = f.g, W = f.w, H = f.h;
     if(W < 60 || H < 60) return;
     var L = 76, R = 22, T = 14, Bm = 40;
@@ -575,16 +690,16 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       g.fillStyle = TH.muted; g.fillText(y.toFixed(2).replace("-","−").replace("−0.00","0.00"), L-8, yy);
     }
     g.textAlign="center"; g.textBaseline="top";
-    var xstep = xMax > 0.5 ? 0.2 : 0.1;
-    for(var x=0; x<=xMax+1e-9; x+=xstep){
-      var xx = X(x);
+    var xstep = xMax > 0.5 ? 0.2 : (xMax > 0.3 ? 0.1 : 0.05);
+    for(var xi=0; xi*xstep<=xMax+1e-9; xi++){
+      var x = xi*xstep, xx = X(x);
       g.strokeStyle = TH.grid; g.beginPath(); g.moveTo(xx,T); g.lineTo(xx,T+ph); g.stroke();
-      g.fillStyle = TH.muted; g.fillText(x.toFixed(1), xx, T+ph+7);
+      g.fillStyle = TH.muted; g.fillText(x.toFixed(xstep < 0.1 ? 2 : 1), xx, T+ph+7);
     }
 
     // where the limiting law is said to be reliable
     var xl = Math.sqrt(s.limit);
-    if(xl < xMax){
+    if(xl < xMax && !S.hidePts){
       g.fillStyle = "rgba(50,115,181,0.07)"; g.fillRect(L, T, X(xl)-L, ph);
       g.strokeStyle = TH.blue; g.setLineDash([3,4]); g.lineWidth = 1;
       g.beginPath(); g.moveTo(X(xl),T); g.lineTo(X(xl),T+ph); g.stroke(); g.setLineDash([]);
@@ -607,6 +722,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     // measured points
     g.fillStyle = TH.ink;
     d.forEach(function(p){
+      if(S.hidePts) return;
       var x = Math.sqrt(p.I);
       if(x > xMax) return;
       g.beginPath(); g.arc(X(x), Y(p.lg), 4.2, 0, 6.2832); g.fill();
@@ -621,7 +737,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       mono(g,10.5,500);
       tag(g, "probe", X(xp), T+ph-6, "center", "bottom", TH.muted, TH.panel);
     }
-    if(xl < xMax){
+    if(xl < xMax && !S.hidePts){
       mono(g,10.5,500);
       tag(g, "limiting law reliable to I " + (S.salt === "CaCl2" ? "≈ 0.003" : "= " + s.limit),
           X(xl)+5, T+6, "left", "top", TH.blue, TH.panel);
@@ -667,18 +783,20 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
 
     g.strokeStyle = TH.grid; g.lineWidth = 1;
     mono(g,10.5); g.textAlign="right"; g.textBaseline="middle";
-    [-lim*0.66, 0, lim*0.66].forEach(function(v){
+    var tk = [0.005,0.01,0.02,0.05,0.1,0.2,0.5,1].filter(function(t){ return t <= lim*0.9; }).pop() || 0.005;
+    [-tk, 0, tk].forEach(function(v){
       var y = Y(v);
       g.beginPath(); g.moveTo(L,y); g.lineTo(L+pw,y); g.stroke();
-      g.fillStyle = TH.muted; g.fillText(v.toFixed(2).replace("-","−").replace("−0.00","0.00"), L-7, y);
+      g.fillStyle = TH.muted; g.fillText(v === 0 ? "0" : v.toFixed(tk < 0.01 ? 3 : 2).replace("-","−"), L-7, y);
     });
     g.strokeStyle = TH["ink-2"]; g.lineWidth = 1.4;
     g.beginPath(); g.moveTo(L,Y(0)); g.lineTo(L+pw,Y(0)); g.stroke();
 
     g.textAlign="center"; g.textBaseline="top";
-    var xstep = xMax > 0.5 ? 0.2 : 0.1;
-    for(var x=0; x<=xMax+1e-9; x+=xstep){
-      g.fillStyle = TH.muted; g.fillText(x.toFixed(1), X(x), T+ph+6);
+    var xstep = xMax > 0.5 ? 0.2 : (xMax > 0.3 ? 0.1 : 0.05);
+    for(var xi=0; xi*xstep<=xMax+1e-9; xi++){
+      var x = xi*xstep;
+      g.fillStyle = TH.muted; g.fillText(x.toFixed(xstep < 0.1 ? 2 : 1), X(x), T+ph+6);
     }
 
     function series(fn, colour, on){
@@ -734,13 +852,13 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
 
     var onPoint = dataPoints().some(function(p){ return Math.abs(p.I - I) < 1e-9*Math.max(1,I); });
     $("tblCap").innerHTML = !s.m.length
-      ? "At I = " + sig3(I) + ", a molality of " + sig3(I/s.Ifac) + " mol kg<sup>&minus;1</sup> for " + s.html + ". The coursebook gives no measured points for " + s.html + " at present, so there is nothing to compare against."
+      ? "At <em>I</em> = " + sig3(I) + ", a molality of " + sig3(I/s.Ifac) + " mol kg<sup>&minus;1</sup> for " + s.html + ". The coursebook gives no measured points for " + s.html + " at present, so there is nothing to compare against."
       : meas === null
-      ? "At I = " + sig3(I) + ", which is outside the range of the measured points for " + s.html + ", so there is nothing to compare against."
-      : "At I = " + sig3(I) + ", which for " + s.html + " is a molality of " + sig3(I/s.Ifac) + " mol kg<sup>&minus;1</sup>. " +
+      ? "At <em>I</em> = " + sig3(I) + ", which is outside the range of the measured points for " + s.html + ", so there is nothing to compare against."
+      : "At <em>I</em> = " + sig3(I) + ", which for " + s.html + " is a molality of " + sig3(I/s.Ifac) + " mol kg<sup>&minus;1</sup>. " +
         (onPoint ? "This is a measured point." : "The measured value is interpolated between neighbouring points.");
 
-    $("mainCap").innerHTML = (s.m.length ? "Measured points for " : "Models only for ") + s.html + ", a " + s.nu + " electrolyte, so |z<sub>+</sub>z<sub>&minus;</sub>| = " + s.zz +
+    $("mainCap").innerHTML = (s.m.length && !S.hidePts ? "Measured points for " : "Models only for ") + s.html + ", a " + s.nu + " electrolyte, so |<em>z</em><sub>+</sub><em>z</em><sub>&minus;</sub>| = " + s.zz +
       (s.zz === 1 ? ". This is the reference case every other charge type is compared against."
                   : " and every model is " + s.zz + " times as steep as for a 1:1 salt.");
 
@@ -812,6 +930,357 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
   window.addEventListener("resize", function(){ drawMain(); drawRes(); });
   if(document.fonts && document.fonts.ready) document.fonts.ready.then(paint);
   sync();
+
+  // ===================== guided lesson (shared engine) =====================
+  // Predict, then reveal. Each step puts the demo into a stated condition, asks one
+  // multiple-choice question (one attempt, so the final score is honest), hides any
+  // readout that would give the answer away, and only after the student commits moves
+  // the demo to the new condition and explains. The page-specific part is the object
+  // passed in: its steps, which readouts to show beside the question, and apply(),
+  // which sets the demo through its own internals so that values are exact.
+  function lessonEngine(C){
+    var $l = function(id){ return document.getElementById(id); };
+    var root = document.documentElement;
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var lessonEl = $l("lesson"), lBody = $l("lBody"), cta = $l("lessonCta");
+    var anchor = document.querySelector(C.anchor || ".stage .card");
+    anchor.appendChild(lessonEl);                     // the lesson sits under the picture it is about
+    // the picture to scroll back to; a page whose picture changes with its mode passes a function
+    // a step can name its own picture when its answer is on a chart rather than the main view
+    function picture(){
+      var st = C.steps[LS.i], pc = (st && st.picture) || C.picture;
+      return typeof pc === "function" ? pc() : (pc ? document.querySelector(pc) : anchor);
+    }
+    var N = C.steps.length;
+    var LS = {i:0, answered:[], score:0};
+
+    function veil(ids, step){
+      (C.veilable || []).forEach(function(id){
+        var el = $l(id); if(!el) return;
+        var on = ids.indexOf(id) >= 0, box = el.closest(".ro") || el.parentNode;
+        box.classList.toggle("veiled", on);
+        [].forEach.call(box.querySelectorAll(".v,.n"), function(x){
+          if(on) x.setAttribute("aria-hidden", "true"); else x.removeAttribute("aria-hidden");
+        });
+      });
+      // hide: what the picture holds back while the question is open; hideAfter: what stays
+      // hidden once it is answered (for a later step that asks about the same thing)
+      root.classList.toggle("l-answered", !!(step && LS.answered[LS.i]));
+      if(C.onVeil) C.onVeil(step ? (LS.answered[LS.i] ? (step.hideAfter || 0) : (step.hide || 0)) : 0);
+    }
+    function chips(s, done){
+      var keys = (done && s.show2) ? s.show2 : (s.show || []), vs = done ? (s.veilAfter || []) : (s.veil || []);
+      if(!keys.length) return "";
+      return "<div class=\"lchips\" id=\"lChips\">" + keys.map(function(k){
+        // a chip reads a readout by its id, or calls a function for values the page has no readout for
+        var c = C.chips[k], v = typeof c[0] === "function" ? c[0]() : (($l(c[0]) || {}).textContent || "").trim();
+        var hid = vs.indexOf(k) >= 0 || (typeof c[0] === "string" && vs.indexOf(c[0]) >= 0);
+        return "<span class=\"chip" + (hid ? " veiled" : "") + "\"><span>" + c[1] + "</span>" +
+          (hid ? "<b aria-hidden=\"true\">" + v + c[2] + "</b><span class=\"sr\">hidden until you answer</span>"
+               : "<b>" + v + c[2] + "</b>") + "</span>";
+      }).join("") + "</div>";
+    }
+    // the line that says what the demo is showing; it is told the step, so it can hold back a value
+    function nowText(){ var s = C.steps[LS.i]; return C.now(s, !!LS.answered[LS.i]); }
+    function nowLine(){ return C.now ? "<p class=\"lnow\" id=\"lNow\">" + nowText() + "</p>" : ""; }
+    function scrollTo(el){ if(el && el.scrollIntoView) el.scrollIntoView({block:"start", behavior: reduce ? "auto" : "smooth"}); }
+
+    function render(focusWhat){
+      $l("lBar").style.width = (100*LS.i/N) + "%";
+      if(LS.i >= N) return summary();
+      var s = C.steps[LS.i], done = LS.answered[LS.i];
+      $l("lStep").textContent = "Step " + (LS.i+1) + " of " + N;
+      var h = "<h3 tabindex=\"-1\" id=\"lTitle\">" + s.title + "</h3><p class=\"ltext\">" + s.text + "</p>" + nowLine() +
+        "<p class=\"lq\" id=\"lQ\">" + s.q + "</p><div class=\"lopts\" role=\"group\" aria-labelledby=\"lQ\">";
+      s.opts.forEach(function(o, k){
+        var cls = "lopt", mk = String.fromCharCode(65+k), sr = "";
+        if(done){
+          if(o.ok){ cls += " right"; mk = "✓"; sr = done.pick === k ? " (your answer, correct)" : " (correct answer)"; }
+          else if(done.pick === k){ cls += " wrong"; mk = "✗"; sr = " (your answer)"; }
+          else cls += " dim";
+        }
+        h += "<button type=\"button\" class=\"" + cls + "\" data-k=\"" + k + "\"" + (done ? " aria-disabled=\"true\"" : "") +
+             "><span class=\"mk\" aria-hidden=\"true\">" + mk + "</span><span>" + o.t + "<span class=\"sr\">" + sr + "</span></span></button>";
+      });
+      h += "</div>" + chips(s, done) + "<div class=\"lfb\" id=\"lFb\" aria-live=\"polite\">";
+      if(done){
+        var picked = s.opts[done.pick], right = s.opts.filter(function(o){ return o.ok; })[0];
+        h += "<span class=\"verdict " + (picked.ok ? "ok" : "no") + "\" tabindex=\"-1\" id=\"lVerdict\">" + (picked.ok ? "Right." : "Not quite.") + "</span>" +
+             picked.why + (picked.ok ? "" : "<span class=\"ans\">The right answer was: <b>" + right.t + "</b>. " + right.why + "</span>") +
+             "<span class=\"more\">" + s.more + "</span>" +
+             (s.after || s.hide || s.veil ? "<button type=\"button\" class=\"lsee\" id=\"lSee\">See it in the demo &uarr;</button>" : "") +
+             (C.replay && s.after && s.after.run ? "<button type=\"button\" class=\"lsee\" id=\"lAgainRun\">Run it again</button>" : "");
+      }
+      h += "</div><div class=\"lnav\">" +
+        (LS.i > 0 ? "<button type=\"button\" class=\"btn\" id=\"lBack\">Back</button>" : "") +
+        "<button type=\"button\" class=\"btn go\" id=\"lNext\"" + (done ? "" : " disabled") + ">" + (LS.i === N-1 ? "Finish" : "Continue") + "</button>" +
+        (done ? "" : "<span class=\"lhint\">Choose an answer to continue</span>") + "</div>";
+      lBody.innerHTML = h;
+      [].forEach.call(lBody.querySelectorAll(".lopt"), function(b){
+        b.addEventListener("click", function(){ if(!LS.answered[LS.i]) answer(+b.dataset.k); });
+      });
+      if($l("lBack")) $l("lBack").addEventListener("click", function(){ LS.i--; go(); });
+      $l("lNext").addEventListener("click", function(){ LS.i++; go(); });
+      if($l("lAgainRun")) $l("lAgainRun").addEventListener("click", function(){ C.replay(s); pollChips(s); });
+      if($l("lSee")) $l("lSee").addEventListener("click", function(){
+        var pic = picture(); if(!pic) return;
+        if(!pic.hasAttribute("tabindex")) pic.setAttribute("tabindex", "-1");
+        scrollTo(pic); pic.focus({preventScroll:true});
+      });
+      var f = focusWhat === "verdict" ? $l("lVerdict") : (focusWhat === "title" ? $l("lTitle") : null);
+      if(f) f.focus({preventScroll: focusWhat === "title"});
+    }
+    function refreshChips(){
+      var s = C.steps[LS.i], el = $l("lChips");
+      if(!s || !el) return;
+      var tmp = document.createElement("div"); tmp.innerHTML = chips(s, LS.answered[LS.i]);
+      el.parentNode.replaceChild(tmp.firstChild, el);
+      if(C.now && $l("lNow")) $l("lNow").innerHTML = nowText();
+    }
+    function answer(k){
+      var s = C.steps[LS.i];
+      LS.answered[LS.i] = {pick:k};
+      if(s.opts[k].ok) LS.score++;
+      if(s.after) C.apply(s.after, "after", s);
+      veil(s.veilAfter || [], s);
+      render("verdict");
+      pollChips(s);
+    }
+    // values that change over time (a race, a simulation) are read again until they settle; a page
+    // whose runs go at the display's frame rate says through busy() whether one is still going
+    function pollChips(s){
+      var at = LS.i, t0 = Date.now(), until = Math.max(1600, s.settle || 0);
+      clearInterval(LS.timer);
+      LS.timer = setInterval(function(){
+        var el = Date.now() - t0;
+        if(LS.i !== at || !LS.answered[at] || el > 180000 || (el > until + 50 && !(C.busy && C.busy()))){
+          clearInterval(LS.timer); refreshChips(); return;
+        }
+        refreshChips();
+      }, 500);
+    }
+    function go(auto){
+      var s = C.steps[LS.i];
+      if(s){
+        C.apply(s.setup, "setup", s);
+        if(LS.answered[LS.i]){ if(s.after) C.apply(s.after, "after", s); veil(s.veilAfter || [], s); }
+        else veil(s.veil || [], s);
+      }
+      clearInterval(LS.timer);
+      render(auto ? null : "title");
+      syncPause();
+      // on entry, go to the step's own picture only if it is on show (a held-back chart is not)
+      if(!auto){
+        var pc = picture();
+        if(!pc || !pc.getClientRects().length || getComputedStyle(pc).visibility === "hidden") pc = (typeof C.picture === "string" && document.querySelector(C.picture)) || anchor;
+        scrollTo(pc);
+      }
+    }
+    function summary(){
+      $l("lStep").textContent = "Lesson complete";
+      veil([], null);
+      lBody.innerHTML = "<div class=\"lsum\"><h3 tabindex=\"-1\" id=\"lTitle\">What you have seen</h3>" +
+        "<p class=\"lscore\">You predicted <b>" + LS.score + " of " + N + "</b> correctly at the first attempt.</p><ul>" +
+        C.summary.points.map(function(p){ return "<li>" + p + "</li>"; }).join("") + "</ul>" +
+        "<p class=\"ltext\">" + C.summary.next + "</p>" +
+        "<div class=\"lnav\"><button type=\"button\" class=\"btn go\" id=\"lFree\">Explore freely</button>" +
+        "<button type=\"button\" class=\"btn\" id=\"lAgain\">Start again</button></div></div>";
+      $l("lFree").addEventListener("click", function(){ leave(); });
+      $l("lAgain").addEventListener("click", function(){ start(true); });
+      $l("lTitle").focus({preventScroll:true});
+    }
+    function updateCta(){
+      var n = LS.answered.filter(Boolean).length;
+      var resume = n > 0 && LS.i < N;
+      $l("lessonStart").textContent = resume ? "Resume the guided lesson (step " + (LS.i+1) + ")" : "Start the guided lesson";
+      $l("lessonRestart").hidden = !resume;
+    }
+    function leave(){
+      clearInterval(LS.timer);
+      root.classList.remove("lesson-on");
+      veil([], null);
+      if(C.onLeave) C.onLeave();
+      updateCta();
+      $l("lessonStart").focus({preventScroll:true});
+    }
+    function start(fresh, auto){
+      if(fresh || LS.i >= N){ LS.i = 0; LS.answered = []; LS.score = 0; }
+      root.classList.add("lesson-on");
+      go(auto);
+    }
+    $l("lessonStart").addEventListener("click", function(){ start(false); });
+    $l("lessonRestart").addEventListener("click", function(){ start(true); });
+    $l("lExit").addEventListener("click", leave);
+    // a link ending in #lesson opens the page straight into the lesson, without scrolling
+    // a Canvas page that holds it in an iframe
+    if(location.hash === "#lesson") setTimeout(function(){ start(true, true); }, 0);
+    // a pause control for the moving picture, since the demo's own controls are hidden
+    // sliders announce the value the page prints beside them (with its unit), not the raw slider number
+    [].forEach.call(document.querySelectorAll("input[type=range]"), function(r){
+      var box = r.closest(".ctl");
+      var lab = (r.id && document.querySelector("label[for=\"" + r.id + "\"] .val")) ||
+                (box && box.querySelectorAll("input[type=range]").length === 1 ? box.querySelector(".val") : null);
+      if(!lab) return;
+      var set = function(){ r.setAttribute("aria-valuetext", lab.textContent.replace(/\s+/g, " ").trim()); };
+      set(); new MutationObserver(set).observe(lab, {childList:true, characterData:true, subtree:true});
+    });
+    // (a fixed label with aria-pressed, so a screen reader hears the state, not a new name)
+    var mv = C.motion ? $l(C.motion) : null, pz = $l("lPause");
+    function syncPause(){ if(mv && pz) pz.setAttribute("aria-pressed", String(!mv.checked)); }
+    if(mv && pz){
+      pz.hidden = false;
+      pz.addEventListener("click", function(){ mv.checked = !mv.checked; mv.dispatchEvent(new Event("change", {bubbles:true})); syncPause(); });
+      mv.addEventListener("change", syncPause);
+      // the demo's Reset sets the box back without firing change, so check again after any click on the page
+      document.addEventListener("click", function(){ setTimeout(syncPause, 0); });
+      syncPause();
+    }
+  }
+
+  // ---------- L6.1 lesson ----------
+  function lessonApply(cfg, phase){
+    var o = {};
+    if(phase === "setup"){ Object.keys(DEF).forEach(function(k){ o[k] = DEF[k]; }); }
+    if(cfg.salt) o.salt = cfg.salt;
+    if(cfg.I){ o.probe = sliderForI(cfg.I); o.probeI = cfg.I; }
+    else if(phase !== "setup") o.probeI = S.probeI;          // keep the exact probe, not the slider's rounded one
+    if(cfg.xmax) o.xmax = cfg.xmax;
+    if(cfg.a) o.a = cfg.a;
+    if(cfg.only){ o.LL = cfg.only.indexOf("LL") >= 0; o.EX = cfg.only.indexOf("EX") >= 0; o.DV = cfg.only.indexOf("DV") >= 0; }
+    apply(o);
+    if(cfg.fit){ S.a = bestA(); $("asize").value = S.a; sync(); }
+  }
+  function g3(lg){ return Math.pow(10, lg).toFixed(3); }
+  lessonEngine({
+    picture: "#mainBox",
+    chips: {
+      I: [function(){ return sig3(probeI()); }, "<em>I</em>", ""],
+      m: [function(){ return sig3(probeI()/salt().Ifac) + " mol kg⁻¹"; }, "molality", ""],
+      LL: [function(){ return g3(LL(probeI(), salt().zz)); }, "limiting law γ<sub>±</sub>", ""],
+      meas: [function(){ var v = measuredAt(probeI()); return v === null ? "none" : g3(v); }, "measured γ<sub>±</sub>", ""],
+      a: [function(){ return num(aNm(),2) + " nm"; }, "<em>a</em>", ""],
+      DV: [function(){ return g3(DV(probeI(), salt().zz)); }, "Davies γ<sub>±</sub>", ""]
+    },
+    apply: lessonApply,
+    onVeil: function(level){
+      S.hidePts = level >= 1;
+      document.documentElement.classList.toggle("veil-charts", level >= 1);
+      paint();                          // the caption follows the veil too, not only the charts
+    },
+    now: function(s, done){
+      // a step that asks for I itself shows only the molality until it is answered
+      if(s && s.hideI && !done) return "Showing <b>" + salt().html + "</b> (" + salt().nu + ") at 298 K, probed at a molality of " + sig3(probeI()/salt().Ifac) + " mol kg<sup>&minus;1</sup>.";
+      return "Showing <b>" + salt().html + "</b> (" + salt().nu + ") at 298 K, probed at <em>I</em> = <b>" + sig3(probeI()) + "</b>, a molality of " + sig3(probeI()/salt().Ifac) + " mol kg<sup>&minus;1</sup>.";
+    },
+    steps: [
+    { title:"The limiting law at work",
+      setup:{salt:"KCl", I:0.001, xmax:20, only:"none"}, show:["I"], hide:1, after:{only:"LL"},
+      text:"The limiting law, eqn 6.7, is log<sub>10</sub>γ<sub>±</sub> = &minus;<em>A</em>|<em>z</em><sub>+</sub><em>z</em><sub>&minus;</sub>|<em>I</em><sup>1/2</sup>, with <em>A</em> = 0.509 for water at 298 K. This is Self-test 6.2: KCl at 1.0 × 10<sup>&minus;3</sup> mol kg<sup>&minus;1</sup>, so <em>I</em> = 0.0010.",
+      q:"What does the limiting law predict for γ<sub>±</sub>?",
+      opts:[
+        {t:"0.999", why:"That forgets the square root: <em>I</em><sup>1/2</sup> = 0.0316, not 0.0010."},
+        {t:"0.984", why:"That uses e instead of 10: the law gives log<sub>10</sub>γ<sub>±</sub>, not ln γ<sub>±</sub>."},
+        {t:"0.964", ok:true, why:"log<sub>10</sub>γ<sub>±</sub> = &minus;(0.509)(1)(0.0316) = &minus;0.0161, so γ<sub>±</sub> = 0.964."},
+        {t:"0.929", why:"That doubles the slope, as if |<em>z</em><sub>+</sub><em>z</em><sub>&minus;</sub>| were 2. For KCl it is 1."}
+      ],
+      show2:["I","LL","meas"],
+      more:"The measured value is 0.965. With nothing fitted, the law is right to about a tenth of a per cent at this ionic strength." },
+
+    { title:"Doubly charged",
+      setup:{salt:"CaCl2", I:0.003, xmax:30, only:"none"}, show:[], hide:1, hideI:true, after:{only:"LL"},
+      text:"This is Example 6.2: CaCl<sub>2</sub> at 1.0 × 10<sup>&minus;3</sup> mol kg<sup>&minus;1</sup>. For CaCl<sub>2</sub>, |<em>z</em><sub>+</sub><em>z</em><sub>&minus;</sub>| = 2 and <em>I</em> = 3<em>m</em>/<em>m</em><sup>⊖</sup>.",
+      q:"What does the limiting law predict for γ<sub>±</sub>?",
+      opts:[
+        {t:"0.964", why:"That is the value for KCl at the same molality. Both the charge product and the ionic strength are larger here."},
+        {t:"0.938", why:"That uses <em>I</em> = 0.0030 but leaves |<em>z</em><sub>+</sub><em>z</em><sub>&minus;</sub>| at 1."},
+        {t:"0.929", why:"That uses |<em>z</em><sub>+</sub><em>z</em><sub>&minus;</sub>| = 2 but takes <em>I</em> as the molality, 0.0010, instead of 0.0030."},
+        {t:"0.880", ok:true, why:"log<sub>10</sub>γ<sub>±</sub> = &minus;(0.509)(2)(0.0030)<sup>1/2</sup> = &minus;0.0558, so γ<sub>±</sub> = 0.880."}
+      ],
+      show2:["I","LL","meas"],
+      more:"The measured value is 0.888. The law is still within the scatter of the measurements here, but only just, and at the same molality KCl is at 0.965: the doubly charged salt is already well away from ideal." },
+
+    { title:"Where the law reaches γ± = 0.50",
+      setup:{salt:"CaCl2", I:0.003, xmax:40, only:"none"}, show:[], hide:1, hideAfter:1,
+      text:"This is the first half of the Predict first task in the book's box for this demo. Use eqn 6.7 for CaCl<sub>2</sub>, with |<em>z</em><sub>+</sub><em>z</em><sub>&minus;</sub>| = 2 and <em>I</em> = 3<em>m</em>/<em>m</em><sup>⊖</sup>.",
+      q:"At what molality does the limiting law predict γ<sub>±</sub> = 0.50?",
+      opts:[
+        {t:"0.029 mol kg<sup>&minus;1</sup>", ok:true, why:"log<sub>10</sub>0.50 = &minus;0.301 = &minus;(0.509)(2)<em>I</em><sup>1/2</sup>, so <em>I</em><sup>1/2</sup> = 0.296, <em>I</em> = 0.087, and <em>m</em> = <em>I</em>/3 = 0.029 mol kg<sup>&minus;1</sup>."},
+        {t:"0.087 mol kg<sup>&minus;1</sup>", why:"0.087 is the ionic strength. For CaCl<sub>2</sub> the molality is a third of it."},
+        {t:"0.30 mol kg<sup>&minus;1</sup>", why:"0.30 is roughly <em>I</em><sup>1/2</sup>. Square it to get <em>I</em>, then divide by three."},
+        {t:"0.0097 mol kg<sup>&minus;1</sup>", why:"That divides <em>I</em> by nine. The factor of three in <em>I</em> = 3<em>m</em>/<em>m</em><sup>⊖</sup> already includes the squared charge."}
+      ],
+      after:{I:0.0874, only:"LL"}, show2:["I","m","LL"],
+      more:"The probe is now at <em>I</em> = 0.087. The next step asks what the measurements say there." },
+
+    { title:"Theory against measurement",
+      setup:{salt:"CaCl2", I:0.0874, xmax:40, only:"LL"}, show:["I","LL"], hide:1,
+      text:"The limiting law predicts γ<sub>±</sub> = 0.50 for CaCl<sub>2</sub> at 0.029 mol kg<sup>&minus;1</sup>. This is the second half of the Predict first task.",
+      q:"Is the measured value higher or lower than 0.50?",
+      opts:[
+        {t:"Higher, about 0.63", ok:true, why:"Interpolating the measured points gives about 0.63, and Staples and Nuttall give 0.626 at 0.030 mol kg<sup>&minus;1</sup>."},
+        {t:"Lower, about 0.40", why:"The limiting law overstates how far a real solution is from ideal; every point in Fig. 6.1 lies above its line."},
+        {t:"Almost exactly 0.50", why:"At <em>I</em> = 0.087 a 2:1 salt is far beyond the range of the limiting law, which ends at about <em>I</em> = 0.003 for CaCl<sub>2</sub>."}
+      ],
+      show2:["I","LL","meas"],
+      more:"The measured points and the residual panel are back. The limiting law overstates the departure from ideality, as it does for all the points in Fig. 6.1." },
+
+    { title:"How far does the limiting law reach?",
+      setup:{salt:"KCl", I:0.1, xmax:40, only:"LL"}, show:[], hide:1,
+      text:"Now KCl again, over a wider range. In the residual panel, which appears when you answer, the narrow band is roughly the scatter of the measurements, ±0.005 in log<sub>10</sub>γ<sub>±</sub>.",
+      q:"Up to roughly what ionic strength does the limiting law follow KCl within that scatter?",
+      opts:[
+        {t:"<em>I</em> ≈ 0.001", why:"It does better than that: at 0.001 the law is right to a tenth of a per cent."},
+        {t:"<em>I</em> ≈ 0.01", ok:true, why:"The residual leaves the narrow band at about <em>I</em><sup>1/2</sup> ≈ 0.1, that is <em>I</em> ≈ 0.01, which is the range the book gives for a 1:1 electrolyte."},
+        {t:"<em>I</em> ≈ 0.1", why:"By 0.1 the law is low by about 0.05 in log<sub>10</sub>γ<sub>±</sub>, roughly 10 per cent in γ<sub>±</sub>."},
+        {t:"<em>I</em> ≈ 1", why:"At <em>I</em> = 1 the law gives γ<sub>±</sub> = 0.31 for KCl, roughly half the measured value. It is well out long before that."}
+      ],
+      more:"Beyond about <em>I</em> = 0.01 the ions come close enough for their size to matter, which is what the extended law repairs (Section 6.3.6)." },
+
+    { title:"Higher charges, shorter range",
+      setup:{salt:"CaCl2", I:0.03, xmax:40, only:"LL"}, show:[], hide:1,
+      text:"Switch to CaCl<sub>2</sub> and ask the same question.",
+      q:"Compared with KCl, where does the limiting law stop working for CaCl<sub>2</sub>?",
+      opts:[
+        {t:"At a lower ionic strength", ok:true, why:"For CaCl<sub>2</sub> it agrees closely only at the lowest point plotted, <em>I</em> = 0.003, and has departed appreciably by <em>I</em> = 0.015."},
+        {t:"At the same ionic strength, because <em>I</em> already allows for the charges", why:"<em>I</em> does weight each ion by <em>z</em><sup>2</sup>, but the slope of the law also grows with |<em>z</em><sub>+</sub><em>z</em><sub>&minus;</sub>|, and the ion-ion interactions are stronger."},
+        {t:"At a higher ionic strength", why:"Higher charges make the interactions stronger, so the approximations fail sooner, not later."}
+      ],
+      more:"The higher the charges, the lower the ionic strength at which experiment leaves the theory. For a 2:2 salt the range shrinks to about <em>I</em> = 0.001." },
+
+    { title:"One fitted parameter",
+      setup:{salt:"KCl", I:0.1, xmax:80, only:"LL EX"}, show:[], hide:1,
+      text:"The extended law, eqn 6.8, divides by 1 + <em>Ba</em><em>I</em><sup>1/2</sup>, where <em>a</em> is an ion-size parameter that has to be fitted to the data. When you answer, the demo will fit <em>a</em> to the KCl points.",
+      q:"What value of <em>a</em> do you expect the fit to give?",
+      opts:[
+        {t:"About 0.2 nm", why:"That is closer than K⁺ and Cl⁻ can come, since their radii alone add up to about 0.32 nm. <em>a</em> is roughly the closest approach of two ions."},
+        {t:"About 0.4 nm", ok:true, why:"The fit gives 0.40 nm, close to the typical 0.3 nm and about the distance between two ions in contact."},
+        {t:"About 0.8 nm", why:"That would hold the centres of the two ions 0.8 nm apart, leaving room for nearly two water molecules between them, far wider than the contact distance that <em>a</em> stands for."}
+      ],
+      after:{fit:true}, show2:["a"],
+      more:"The fitted <em>a</em> is a plausible size, but it is a fitted number with no independent measurement behind it. That is the price of the extra range." },
+
+    { title:"No parameter at all",
+      setup:{salt:"KCl", I:0.1, xmax:80, only:"DV"}, show:["I"], hide:1,
+      text:"The Davies equation, eqn 6.9, replaces <em>I</em><sup>1/2</sup> by <em>I</em><sup>1/2</sup>/(1 + <em>I</em><sup>1/2</sup>) and adds an empirical term, &minus;0.30<em>I</em>, inside the bracket, so it has nothing to fit. When you answer, the probe will move to the limit the book quotes.",
+      q:"Up to roughly what ionic strength does Section 6.3.6 say the Davies equation works reasonably well?",
+      opts:[
+        {t:"<em>I</em> ≈ 0.01, like the limiting law", why:"The extra term is there to carry it much further than that."},
+        {t:"<em>I</em> ≈ 0.5", ok:true, why:"Section 6.3.6 says it works reasonably well up to about <em>I</em> = 0.5."},
+        {t:"<em>I</em> ≈ 5", why:"Nothing this simple reaches concentrated solutions, where hydration takes over (Section 6.4)."}
+      ],
+      after:{I:0.5}, show2:["I","DV","meas"],
+      more:"In the residual panel Davies leaves the ±0.02 band a little above <em>I</em> = 0.2, and by 0.5 it is about 13 per cent high in γ<sub>±</sub>. That is what reasonably well means in practice." }
+    ],
+    summary: {
+      points:[
+        "The limiting law, log<sub>10</sub>γ<sub>±</sub> = &minus;<em>A</em>|<em>z</em><sub>+</sub><em>z</em><sub>&minus;</sub>|<em>I</em><sup>1/2</sup>, needs no fitted parameter and is excellent in very dilute solution.",
+        "It fails at about <em>I</em> = 0.01 for a 1:1 salt and much sooner for higher charges, always overstating the departure from ideality.",
+        "The extended law buys range with a fitted ion size; the Davies equation with fixed empirical constants.",
+        "For CaCl<sub>2</sub>, <em>I</em> = 3<em>m</em>/<em>m</em><sup>⊖</sup>, and the slope is twice that of a 1:1 salt."
+      ],
+      next:"Now go back to the free explorer and probe the three models for each salt yourself."
+    }
+  });
 })();
 </script>
 </body>

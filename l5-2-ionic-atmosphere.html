@@ -384,7 +384,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
   <p class="point">Raise the ionic strength a hundredfold and the atmosphere shrinks only tenfold, because &lambda;<sub>D</sub> goes as <em>I</em><sup>&minus;1/2</sup>.</p>
 
   <div class="lesson-cta" id="lessonCta">
-    <p><b>Guided lesson.</b> Ten short questions on the ionic atmosphere, about ten minutes. Each step asks you to predict first, then shows you the answer in the demo.</p>
+    <p><b>Guided lesson.</b> Eleven short questions on the ionic atmosphere, about ten minutes. Each step asks you to predict first, then shows you the answer in the demo.</p>
     <div class="lcta-btns">
       <button type="button" class="btn go" id="lessonStart">Start the guided lesson</button>
       <button type="button" class="lesson-exit" id="lessonRestart" hidden>Start again from step 1</button>
@@ -674,7 +674,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       }
     }
     // species numbers: the stoichiometric share of cations, and enough anions for the box to hold qbox
-    var Nc = Math.round(N*tt.nc/(tt.nc+tt.na)), Na = N - Nc;
+    var Na = Math.max(0, Math.min(N, Math.round((N*tt.zc - qbox)/(tt.zc + tt.za)))), Nc = N - Na;
     if(N >= 10){
       Na = Math.max(0, Math.round((tt.zc*Nc - qbox)/tt.za));
       if(Nc + Na > POOLMAX){                   // a full pool: fewer cations, so the charge still comes out right
@@ -875,7 +875,8 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
                    : " The box follows λ<sub>D</sub>, and it holds fewer ions the more concentrated the solution, because λ<sub>D</sub>³ shrinks faster than the concentration grows.")
         : " Change the concentration and the count changes in proportion.");
     setHTML("cloudCap", head + tail +
-      " Each ion keeps its charge and moves in the central ion's screened potential, so on average a few more counter-ions than co-ions are found near the centre, spread through the depth of the box. Over the whole atmosphere that excess adds up to the central ion's charge with the opposite sign; the box holds the part of it that lies inside. They keep moving in and out: the dashed circle marks where the atmosphere's charge peaks, not a wall.");
+      " Each ion keeps its charge and moves in the central ion's screened potential, so on average a few more counter-ions than co-ions are found near the centre, spread through the depth of the box. Over the whole atmosphere that excess adds up to the central ion's charge with the opposite sign; the box holds the part of it that lies inside. They keep moving in and out: the dashed circle marks where the atmosphere's charge peaks, not a wall." +
+      (S.type === "22" ? " For a 2:2 salt the attraction at contact is several k<sub>B</sub>T, so a counter-ion often sits touching the central ion: an ion pair (Section 5.2.5), which the smooth Debye–Hückel atmosphere leaves out." : ""));
   }
 
   // ---------- phi(r) chart ----------
@@ -1291,7 +1292,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
         h += "<span class=\"verdict " + (picked.ok ? "ok" : "no") + "\" tabindex=\"-1\" id=\"lVerdict\">" + (picked.ok ? "Right." : "Not quite.") + "</span>" +
              picked.why + (picked.ok ? "" : "<span class=\"ans\">The right answer was: <b>" + right.t + "</b>. " + right.why + "</span>") +
              "<span class=\"more\">" + s.more + "</span>" +
-             (s.after || s.hide || s.veil ? "<button type=\"button\" class=\"lsee\" id=\"lSee\">See it in the demo &uarr;</button>" : "") +
+             (s.after || s.hide || s.veil ? "<button type=\"button\" class=\"lsee\" id=\"lSee\">See it in the demo <span id=\"lSeeArr\" aria-hidden=\"true\">&uarr;</span></button>" : "") +
              (C.replay && s.after && s.after.run ? "<button type=\"button\" class=\"lsee\" id=\"lAgainRun\">Run it again</button>" : "");
       }
       h += "</div><div class=\"lnav\">" +
@@ -1304,6 +1305,8 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       });
       if($l("lBack")) $l("lBack").addEventListener("click", function(){ LS.i--; go(); });
       $l("lNext").addEventListener("click", function(){ LS.i++; go(); });
+      // the arrow points to where the picture is: above the lesson card, or below it on a phone
+      if($l("lSeeArr")){ var pp = picture(); if(pp && pp.getClientRects().length) $l("lSeeArr").textContent = pp.getBoundingClientRect().top < lessonEl.getBoundingClientRect().top ? "\u2191" : "\u2193"; }
       if($l("lAgainRun")) $l("lAgainRun").addEventListener("click", function(){ C.replay(s); pollChips(s); });
       if($l("lSee")) $l("lSee").addEventListener("click", function(){
         var pic = picture(); if(!pic) return;
@@ -1396,7 +1399,13 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     $l("lExit").addEventListener("click", leave);
     // a link ending in #lesson opens the page straight into the lesson, without scrolling
     // a Canvas page that holds it in an iframe
-    if(location.hash === "#lesson") setTimeout(function(){ start(true, true); }, 0);
+    if(location.hash === "#lesson") setTimeout(function(){
+      start(true, true);
+      // the browser's own jump to #lesson leaves the picture above the screen; this scrolls this
+      // document only (inside a Canvas iframe the Canvas page itself does not move)
+      function toPic(){ var pc = picture(); if(pc && pc.getClientRects().length) window.scrollTo(0, pc.getBoundingClientRect().top + window.pageYOffset); }
+      if(document.readyState === "complete") setTimeout(toPic, 0); else window.addEventListener("load", function(){ setTimeout(toPic, 0); });
+    }, 0);
     // a pause control for the moving picture, since the demo's own controls are hidden
     // sliders announce the value the page prints beside them (with its unit), not the raw slider number
     [].forEach.call(document.querySelectorAll("input[type=range]"), function(r){
@@ -1478,7 +1487,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     steps: [
     { title:"The neighbours of one ion",
       setup:{c:0.01, type:"11", fov:"20"}, show:["I"], veil:["roL","roP"], hide:2,
-      text:"The red ion at the centre is a cation. Every other dot is a real ion of the same solution, in a view whose shorter side is 20 nm: red for cations, blue for anions. The picture is one moment; the ions move all the time.",
+      text:"The red ion at the centre is a cation. Every other dot is a real ion of the same solution, in a view whose shorter side is 20 nm: red for cations, blue for anions. The picture is one moment; the ions move all the time. The view is a box 20 nm deep seen from the front, so a dot that looks close to the centre may lie well in front of it or behind it.",
       q:"Close to the central cation, compared with far from it, what would you expect to find on average?",
       opts:[
         {t:"Slightly more anions than cations", ok:true, why:"The Boltzmann factor e<sup>&minus;<em>V</em>/<em>k</em><sub>B</sub><em>T</em></sup> makes an anion a little more likely, and a cation a little less likely, to be found near the central cation."},
@@ -1509,6 +1518,18 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
         {t:"It cannot cross the circle", why:"The circle is not a wall. It marks where the charge of the atmosphere peaks, and ions cross it freely."}
       ],
       more:"This is the fourth property of the atmosphere in Section 5.2.3. The atmosphere is a time average over ions that keep coming and going, and if something disturbs it, as an electric field does in Lecture 7, it takes a finite time to rebuild." },
+
+    { title:"What screening does to the potential",
+      setup:{c:0.01, type:"11", fov:"20"}, show:["L"], hide:1, picture:"#phi",
+      text:"Without an atmosphere the central ion's potential would fall as 1/<em>r</em>, Coulomb's law. With it, the potential is screened: φ ∝ e<sup>&minus;<em>r</em>/λ<sub>D</sub></sup>/<em>r</em>, the form Problem 5.7 asks you to sketch.",
+      q:"At a distance of one Debye length, how does the screened potential compare with the bare Coulomb potential?",
+      opts:[
+        {t:"The same: screening starts only beyond λ<sub>D</sub>", why:"The factor e<sup>&minus;<em>r</em>/λ<sub>D</sub></sup> lowers the potential at every distance; at λ<sub>D</sub> it is already down to 0.37."},
+        {t:"Half of it", why:"Half is reached at 0.69λ<sub>D</sub>, since e<sup>&minus;0.69</sup> = 0.50. At λ<sub>D</sub> the factor is e<sup>&minus;1</sup>."},
+        {t:"About 37 per cent of it", ok:true, why:"The ratio of the two is e<sup>&minus;<em>r</em>/λ<sub>D</sub></sup>, and e<sup>&minus;1</sup> = 0.37."},
+        {t:"Zero: the atmosphere cancels it", why:"The atmosphere's charge is spread out, so it cancels the central charge fully only far away."}
+      ],
+      more:"The potential chart now shows both curves. At 3λ<sub>D</sub> the factor is e<sup>&minus;3</sup> = 0.05, which is why electrostatic interactions in an electrolyte reach only a few Debye lengths." },
 
     { title:"A hundred times more salt",
       setup:{c:0.01, type:"11", fov:"20", pin:true}, show:["I","L","pin"], hide:1,
@@ -1541,7 +1562,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       q:"What is the ionic strength of 1.0 mmol dm<sup>&minus;3</sup> CaCl<sub>2</sub>?",
       opts:[
         {t:"1.0 × 10<sup>&minus;3</sup>", why:"That is the concentration of the salt. Putting it into eqn 5.8 is one of the commonest mistakes in this part of the course."},
-        {t:"2.0 × 10<sup>&minus;3</sup>", why:"That counts the two chloride ions but forgets that Ca<sup>2+</sup> enters with <em>z</em><sup>2</sup> = 4."},
+        {t:"2.0 × 10<sup>&minus;3</sup>", why:"That uses <em>z</em> instead of <em>z</em><sup>2</sup>: ½[(1.0)(2) + (2.0)(1)] × 10<sup>&minus;3</sup> = 2.0 × 10<sup>&minus;3</sup>. Each charge enters squared, so Ca<sup>2+</sup> counts four times."},
         {t:"3.0 × 10<sup>&minus;3</sup>", ok:true, why:"½[(1.0 × 10<sup>&minus;3</sup>)(2)<sup>2</sup> + (2.0 × 10<sup>&minus;3</sup>)(1)<sup>2</sup>] = ½(4.0 + 2.0) × 10<sup>&minus;3</sup> = 3.0 × 10<sup>&minus;3</sup>."},
         {t:"4.0 × 10<sup>&minus;3</sup>", why:"That is MgSO<sub>4</sub>, where both ions are doubly charged."}
       ],

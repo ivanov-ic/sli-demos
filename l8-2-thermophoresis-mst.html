@@ -402,7 +402,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
   <p class="point">Thermophoresis does not erase the temperature gradient. It builds a concentration gradient that opposes it, and the steady state between the two is what an instrument measures.</p>
 
   <div class="lesson-cta" id="lessonCta">
-    <p><b>Guided lesson.</b> Eight short questions on how a temperature gradient moves molecules, about ten minutes. Each step asks you to predict first, then shows you the answer in the demo.</p>
+    <p><b>Guided lesson.</b> Nine short questions on how a temperature gradient moves molecules, about ten minutes. Each step asks you to predict first, then shows you the answer in the demo.</p>
     <div class="lcta-btns">
       <button type="button" class="btn go" id="lessonStart">Start the guided lesson</button>
       <button type="button" class="lesson-exit" id="lessonRestart" hidden>Start again from step 1</button>
@@ -996,7 +996,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     if(S.mode === "titr"){
       var pts = titrationPoints(), Kfit = titrSignal() ? fitKd(pts) : null, f = boundFrac(ligNm(), kdNm());
       $("sideTitle").innerHTML = "The titration, and the <em>K</em><sub>d</sub> it gives";
-      $("sideCap").innerHTML = "Each point is the plateau depletion at one partner concentration. The curve is the fit, which takes the labelled molecule to be far more dilute than <em>K</em><sub>d</sub>, so the bound fraction is <em>L</em>/(<em>L</em> + <em>K</em><sub>d</sub>).";
+      $("sideCap").innerHTML = "Each point is the plateau depletion at one partner concentration. The curve is the fit, which takes the labelled molecule to be far more dilute than <em>K</em><sub>d</sub>, so the bound fraction is <em>L</em>/(<em>L</em> + <em>K</em><sub>d</sub>). The dashed red line marks the partner concentration now in the cell, set by the slider; the solid teal line is the fitted <em>K</em><sub>d</sub>.";
       $("cellCap").innerHTML = "At this partner concentration the labelled molecule is " + num(f*100,0) +
         " per cent bound, so its Soret coefficient is " + num(st,4) + " K<sup>&minus;1</sup>.";
       $("workK").textContent = "From a depletion to a dissociation constant";
@@ -1195,7 +1195,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
         h += "<span class=\"verdict " + (picked.ok ? "ok" : "no") + "\" tabindex=\"-1\" id=\"lVerdict\">" + (picked.ok ? "Right." : "Not quite.") + "</span>" +
              picked.why + (picked.ok ? "" : "<span class=\"ans\">The right answer was: <b>" + right.t + "</b>. " + right.why + "</span>") +
              "<span class=\"more\">" + s.more + "</span>" +
-             (s.after || s.hide || s.veil ? "<button type=\"button\" class=\"lsee\" id=\"lSee\">See it in the demo &uarr;</button>" : "") +
+             (s.after || s.hide || s.veil ? "<button type=\"button\" class=\"lsee\" id=\"lSee\">See it in the demo <span id=\"lSeeArr\" aria-hidden=\"true\">&uarr;</span></button>" : "") +
              (C.replay && s.after && s.after.run ? "<button type=\"button\" class=\"lsee\" id=\"lAgainRun\">Run it again</button>" : "");
       }
       h += "</div><div class=\"lnav\">" +
@@ -1208,6 +1208,8 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       });
       if($l("lBack")) $l("lBack").addEventListener("click", function(){ LS.i--; go(); });
       $l("lNext").addEventListener("click", function(){ LS.i++; go(); });
+      // the arrow points to where the picture is: above the lesson card, or below it on a phone
+      if($l("lSeeArr")){ var pp = picture(); if(pp && pp.getClientRects().length) $l("lSeeArr").textContent = pp.getBoundingClientRect().top < lessonEl.getBoundingClientRect().top ? "\u2191" : "\u2193"; }
       if($l("lAgainRun")) $l("lAgainRun").addEventListener("click", function(){ C.replay(s); pollChips(s); });
       if($l("lSee")) $l("lSee").addEventListener("click", function(){
         var pic = picture(); if(!pic) return;
@@ -1300,7 +1302,13 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     $l("lExit").addEventListener("click", leave);
     // a link ending in #lesson opens the page straight into the lesson, without scrolling
     // a Canvas page that holds it in an iframe
-    if(location.hash === "#lesson") setTimeout(function(){ start(true, true); }, 0);
+    if(location.hash === "#lesson") setTimeout(function(){
+      start(true, true);
+      // the browser's own jump to #lesson leaves the picture above the screen; this scrolls this
+      // document only (inside a Canvas iframe the Canvas page itself does not move)
+      function toPic(){ var pc = picture(); if(pc && pc.getClientRects().length) window.scrollTo(0, pc.getBoundingClientRect().top + window.pageYOffset); }
+      if(document.readyState === "complete") setTimeout(toPic, 0); else window.addEventListener("load", function(){ setTimeout(toPic, 0); });
+    }, 0);
     // a pause control for the moving picture, since the demo's own controls are hidden
     // sliders announce the value the page prints beside them (with its unit), not the raw slider number
     [].forEach.call(document.querySelectorAll("input[type=range]"), function(r){
@@ -1439,8 +1447,20 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       after:{D:30, run:true}, show2:["D","now","t"], settle:20000,
       more:"The warm spot settles at about 0.81, as it did at 110 µm<sup>2</sup> s<sup>&minus;1</sup>, but the run now takes about 100 s of simulated time instead of 30 s. Note that the trace's time axis stretches to match." },
 
+    { title:"What binding does to the signal",
+      setup:{mode:"titr"}, show:[], hide:1, picture:"#sideBox",
+      text:"In the titration the labelled molecule has <em>S</em><sub>T</sub> = 0.020 K<sup>&minus;1</sup> when free and 0.075 K<sup>&minus;1</sup> when bound to its partner, with Δ<em>T</em> = 5.0 K.",
+      q:"As partner is added and more of the labelled molecule is bound, what happens to the fluorescence <em>F</em>/<em>F</em><sub>0</sub> in the warm spot?",
+      opts:[
+        {t:"It rises, because the bound complex is larger and diffuses more slowly", why:"A smaller <em>D</em> only slows the approach. The steady state depends on <em>S</em><sub>T</sub>Δ<em>T</em> alone, as the slower solute showed."},
+        {t:"It stays at 1, because the total amount of labelled molecule is fixed", why:"The total is fixed, but how it is shared between warm and cold regions depends on <em>S</em><sub>T</sub>."},
+        {t:"It falls, from about 0.90 to about 0.69", ok:true, why:"e<sup>&minus;(0.020)(5.0)</sup> = 0.90 free and e<sup>&minus;(0.075)(5.0)</sup> = 0.69 bound. A larger <em>S</em><sub>T</sub> means deeper depletion, so less fluorescence in the warm spot."}
+      ],
+      after:{run:true}, settle:5000,
+      more:"Each point on the titration curve is this plateau at one partner concentration. The curve runs from 0.90 down towards 0.69, and where along the axis it falls gives <em>K</em><sub>d</sub>, which the next step takes up." },
+
     { title:"Measuring binding",
-      setup:{mode:"titr"}, show:[], hide:1,
+      setup:{mode:"titr"}, show:[], hide:1, picture:"#sideBox",
       text:"In microscale thermophoresis (Section 8.3.4) one partner carries a fluorescent label and is held at a low, fixed concentration while the other is titrated in. Binding changes <em>S</em><sub>T</sub>, so the depletion of the labelled molecule moves from its free value to its bound value.",
       q:"At what concentration of the added partner is half of the labelled molecule bound?",
       opts:[

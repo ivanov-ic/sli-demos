@@ -256,7 +256,8 @@
 <style>
   .stage{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr); align-items:start}
   #plotBox{height:min(54vh, 430px); flex:none}
-  #plot{cursor:grab; touch-action:none}
+  #plot{cursor:grab; touch-action:pan-y}
+  .grip{position:absolute; width:44px; touch-action:none; cursor:ns-resize; z-index:2}
   #plot.drag{cursor:grabbing}
   .col-right{grid-template-rows:auto auto}
   .saltrow{
@@ -424,7 +425,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
   <p class="point">A strong electrolyte lets you extrapolate. A weak one does not, and that is why the law of independent migration is needed rather than merely available.</p>
 
   <div class="lesson-cta" id="lessonCta">
-    <p><b>Guided lesson.</b> Eight short questions on finding limiting molar conductivities, about ten minutes. Each step asks you to predict first, then shows you the answer in the demo.</p>
+    <p><b>Guided lesson.</b> Nine short questions on finding limiting molar conductivities, about ten minutes. Each step asks you to predict first, then shows you the answer in the demo.</p>
     <div class="lcta-btns">
       <button type="button" class="btn go" id="lessonStart">Start the guided lesson</button>
       <button type="button" class="lesson-exit" id="lessonRestart" hidden>Start again from step 1</button>
@@ -484,11 +485,11 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     <div class="card" id="cardPlot">
       <h2 id="plotTitle">&Lambda;<sub>m</sub> against <em>c</em><sup>1/2</sup></h2>
       <p class="cap" id="plotCap"></p>
-      <div class="canvas-box" id="plotBox"><canvas role="img" id="plot" aria-label="Molar conductivity against the square root of concentration, with a line the user can drag"></canvas></div>
+      <div class="canvas-box" id="plotBox"><canvas role="img" id="plot" aria-label="Molar conductivity against the square root of concentration, with a line the user can drag"></canvas><div class="grip" id="gripL" aria-hidden="true"></div><div class="grip" id="gripR" aria-hidden="true"></div></div>
       <div class="legend">
         <span class="key"><span class="dot" style="background:var(--ink)"></span><span id="ptsKey">measured points</span></span>
         <span class="key" id="ostKey" hidden><span class="bar" style="border-color:var(--muted); border-top-style:dashed"></span>Ostwald law, <em>K</em><sub>a</sub> = 1.80 &times; 10<sup>&minus;5</sup></span>
-        <span class="key"><span class="bar" style="border-color:var(--red)"></span>your line</span>
+        <span class="key"><span class="bar" style="border-color:var(--red)"></span><span id="lineKey">your line</span></span>
         <span class="key"><span class="dot" style="background:var(--teal)"></span>the accepted limiting value</span>
       </div>
     </div>
@@ -693,6 +694,10 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     function X(x){ return L + x/XMAX*pw; }
     function Y(v){ return T + (1 - (v-yr[0])/(yr[1]-yr[0]))*ph; }
     geom = {L:L,T:T,pw:pw,ph:ph,X:X,Y:Y,yr:yr};
+    [["gripL", L], ["gripR", L+pw]].forEach(function(gp){
+      var el = document.getElementById(gp[0]);
+      el.style.left = (plotCv.offsetLeft + gp[1] - 22) + "px"; el.style.top = (plotCv.offsetTop + T) + "px"; el.style.height = ph + "px";
+    });
 
     g.fillStyle = TH.panel; g.fillRect(0,0,W,H);
     g.strokeStyle = TH.grid; g.lineWidth = 1;
@@ -785,7 +790,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     return Math.max(0, Math.min(1, (v-yr[0])/(yr[1]-yr[0])));
   }
   plotCv.addEventListener("pointerdown", function(ev){
-    if(!geom || S.mode === "build") return;
+    if(!geom || S.mode === "build" || ev.pointerType === "touch") return;   // touch drags go through the grips
     var p = pos(ev);
     var d0 = Math.abs(p.x - geom.L), d1 = Math.abs(p.x - (geom.L+geom.pw));
     dragging = (d0 <= d1) ? "inter" : "end";
@@ -799,6 +804,17 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       dragging = null; plotCv.classList.remove("drag");
       try{ plotCv.releasePointerCapture(ev.pointerId); }catch(e){}
     });
+  });
+  [["gripL","inter"],["gripR","end"]].forEach(function(gp){
+    var el = document.getElementById(gp[0]);
+    el.addEventListener("pointerdown", function(ev){
+      if(!geom || S.mode === "build") return;
+      dragging = gp[1]; el.setPointerCapture(ev.pointerId); plotCv.classList.add("drag"); onDrag(ev);
+    });
+    el.addEventListener("pointermove", function(ev){ if(dragging) onDrag(ev); });
+    ["pointerup","pointercancel"].forEach(function(t){ el.addEventListener(t, function(ev){
+      dragging = null; plotCv.classList.remove("drag"); try{ el.releasePointerCapture(ev.pointerId); }catch(e){}
+    }); });
   });
   function onDrag(ev){
     ev.preventDefault();
@@ -940,10 +956,11 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
 
     var s = series(), inter = interVal(), K = slopeK();
     var err = (inter - s.lam0)/s.lam0*100;
-    $("k1").textContent = "Your intercept"; $("v1").textContent = num(inter,1);
+    $("k1").textContent = S.fit ? "Best-line intercept" : "Your intercept"; $("v1").textContent = num(inter,1);
+    $("lineKey").textContent = S.fit ? "best line through the four lowest points" : "your line";
     $("k2").textContent = "Accepted value"; $("v2").textContent = num(s.lam0,1);
     $("k3").textContent = "Out by"; $("v3").textContent = ((err>0?"+":"") + num(err,1)).replace("-","−");
-    $("k4").innerHTML = "Your slope <em>K</em>"; var k0 = Math.round(K); $("v4").textContent = (k0 < 0 ? "−" : "") + Math.abs(k0);
+    $("k4").innerHTML = S.fit ? "Best-line slope <em>K</em>" : "Your slope <em>K</em>"; var k0 = Math.round(K); $("v4").textContent = (k0 < 0 ? "−" : "") + Math.abs(k0);
     $("n4").innerHTML = "S cm<sup>2</sup> mol<sup>&minus;1</sup> / (mol dm<sup>&minus;3</sup>)<sup>1/2</sup>";
 
     var v = $("verdict");
@@ -956,12 +973,12 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
         : a < 0.6 ? "That is the limiting molar conductivity of KCl to within a few tenths. The points really do lie on a line."
         : (a > 4 ? "Not yet. Line up the line with the points at small c first, then follow it back to the axis."
                  : "Close. The lowest few points are the ones that matter, since the law is exact only as c approaches zero.");
-      $("scoreTitle").textContent = "Where your line meets the axis";
+      $("scoreTitle").textContent = S.fit ? "Where the best line meets the axis" : "Where your line meets the axis";
       $("scoreCap").innerHTML = "Kohlrausch's law says &Lambda;<sub>m</sub> = &Lambda;&deg;<sub>m</sub> &minus; <em>Kc</em><sup>1/2</sup>, so a straight line through the points hits the axis at the limiting value.";
       $("plotTitle").innerHTML = "KCl: &Lambda;<sub>m</sub> against <em>c</em><sup>1/2</sup>";
       $("plotCap").innerHTML = "Seven measurements on aqueous KCl at 298 K. The point at 0.01 mol dm<sup>&minus;3</sup> is the 141.3 of Example 7.1.";
       $("workK").textContent = "Reading the line";
-      $("eq1").textContent = "Λm = Λ°m − K c¹ᐟ²   with your line:  Λm = " + num(inter,1) + (Math.round(K) >= 0 ? " − " : " + ") + Math.abs(Math.round(K)) + " c¹ᐟ²";
+      $("eq1").textContent = "Λm = Λ°m − K c¹ᐟ²   with " + (S.fit ? "the best line" : "your line") + ":  Λm = " + num(inter,1) + (Math.round(K) >= 0 ? " − " : " + ") + Math.abs(Math.round(K)) + " c¹ᐟ²";
       $("eq2").textContent = "accepted Λ°m(KCl) = 149.8 S cm² mol⁻¹ = 1.498 × 10⁻² S m² mol⁻¹";
       $("eqNote").textContent = "At 0.01 mol dm⁻³ the measured value is already 6 per cent below the limit, which is where the three retardation effects of Section 7.5 show up.";
     } else {
@@ -1118,7 +1135,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
         h += "<span class=\"verdict " + (picked.ok ? "ok" : "no") + "\" tabindex=\"-1\" id=\"lVerdict\">" + (picked.ok ? "Right." : "Not quite.") + "</span>" +
              picked.why + (picked.ok ? "" : "<span class=\"ans\">The right answer was: <b>" + right.t + "</b>. " + right.why + "</span>") +
              "<span class=\"more\">" + s.more + "</span>" +
-             (s.after || s.hide || s.veil ? "<button type=\"button\" class=\"lsee\" id=\"lSee\">See it in the demo &uarr;</button>" : "") +
+             (s.after || s.hide || s.veil ? "<button type=\"button\" class=\"lsee\" id=\"lSee\">See it in the demo <span id=\"lSeeArr\" aria-hidden=\"true\">&uarr;</span></button>" : "") +
              (C.replay && s.after && s.after.run ? "<button type=\"button\" class=\"lsee\" id=\"lAgainRun\">Run it again</button>" : "");
       }
       h += "</div><div class=\"lnav\">" +
@@ -1131,6 +1148,8 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       });
       if($l("lBack")) $l("lBack").addEventListener("click", function(){ LS.i--; go(); });
       $l("lNext").addEventListener("click", function(){ LS.i++; go(); });
+      // the arrow points to where the picture is: above the lesson card, or below it on a phone
+      if($l("lSeeArr")){ var pp = picture(); if(pp && pp.getClientRects().length) $l("lSeeArr").textContent = pp.getBoundingClientRect().top < lessonEl.getBoundingClientRect().top ? "\u2191" : "\u2193"; }
       if($l("lAgainRun")) $l("lAgainRun").addEventListener("click", function(){ C.replay(s); pollChips(s); });
       if($l("lSee")) $l("lSee").addEventListener("click", function(){
         var pic = picture(); if(!pic) return;
@@ -1223,7 +1242,13 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     $l("lExit").addEventListener("click", leave);
     // a link ending in #lesson opens the page straight into the lesson, without scrolling
     // a Canvas page that holds it in an iframe
-    if(location.hash === "#lesson") setTimeout(function(){ start(true, true); }, 0);
+    if(location.hash === "#lesson") setTimeout(function(){
+      start(true, true);
+      // the browser's own jump to #lesson leaves the picture above the screen; this scrolls this
+      // document only (inside a Canvas iframe the Canvas page itself does not move)
+      function toPic(){ var pc = picture(); if(pc && pc.getClientRects().length) window.scrollTo(0, pc.getBoundingClientRect().top + window.pageYOffset); }
+      if(document.readyState === "complete") setTimeout(toPic, 0); else window.addEventListener("load", function(){ setTimeout(toPic, 0); });
+    }, 0);
     // a pause control for the moving picture, since the demo's own controls are hidden
     // sliders announce the value the page prints beside them (with its unit), not the raw slider number
     [].forEach.call(document.querySelectorAll("input[type=range]"), function(r){
@@ -1252,13 +1277,14 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     // the demo's own buttons are pressed, so that each mode sets itself up exactly as it does by hand
     function press(group, v){ document.querySelector("#" + group + " button[data-v=\"" + v + "\"]").click(); }
     if(phase === "setup"){
-      S.fit = null; SALTS.forEach(function(s){ S.coef[s.n] = 0; });
+      S.fit = null; S.mine = null; SALTS.forEach(function(s){ S.coef[s.n] = 0; });
       press("target", cfg.target || "acetic");
       press("mode", cfg.mode || "strong");
       renderSalts(); sync();
     }
     if(cfg.target && phase !== "setup") press("target", cfg.target);
-    if(cfg.show) $("showBtn").click();
+    // before the best line replaces it, keep where the student's own line met the axis
+    if(cfg.show){ if(phase !== "setup" && S.mode === "strong" && !S.fit) S.mine = interVal(); $("showBtn").click(); }
     // the weak-acid caption gives away the size of the collapse, so the lesson leaves it out
     document.documentElement.classList.toggle("l71-weak", S.mode === "weak");
     // the lesson card follows whichever card the mode shows
@@ -1268,7 +1294,8 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     anchor: "#cardPlot",
     picture: function(){ return document.getElementById(S.mode === "build" ? "cardBuild" : "plotBox"); },
     chips: {
-      inter: [function(){ return num(interVal(),1); }, "your intercept", ""],
+      inter: [function(){ return num(interVal(),1); }, "best line meets the axis at", ""],
+      mine: [function(){ return S.mine == null ? "none" : num(S.mine,1); }, "your line met it at", ""],
       acc: [function(){ return num(series().lam0,1); }, "accepted Λ°<sub>m</sub>", ""],
       out: [function(){ return ((interVal()-series().lam0)/series().lam0*100).toFixed(1).replace("-","−") + " per cent"; }, "out by", ""],
       sum: [function(){ return num(buildSum(),1) + " S cm² mol⁻¹"; }, "your combination", ""]
@@ -1302,8 +1329,19 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
         {t:"About 130 S cm<sup>2</sup> mol<sup>&minus;1</sup>", why:"That is the value at 0.1 mol dm<sup>&minus;3</sup>, the most concentrated point."},
         {t:"About 200 S cm<sup>2</sup> mol<sup>&minus;1</sup>", why:"That would need a much steeper fall than the points show."}
       ],
-      after:{show:true}, show2:["inter","acc"],
-      more:"For a strong electrolyte the extrapolation works: the dilute points lie on a straight line that runs back to the limiting value, as Kohlrausch's law says." },
+      after:{show:true}, show2:["mine","inter","acc"],
+      more:"For a strong electrolyte the extrapolation works: the dilute points lie on a straight line that runs back to the limiting value, as Kohlrausch's law says. The red line is now the best line through the four lowest points. If yours met the axis more than a unit away from it, it was probably steered by the higher points." },
+
+    { title:"Why the square root?",
+      setup:{mode:"strong", show:true}, show:[],
+      text:"Every chart on this page plots Λ<sub>m</sub> against <em>c</em><sup>1/2</sup>, not against <em>c</em>.",
+      q:"Why the square root?",
+      opts:[
+        {t:"To spread out the dilute points", why:"That is a side benefit. Against <em>c</em> the same points curve, and a straight line drawn through a curve extrapolates to the wrong value."},
+        {t:"Because Λ<sub>m</sub> is defined as κ/<em>c</em><sup>1/2</sup>", why:"Λ<sub>m</sub> = κ/<em>c</em>. The square root comes from the physics of the ionic atmosphere, not from the definition."},
+        {t:"At low concentration the fall is proportional to <em>c</em><sup>1/2</sup>, so only against <em>c</em><sup>1/2</sup> is it a straight line", ok:true, why:"Kohlrausch found this by measurement (eqn 7.5). The ionic atmosphere explains it: its thickness λ<sub>D</sub> scales as <em>c</em><sup>&minus;1/2</sup>, so the retardation of each ion grows as <em>c</em><sup>1/2</sup>."}
+      ],
+      more:"The same atmosphere sets the limiting law of Lecture 6, where log<sub>10</sub>γ<sub>±</sub> also falls as <em>I</em><sup>1/2</sup>. Both are signatures of λ<sub>D</sub> ∝ <em>I</em><sup>&minus;1/2</sup>." },
 
     { title:"How far below the limit?",
       setup:{mode:"strong"}, show:[], hide:1, after:{show:true},
@@ -1312,7 +1350,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       opts:[
         {t:"About 0.6 per cent", why:"(149.8 &minus; 141.3)/149.8 = 0.057, which is ten times that."},
         {t:"About 6 per cent", ok:true, why:"(149.8 &minus; 141.3)/149.8 = 5.7 per cent."},
-        {t:"About 60 per cent", why:"That would leave KCl with less than half its limiting value. The points never fall that far; even the most concentrated is within 15 per cent of it."}
+        {t:"About 8.5 per cent", why:"8.5 is the gap in S cm<sup>2</sup> mol<sup>&minus;1</sup>, not a percentage. As a fraction of 149.8 it is 0.057."}
       ],
       more:"Every ion is present at every concentration, so this shortfall is not lost ions. It comes from the retardation effects of Section 7.5, which slow every ion more as the concentration rises." },
 

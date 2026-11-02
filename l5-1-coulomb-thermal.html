@@ -399,7 +399,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
   <p class="point">Coulomb tries to organise the ions and thermal motion tries to scramble them. The solvent decides which one wins, which is why salts dissolve in water as free ions and in hexane not at all.</p>
 
   <div class="lesson-cta" id="lessonCta">
-    <p><b>Guided lesson.</b> Eight short questions on Coulomb forces against thermal energy, about ten minutes. Each step asks you to predict first, then shows you the answer in the demo.</p>
+    <p><b>Guided lesson.</b> Nine short questions on Coulomb forces against thermal energy, about ten minutes. Each step asks you to predict first, then shows you the answer in the demo.</p>
     <div class="lcta-btns">
       <button type="button" class="btn go" id="lessonStart">Start the guided lesson</button>
       <button type="button" class="lesson-exit" id="lessonRestart" hidden>Start again from step 1</button>
@@ -473,7 +473,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
   <section class="stage">
     <div class="card">
       <h2>The two ions, separation drawn to scale</h2>
-      <p class="cap" id="sceneCap">Arrows show the force each ion feels. The axis below carries the contact distance and the Bjerrum length.</p>
+      <p class="cap" id="sceneCap">Arrows show the force each ion feels; when the ions nearly touch, the label alone gives it. The axis below carries the contact distance and the Bjerrum length.</p>
       <div class="canvas-box" id="sceneBox"><canvas role="img" id="scene" aria-label="Two ions on a line with force arrows and a distance axis"></canvas></div>
       <div class="legend">
         <span class="key"><span class="dot" style="background:var(--red)"></span>positive</span>
@@ -695,6 +695,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     g.setLineDash([2,3]);
     g.beginPath(); g.moveTo(x1, yIon+r1+4); g.lineTo(x1, yAx-12);
     g.moveTo(x2, yIon+r2+4); g.lineTo(x2, yAx-12); g.stroke(); g.setLineDash([]);
+    mono(g,11,500); tag(g, "contact", (cx1+cx2)/2, yAx-13, "center", "bottom", TH.muted, TH["panel-2"]);
 
     // force arrows, length from a log scale so the whole range is visible
     var Fp = Math.abs(s.F)*1e12;
@@ -974,7 +975,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
         h += "<span class=\"verdict " + (picked.ok ? "ok" : "no") + "\" tabindex=\"-1\" id=\"lVerdict\">" + (picked.ok ? "Right." : "Not quite.") + "</span>" +
              picked.why + (picked.ok ? "" : "<span class=\"ans\">The right answer was: <b>" + right.t + "</b>. " + right.why + "</span>") +
              "<span class=\"more\">" + s.more + "</span>" +
-             (s.after || s.hide || s.veil ? "<button type=\"button\" class=\"lsee\" id=\"lSee\">See it in the demo &uarr;</button>" : "") +
+             (s.after || s.hide || s.veil ? "<button type=\"button\" class=\"lsee\" id=\"lSee\">See it in the demo <span id=\"lSeeArr\" aria-hidden=\"true\">&uarr;</span></button>" : "") +
              (C.replay && s.after && s.after.run ? "<button type=\"button\" class=\"lsee\" id=\"lAgainRun\">Run it again</button>" : "");
       }
       h += "</div><div class=\"lnav\">" +
@@ -987,6 +988,8 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       });
       if($l("lBack")) $l("lBack").addEventListener("click", function(){ LS.i--; go(); });
       $l("lNext").addEventListener("click", function(){ LS.i++; go(); });
+      // the arrow points to where the picture is: above the lesson card, or below it on a phone
+      if($l("lSeeArr")){ var pp = picture(); if(pp && pp.getClientRects().length) $l("lSeeArr").textContent = pp.getBoundingClientRect().top < lessonEl.getBoundingClientRect().top ? "\u2191" : "\u2193"; }
       if($l("lAgainRun")) $l("lAgainRun").addEventListener("click", function(){ C.replay(s); pollChips(s); });
       if($l("lSee")) $l("lSee").addEventListener("click", function(){
         var pic = picture(); if(!pic) return;
@@ -1079,7 +1082,13 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     $l("lExit").addEventListener("click", leave);
     // a link ending in #lesson opens the page straight into the lesson, without scrolling
     // a Canvas page that holds it in an iframe
-    if(location.hash === "#lesson") setTimeout(function(){ start(true, true); }, 0);
+    if(location.hash === "#lesson") setTimeout(function(){
+      start(true, true);
+      // the browser's own jump to #lesson leaves the picture above the screen; this scrolls this
+      // document only (inside a Canvas iframe the Canvas page itself does not move)
+      function toPic(){ var pc = picture(); if(pc && pc.getClientRects().length) window.scrollTo(0, pc.getBoundingClientRect().top + window.pageYOffset); }
+      if(document.readyState === "complete") setTimeout(toPic, 0); else window.addEventListener("load", function(){ setTimeout(toPic, 0); });
+    }, 0);
     // a pause control for the moving picture, since the demo's own controls are hidden
     // sliders announce the value the page prints beside them (with its unit), not the raw slider number
     [].forEach.call(document.querySelectorAll("input[type=range]"), function(r){
@@ -1140,7 +1149,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       text:"This is Example 5.1. A singly charged cation and anion are 0.50 nm apart in water, ε<sub>r</sub> = 78.4, at 298 K. Coulomb's law (eqn 5.4) gives the force, <em>F</em> = <em>q</em><sub>1</sub><em>q</em><sub>2</sub>/4πε<sub>0</sub>ε<sub>r</sub><em>r</em><sup>2</sup>.",
       q:"About how large is the attraction?",
       opts:[
-        {t:"About 0.12 pN", why:"Check the square: (0.50 × 10<sup>&minus;9</sup> m)<sup>2</sup> = 2.5 × 10<sup>&minus;19</sup> m<sup>2</sup>."},
+        {t:"About 0.12 pN", why:"That is the force at 5.0 nm, ten times further apart. 0.50 nm is 0.50 × 10<sup>&minus;9</sup> m, and squaring gives 2.5 × 10<sup>&minus;19</sup> m<sup>2</sup>."},
         {t:"About 12 pN", ok:true, why:"(1.602 × 10<sup>&minus;19</sup>)<sup>2</sup>/[(1.113 × 10<sup>&minus;10</sup>)(78.4)(0.50 × 10<sup>&minus;9</sup>)<sup>2</sup>] = 1.18 × 10<sup>&minus;11</sup> N."},
         {t:"About 920 pN", why:"That is the force in a vacuum. Water divides it by ε<sub>r</sub> = 78.4."},
         {t:"About 12 nN", why:"That is a thousand times too large; check the powers of ten."}
@@ -1183,7 +1192,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
         {t:"About 0.30 nm", why:"That is roughly the contact distance of two ions, where the energy is about 2.4 <em>k</em><sub>B</sub><em>T</em>."},
         {t:"About 0.72 nm", ok:true, why:"<em>V</em> goes as 1/<em>r</em>, so the ratio falls from 1.43 at 0.50 nm to 1 at 0.50 × 1.43 = 0.715 nm."},
         {t:"About 0.35 nm", why:"That is closer than the Bjerrum length, where |<em>V</em>| is still larger than <em>k</em><sub>B</sub><em>T</em>, not equal to it."},
-        {t:"About 7 nm", why:"That would need the energy to fall off ten times more slowly. It goes as 1/<em>r</em>."}
+        {t:"About 0.60 nm", why:"That scales 0.50 nm by (1.43)<sup>1/2</sup>, as if the energy fell as 1/<em>r</em><sup>2</sup> like the force. <em>V</em> goes as 1/<em>r</em>, so the full factor 1.43 applies."}
       ],
       show2:["lB"],
       more:"The dashed teal line now marks <em>l</em><sub>B</sub> = 0.715 nm on both pictures. It depends on the solvent and the temperature, but not on the concentration." },
@@ -1199,6 +1208,18 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       ],
       after:{eps:"1.88"}, show2:["lB"],
       more:"Two ions in contact are about 0.3 nm apart. In hexane that is a hundredth of <em>l</em><sub>B</sub>, so they are locked together. In water it is a little under half of <em>l</em><sub>B</sub>, which is why ion pairing in water is modest rather than dominant." },
+
+    { title:"A polar solvent that still pairs ions",
+      setup:{sep:30, z1:1, z2:-1, eps:"78.4"}, show:["R"], hide:2, picture:"#enBox",
+      text:"Two singly charged ions in contact, 0.30 nm apart. In water, |<em>V</em>|/<em>k</em><sub>B</sub><em>T</em> = 2.4. When you answer, the water will be replaced by ethanol, ε<sub>r</sub> = 24.3.",
+      q:"Is the pair still only just past Bjerrum's threshold?",
+      opts:[
+        {t:"Yes, about 2.4 <em>k</em><sub>B</sub><em>T</em>, because ethanol is polar like water", why:"2.4 is the value in water. Ethanol's ε<sub>r</sub> is less than a third of water's, so the ratio is 78.4/24.3 = 3.2 times larger."},
+        {t:"No, about 7.7 <em>k</em><sub>B</sub><em>T</em>", ok:true, why:"<em>l</em><sub>B</sub> = 0.715 × 78.4/24.3 = 2.31 nm, and 2.31/0.30 = 7.7, well past Bjerrum's threshold of 2."},
+        {t:"No, about 77 <em>k</em><sub>B</sub><em>T</em>, as in hexane", why:"That would need ε<sub>r</sub> of about 2.4. Ethanol's is ten times larger."}
+      ],
+      after:{eps:"24.3"}, show2:["R"],
+      more:"A solvent need not be non-polar to pair ions. With ε<sub>r</sub> near 24, a 1:1 pair in contact is already well past Bjerrum's threshold, so much of a salt dissolved in ethanol is paired." },
 
     { title:"Doubly charged ions",
       setup:{sep:50, z1:1, z2:-1, eps:"78.4"}, show:["X"], veil:["roX","X"], hide:2, picture:"#enBox",

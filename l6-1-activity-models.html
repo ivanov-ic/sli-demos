@@ -403,7 +403,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
   <p class="point">The limiting law has no fitted parameter and eventually fails. Everything that works further out buys its accuracy with a parameter somebody had to fit.</p>
 
   <div class="lesson-cta" id="lessonCta">
-    <p><b>Guided lesson.</b> Eight short questions on activity coefficients and when the models fail, about ten minutes. Each step asks you to predict first, then shows you the answer in the demo.</p>
+    <p><b>Guided lesson.</b> Nine short questions on activity coefficients and when the models fail, about ten minutes. Each step asks you to predict first, then shows you the answer in the demo.</p>
     <div class="lcta-btns">
       <button type="button" class="btn go" id="lessonStart">Start the guided lesson</button>
       <button type="button" class="lesson-exit" id="lessonRestart" hidden>Start again from step 1</button>
@@ -699,7 +699,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
 
     // where the limiting law is said to be reliable
     var xl = Math.sqrt(s.limit);
-    if(xl < xMax && !S.hidePts){
+    if(xl < xMax && !S.hidePts && !S.hideLim){
       g.fillStyle = "rgba(50,115,181,0.07)"; g.fillRect(L, T, X(xl)-L, ph);
       g.strokeStyle = TH.blue; g.setLineDash([3,4]); g.lineWidth = 1;
       g.beginPath(); g.moveTo(X(xl),T); g.lineTo(X(xl),T+ph); g.stroke(); g.setLineDash([]);
@@ -737,7 +737,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       mono(g,10.5,500);
       tag(g, "probe", X(xp), T+ph-6, "center", "bottom", TH.muted, TH.panel);
     }
-    if(xl < xMax && !S.hidePts){
+    if(xl < xMax && !S.hidePts && !S.hideLim){
       mono(g,10.5,500);
       tag(g, "limiting law reliable to I " + (S.salt === "CaCl2" ? "≈ 0.003" : "= " + s.limit),
           X(xl)+5, T+6, "left", "top", TH.blue, TH.panel);
@@ -860,7 +860,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
 
     $("mainCap").innerHTML = (s.m.length && !S.hidePts ? "Measured points for " : "Models only for ") + s.html + ", a " + s.nu + " electrolyte, so |<em>z</em><sub>+</sub><em>z</em><sub>&minus;</sub>| = " + s.zz +
       (s.zz === 1 ? ". This is the reference case every other charge type is compared against."
-                  : " and every model is " + s.zz + " times as steep as for a 1:1 salt.");
+                  : " and every model is " + (s.zz === 2 ? "twice" : (s.zz === 4 ? "four times" : s.zz + " times")) + " as steep as for a 1:1 salt.");
 
     var zz = s.zz;
     $("eq1").textContent = "limiting law   log₁₀ γ± = −(0.509)(" + zz + ")√I";
@@ -1008,7 +1008,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
         h += "<span class=\"verdict " + (picked.ok ? "ok" : "no") + "\" tabindex=\"-1\" id=\"lVerdict\">" + (picked.ok ? "Right." : "Not quite.") + "</span>" +
              picked.why + (picked.ok ? "" : "<span class=\"ans\">The right answer was: <b>" + right.t + "</b>. " + right.why + "</span>") +
              "<span class=\"more\">" + s.more + "</span>" +
-             (s.after || s.hide || s.veil ? "<button type=\"button\" class=\"lsee\" id=\"lSee\">See it in the demo &uarr;</button>" : "") +
+             (s.after || s.hide || s.veil ? "<button type=\"button\" class=\"lsee\" id=\"lSee\">See it in the demo <span id=\"lSeeArr\" aria-hidden=\"true\">&uarr;</span></button>" : "") +
              (C.replay && s.after && s.after.run ? "<button type=\"button\" class=\"lsee\" id=\"lAgainRun\">Run it again</button>" : "");
       }
       h += "</div><div class=\"lnav\">" +
@@ -1021,6 +1021,8 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       });
       if($l("lBack")) $l("lBack").addEventListener("click", function(){ LS.i--; go(); });
       $l("lNext").addEventListener("click", function(){ LS.i++; go(); });
+      // the arrow points to where the picture is: above the lesson card, or below it on a phone
+      if($l("lSeeArr")){ var pp = picture(); if(pp && pp.getClientRects().length) $l("lSeeArr").textContent = pp.getBoundingClientRect().top < lessonEl.getBoundingClientRect().top ? "\u2191" : "\u2193"; }
       if($l("lAgainRun")) $l("lAgainRun").addEventListener("click", function(){ C.replay(s); pollChips(s); });
       if($l("lSee")) $l("lSee").addEventListener("click", function(){
         var pic = picture(); if(!pic) return;
@@ -1113,7 +1115,13 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     $l("lExit").addEventListener("click", leave);
     // a link ending in #lesson opens the page straight into the lesson, without scrolling
     // a Canvas page that holds it in an iframe
-    if(location.hash === "#lesson") setTimeout(function(){ start(true, true); }, 0);
+    if(location.hash === "#lesson") setTimeout(function(){
+      start(true, true);
+      // the browser's own jump to #lesson leaves the picture above the screen; this scrolls this
+      // document only (inside a Canvas iframe the Canvas page itself does not move)
+      function toPic(){ var pc = picture(); if(pc && pc.getClientRects().length) window.scrollTo(0, pc.getBoundingClientRect().top + window.pageYOffset); }
+      if(document.readyState === "complete") setTimeout(toPic, 0); else window.addEventListener("load", function(){ setTimeout(toPic, 0); });
+    }, 0);
     // a pause control for the moving picture, since the demo's own controls are hidden
     // sliders announce the value the page prints beside them (with its unit), not the raw slider number
     [].forEach.call(document.querySelectorAll("input[type=range]"), function(r){
@@ -1147,6 +1155,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     if(cfg.xmax) o.xmax = cfg.xmax;
     if(cfg.a) o.a = cfg.a;
     if(cfg.only){ o.LL = cfg.only.indexOf("LL") >= 0; o.EX = cfg.only.indexOf("EX") >= 0; o.DV = cfg.only.indexOf("DV") >= 0; }
+    if(phase === "setup" || cfg.noLim !== undefined) S.hideLim = !!cfg.noLim;
     apply(o);
     if(cfg.fit){ S.a = bestA(); $("asize").value = S.a; sync(); }
   }
@@ -1162,6 +1171,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       DV: [function(){ return g3(DV(probeI(), salt().zz)); }, "Davies γ<sub>±</sub>", ""]
     },
     apply: lessonApply,
+    onLeave: function(){ S.hideLim = false; paint(); },
     onVeil: function(level){
       S.hidePts = level >= 1;
       document.documentElement.classList.toggle("veil-charts", level >= 1);
@@ -1174,7 +1184,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     },
     steps: [
     { title:"The limiting law at work",
-      setup:{salt:"KCl", I:0.001, xmax:20, only:"none"}, show:["I"], hide:1, after:{only:"LL"},
+      setup:{salt:"KCl", I:0.001, xmax:20, only:"none", noLim:true}, show:["I"], hide:1, after:{only:"LL"},
       text:"The limiting law, eqn 6.7, is log<sub>10</sub>γ<sub>±</sub> = &minus;<em>A</em>|<em>z</em><sub>+</sub><em>z</em><sub>&minus;</sub>|<em>I</em><sup>1/2</sup>, with <em>A</em> = 0.509 for water at 298 K. This is Self-test 6.2: KCl at 1.0 × 10<sup>&minus;3</sup> mol kg<sup>&minus;1</sup>, so <em>I</em> = 0.0010.",
       q:"What does the limiting law predict for γ<sub>±</sub>?",
       opts:[
@@ -1187,7 +1197,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       more:"The measured value is 0.965. With nothing fitted, the law is right to about a tenth of a per cent at this ionic strength." },
 
     { title:"Doubly charged",
-      setup:{salt:"CaCl2", I:0.003, xmax:30, only:"none"}, show:[], hide:1, hideI:true, after:{only:"LL"},
+      setup:{salt:"CaCl2", I:0.003, xmax:30, only:"none", noLim:true}, show:[], hide:1, hideI:true, after:{only:"LL"},
       text:"This is Example 6.2: CaCl<sub>2</sub> at 1.0 × 10<sup>&minus;3</sup> mol kg<sup>&minus;1</sup>. For CaCl<sub>2</sub>, |<em>z</em><sub>+</sub><em>z</em><sub>&minus;</sub>| = 2 and <em>I</em> = 3<em>m</em>/<em>m</em><sup>⊖</sup>.",
       q:"What does the limiting law predict for γ<sub>±</sub>?",
       opts:[
@@ -1213,7 +1223,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       more:"The probe is now at <em>I</em> = 0.087. The next step asks what the measurements say there." },
 
     { title:"Theory against measurement",
-      setup:{salt:"CaCl2", I:0.0874, xmax:40, only:"LL"}, show:["I","LL"], hide:1,
+      setup:{salt:"CaCl2", I:0.0874, xmax:40, only:"LL", noLim:true}, show:["I","LL"], hide:1,
       text:"The limiting law predicts γ<sub>±</sub> = 0.50 for CaCl<sub>2</sub> at 0.029 mol kg<sup>&minus;1</sup>. This is the second half of the Predict first task.",
       q:"Is the measured value higher or lower than 0.50?",
       opts:[
@@ -1247,6 +1257,19 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       ],
       more:"The higher the charges, the lower the ionic strength at which experiment leaves the theory. For a 2:2 salt the range shrinks to about <em>I</em> = 0.001." },
 
+    { title:"Both ions doubly charged",
+      setup:{salt:"MgSO4", I:0.004, xmax:30, only:"none"}, show:[], hide:1, hideI:true,
+      text:"MgSO<sub>4</sub> is a 2:2 salt, so |<em>z</em><sub>+</sub><em>z</em><sub>&minus;</sub>| = 4 and <em>I</em> = 4<em>m</em>/<em>m</em><sup>⊖</sup>. The probe is at a molality of 1.0 × 10<sup>&minus;3</sup> mol kg<sup>&minus;1</sup>.",
+      q:"What does the limiting law predict for γ<sub>±</sub>?",
+      opts:[
+        {t:"0.553", why:"That takes <em>I</em> = 16<em>m</em>/<em>m</em><sup>⊖</sup>, squaring the charges once too often. <em>I</em> = ½(4 + 4)<em>m</em>/<em>m</em><sup>⊖</sup> = 4<em>m</em>/<em>m</em><sup>⊖</sup>."},
+        {t:"0.743", ok:true, why:"<em>I</em> = 0.0040 and <em>I</em><sup>1/2</sup> = 0.0632, so log<sub>10</sub>γ<sub>±</sub> = &minus;(0.509)(4)(0.0632) = &minus;0.129 and γ<sub>±</sub> = 0.743."},
+        {t:"0.862", why:"That uses |<em>z</em><sub>+</sub><em>z</em><sub>&minus;</sub>| = 2, or takes <em>I</em> as the molality. Both slips halve the exponent."},
+        {t:"0.929", why:"That keeps |<em>z</em><sub>+</sub><em>z</em><sub>&minus;</sub>| = 1, as for KCl."}
+      ],
+      after:{only:"LL"}, show2:["I","LL"],
+      more:"At the same molality KCl is at 0.964. Plotted against (<em>m</em>/<em>m</em><sup>⊖</sup>)<sup>1/2</sup>, the 2:2 slope is eight times that of KCl, so the law holds only to about <em>I</em> = 0.001. The coursebook gives no measured points for MgSO<sub>4</sub> here, so only the models are drawn." },
+
     { title:"One fitted parameter",
       setup:{salt:"KCl", I:0.1, xmax:80, only:"LL EX"}, show:[], hide:1,
       text:"The extended law, eqn 6.8, divides by 1 + <em>Ba</em><em>I</em><sup>1/2</sup>, where <em>a</em> is an ion-size parameter that has to be fitted to the data. When you answer, the demo will fit <em>a</em> to the KCl points.",
@@ -1260,16 +1283,17 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       more:"The fitted <em>a</em> is a plausible size, but it is a fitted number with no independent measurement behind it. That is the price of the extra range." },
 
     { title:"No parameter at all",
-      setup:{salt:"KCl", I:0.1, xmax:80, only:"DV"}, show:["I"], hide:1,
-      text:"The Davies equation, eqn 6.9, replaces <em>I</em><sup>1/2</sup> by <em>I</em><sup>1/2</sup>/(1 + <em>I</em><sup>1/2</sup>) and adds an empirical term, &minus;0.30<em>I</em>, inside the bracket, so it has nothing to fit. When you answer, the probe will move to the limit the book quotes.",
-      q:"Up to roughly what ionic strength does Section 6.3.6 say the Davies equation works reasonably well?",
+      setup:{salt:"KCl", I:0.1, xmax:80, only:"none"}, show:["I"], hide:1,
+      text:"The Davies equation, eqn 6.9, is log<sub>10</sub>γ<sub>±</sub> = &minus;<em>A</em>|<em>z</em><sub>+</sub><em>z</em><sub>&minus;</sub>|[<em>I</em><sup>1/2</sup>/(1 + <em>I</em><sup>1/2</sup>) &minus; 0.30<em>I</em>]. It has nothing to fit. KCl is probed at <em>I</em> = 0.10, where the limiting law has already failed.",
+      q:"What does the Davies equation predict for γ<sub>±</sub>?",
       opts:[
-        {t:"<em>I</em> ≈ 0.01, like the limiting law", why:"The extra term is there to carry it much further than that."},
-        {t:"<em>I</em> ≈ 0.5", ok:true, why:"Section 6.3.6 says it works reasonably well up to about <em>I</em> = 0.5."},
-        {t:"<em>I</em> ≈ 5", why:"Nothing this simple reaches concentrated solutions, where hydration takes over (Section 6.4)."}
+        {t:"0.690", why:"That is the limiting law, &minus;(0.509)(0.316) = &minus;0.161."},
+        {t:"0.729", why:"That adds 0.30<em>I</em> to the bracket instead of subtracting it."},
+        {t:"0.755", why:"That leaves out the &minus;0.30<em>I</em> term."},
+        {t:"0.782", ok:true, why:"<em>I</em><sup>1/2</sup> = 0.316, so the bracket is 0.316/1.316 &minus; 0.030 = 0.210, log<sub>10</sub>γ<sub>±</sub> = &minus;(0.509)(0.210) = &minus;0.107, and γ<sub>±</sub> = 0.782."}
       ],
-      after:{I:0.5}, show2:["I","DV","meas"],
-      more:"In the residual panel Davies leaves the ±0.02 band a little above <em>I</em> = 0.2, and by 0.5 it is about 13 per cent high in γ<sub>±</sub>. That is what reasonably well means in practice." }
+      after:{only:"DV"}, show2:["I","DV","meas"],
+      more:"The measured value is 0.770, so Davies is 1.6 per cent high here, with nothing fitted. Section 6.3.6 quotes it as reasonably good up to about <em>I</em> = 0.5. Move the probe there in the free explorer: by then it is about 13 per cent high, and it leaves the ±0.02 band a little above <em>I</em> = 0.2." }
     ],
     summary: {
       points:[

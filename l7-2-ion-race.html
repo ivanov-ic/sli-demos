@@ -406,7 +406,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
   <p class="point">The smallest bare ion is the largest moving entity, and the ion that moves slowest can still carry the most current, because charge enters the problem twice.</p>
 
   <div class="lesson-cta" id="lessonCta">
-    <p><b>Guided lesson.</b> Eight short questions on how ions move in an electric field, about ten minutes. Each step asks you to predict first, then shows you the answer in the demo.</p>
+    <p><b>Guided lesson.</b> Nine short questions on how ions move in an electric field, about ten minutes. Each step asks you to predict first, then shows you the answer in the demo.</p>
     <div class="lcta-btns">
       <button type="button" class="btn go" id="lessonStart">Start the guided lesson</button>
       <button type="button" class="lesson-exit" id="lessonRestart" hidden>Start again from step 1</button>
@@ -973,7 +973,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
         h += "<span class=\"verdict " + (picked.ok ? "ok" : "no") + "\" tabindex=\"-1\" id=\"lVerdict\">" + (picked.ok ? "Right." : "Not quite.") + "</span>" +
              picked.why + (picked.ok ? "" : "<span class=\"ans\">The right answer was: <b>" + right.t + "</b>. " + right.why + "</span>") +
              "<span class=\"more\">" + s.more + "</span>" +
-             (s.after || s.hide || s.veil ? "<button type=\"button\" class=\"lsee\" id=\"lSee\">See it in the demo &uarr;</button>" : "") +
+             (s.after || s.hide || s.veil ? "<button type=\"button\" class=\"lsee\" id=\"lSee\">See it in the demo <span id=\"lSeeArr\" aria-hidden=\"true\">&uarr;</span></button>" : "") +
              (C.replay && s.after && s.after.run ? "<button type=\"button\" class=\"lsee\" id=\"lAgainRun\">Run it again</button>" : "");
       }
       h += "</div><div class=\"lnav\">" +
@@ -986,6 +986,8 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       });
       if($l("lBack")) $l("lBack").addEventListener("click", function(){ LS.i--; go(); });
       $l("lNext").addEventListener("click", function(){ LS.i++; go(); });
+      // the arrow points to where the picture is: above the lesson card, or below it on a phone
+      if($l("lSeeArr")){ var pp = picture(); if(pp && pp.getClientRects().length) $l("lSeeArr").textContent = pp.getBoundingClientRect().top < lessonEl.getBoundingClientRect().top ? "\u2191" : "\u2193"; }
       if($l("lAgainRun")) $l("lAgainRun").addEventListener("click", function(){ C.replay(s); pollChips(s); });
       if($l("lSee")) $l("lSee").addEventListener("click", function(){
         var pic = picture(); if(!pic) return;
@@ -1078,7 +1080,13 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     $l("lExit").addEventListener("click", leave);
     // a link ending in #lesson opens the page straight into the lesson, without scrolling
     // a Canvas page that holds it in an iframe
-    if(location.hash === "#lesson") setTimeout(function(){ start(true, true); }, 0);
+    if(location.hash === "#lesson") setTimeout(function(){
+      start(true, true);
+      // the browser's own jump to #lesson leaves the picture above the screen; this scrolls this
+      // document only (inside a Canvas iframe the Canvas page itself does not move)
+      function toPic(){ var pc = picture(); if(pc && pc.getClientRects().length) window.scrollTo(0, pc.getBoundingClientRect().top + window.pageYOffset); }
+      if(document.readyState === "complete") setTimeout(toPic, 0); else window.addEventListener("load", function(){ setTimeout(toPic, 0); });
+    }, 0);
     // a pause control for the moving picture, since the demo's own controls are hidden
     // sliders announce the value the page prints beside them (with its unit), not the raw slider number
     [].forEach.call(document.querySelectorAll("input[type=range]"), function(r){
@@ -1132,6 +1140,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       rsK: [function(){ return ionById("K").rs + " pm"; }, "Stokes radius of K⁺", ""],
       rc: [function(){ return "Li⁺ 76, Na⁺ 102"; }, "bare radius / pm", ""],
       kzn: [function(){ return "K⁺ " + num(ionById("K").u*1e8,2) + ", Zn²⁺ " + num(ionById("Zn").u*1e8,2); }, "<em>u</em> / (10<sup>&minus;8</sup> m<sup>2</sup> s<sup>&minus;1</sup> V<sup>&minus;1</sup>)", ""],
+      kli: [function(){ return "K⁺ " + num(ionById("K").lam,1) + ", Li⁺ " + num(ionById("Li").lam,1) + ", Cl⁻ 76.3"; }, "10<sup>4</sup>λ° / (S m<sup>2</sup> mol<sup>&minus;1</sup>)", ""],
       lam: [function(){ return "K⁺ " + num(ionById("K").lam,1) + ", Zn²⁺ " + num(ionById("Zn").lam,1); }, "10<sup>4</sup>λ° / (S m<sup>2</sup> mol<sup>&minus;1</sup>)", ""],
       tH: [function(){ return num(finishTime(ionById("H")),1) + " s"; }, "H⁺ finishes in", ""],
       tLi: [function(){ return num(finishTime(ionById("Li")),1) + " s"; }, "Li⁺ finishes in", ""],
@@ -1153,7 +1162,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     steps: [
     { title:"Seven ions, one field",
       setup:{}, show:[], hide:1,
-      text:"Seven cations sit at the start line of a 100 µm track in water, all in the same field of 1.0 V cm<sup>&minus;1</sup>. The lanes are in group order for now, not in the order they will finish.",
+      text:"Seven cations sit at the start line of a 100 µm track in water, all in the same field of 1.0 V cm<sup>&minus;1</sup>. The lanes are in group order for now, not in the order they will finish, and until you answer each ion is drawn at its bare size, without its water.",
       q:"Which ion do you expect to cross the finish line first?",
       opts:[
         {t:"Li⁺, the smallest", why:"Small bare ions are not small moving ions: Li⁺ holds the most water and moves as the largest of the alkali metal ions."},
@@ -1199,7 +1208,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
         {t:"All four at the same speed, since they carry the same charge", why:"The force is the same, but Stokes' law still makes the drag depend on the radius."}
       ],
       after:{bare:true, run:true}, show2:["order"],
-      more:"With the shells removed the order is Li⁺, Na⁺, K⁺, Rb⁺. Put the shells back and it reverses, which is why the hydrodynamic radius, not the crystallographic one, belongs in Stokes' law." },
+      more:"With the shells removed the order is Li⁺, Na⁺, K⁺, Rb⁺. Put the shells back and it reverses, which is why the hydrodynamic radius, not the crystallographic one, belongs in Stokes' law. Zn²⁺, small and doubly charged, would lead them all." },
 
     { title:"Slower, but carrying more current",
       setup:{}, show:["kzn"], hide:1,
@@ -1223,7 +1232,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
         {t:"In the middle, next to K⁺", why:"K⁺ is fast because it carries little water. A strongly hydrated proton would not be."}
       ],
       after:{grot:false, run:true}, show2:["all"],
-      more:"Its measured mobility would need a Stokes radius of 26 pm, smaller than any atom, which is not a radius at all. That is the evidence for the relay." },
+      more:"With as much water as Li⁺, the swimming proton finishes level with it, in about 25 s instead of 2.8 s. Its measured mobility would need a Stokes radius of 26 pm, smaller than any atom, which is not a radius at all. That is the evidence for the relay." },
 
     { title:"Double the field",
       setup:{}, show:["field","tLi"],
@@ -1248,7 +1257,19 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
         {t:"1.25 nm", why:"That is ten times too large; check the powers of ten."}
       ],
       show2:["rsK"],
-      more:"The Stokes radius of K⁺ is smaller than its bare radius, a sign that it carries almost no firmly bound water. Rb⁺ (118 pm against 152 pm) is the same, which is Problem 7.4." }
+      more:"The Stokes radius of K⁺ is smaller than its bare radius, a sign that it carries almost no firmly bound water. Rb⁺ (118 pm against 152 pm) is the same, which is Problem 7.4." },
+
+    { title:"Which solution conducts better?",
+      setup:{}, show:[],
+      text:"A solution conducts through both of its ions: Λ°<sub>m</sub> = λ°<sub>+</sub> + λ°<sub>&minus;</sub> for a 1:1 salt (eqn 7.6). Cl⁻ has 10<sup>4</sup>λ° = 76.3 S m<sup>2</sup> mol<sup>&minus;1</sup> (Table 7.1).",
+      q:"At the same low concentration, which conducts better, KCl or LiCl?",
+      opts:[
+        {t:"LiCl, because Li⁺ is the smaller ion", why:"Small when bare, large when moving: Li⁺ carries the most water and is the slowest of the alkali metal ions."},
+        {t:"KCl, by about 30 per cent", ok:true, why:"73.5 + 76.3 = 149.8 against 38.7 + 76.3 = 115.0, in 10<sup>&minus;4</sup> S m<sup>2</sup> mol<sup>&minus;1</sup>, and 149.8/115.0 = 1.30."},
+        {t:"The same, because both cations are singly charged and the anion is the same", why:"The charges are the same, but the cations move at different speeds, and each ion contributes in proportion to its speed."}
+      ],
+      show2:["kli"],
+      more:"The race and the conductivity meter measure the same thing. This is the 149.8 S cm<sup>2</sup> mol<sup>&minus;1</sup> that Demo L7.1 extrapolates to for KCl." }
     ],
     summary: {
       points:[

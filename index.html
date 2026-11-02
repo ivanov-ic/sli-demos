@@ -21,6 +21,10 @@
       --muted:#8798A8; --blue:#5FA0DC; --teal:#2FB9B0;
     }
   }
+  :root[data-theme="dark"]{
+    --bg:#0A1119; --panel:#101D2A; --line:#25394C; --ink:#E7EEF5; --ink-2:#A6BACB;
+    --muted:#8798A8; --blue:#5FA0DC; --teal:#2FB9B0;
+  }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);
        font:16px/1.55 "IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Helvetica,Arial,sans-serif}
@@ -39,6 +43,8 @@
   .code{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:12px;color:var(--teal);font-weight:600}
   .name{font-family:"Source Serif 4",Georgia,serif;font-size:18px;font-weight:600;margin:2px 0 3px}
   .desc{font-size:13.5px;color:var(--ink-2);margin:0}
+  li a.les{display:inline-block;margin:6px 0 0 16px;padding:4px 0;border:0;background:none;font-size:13.5px;color:var(--blue);text-decoration:underline;text-underline-offset:2px}
+  li a.les:hover{transform:none}
   footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--line);
          font-size:13px;color:var(--muted);max-width:64ch}
   footer a{color:var(--blue)}
@@ -51,46 +57,56 @@
   <h1>Solids, Liquids and Interfaces</h1>
   <p class="lede">Eight interactive demos for Lectures 5 to 8, on spatially variant systems and
   transport in solution. Each one runs entirely in the browser, needs no network connection once
-  loaded, and can be driven live from a lecture theatre or explored alone.</p>
+  loaded, and can be driven live from a lecture theatre or explored alone. Each also has a guided
+  lesson of nine short questions (eleven for L5.2), about ten minutes, that asks you to predict
+  before it shows you.</p>
 
   <h2>Lecture 5 &middot; Ions in solution</h2>
   <ul>
     <li><a href="l5-1-coulomb-thermal.html"><span class="code">L5.1</span>
       <div class="name">Coulomb against thermal energy</div>
-      <p class="desc">Why salts dissolve in water as free ions and in hexane not at all.</p></a></li>
+      <p class="desc">Why ions in water are held only loosely, while in hexane every pair is locked together.</p></a>
+      <a class="les" href="l5-1-coulomb-thermal.html#lesson">Start the guided lesson</a></li>
     <li><a href="l5-2-ionic-atmosphere.html"><span class="code">L5.2</span>
       <div class="name">Ionic atmosphere explorer</div>
-      <p class="desc">Raise the ionic strength a hundredfold and the atmosphere shrinks only tenfold.</p></a></li>
+      <p class="desc">Raise the ionic strength a hundredfold and the atmosphere shrinks only tenfold.</p></a>
+      <a class="les" href="l5-2-ionic-atmosphere.html#lesson">Start the guided lesson</a></li>
   </ul>
 
   <h2>Lecture 6 &middot; Non-ideality in electrolyte solutions</h2>
   <ul>
     <li><a href="l6-1-activity-models.html"><span class="code">L6.1</span>
       <div class="name">Activity coefficient models</div>
-      <p class="desc">Which assumption fails first, and what the extra range costs.</p></a></li>
+      <p class="desc">Which assumption fails first, and what the extra range costs.</p></a>
+      <a class="les" href="l6-1-activity-models.html#lesson">Start the guided lesson</a></li>
     <li><a href="l6-2-free-water.html"><span class="code">L6.2</span>
       <div class="name">Counting the free water</div>
-      <p class="desc">How the activity coefficient gets above 1, and the lithium to potassium ordering.</p></a></li>
+      <p class="desc">How the activity coefficient gets above 1, and the lithium to potassium ordering.</p></a>
+      <a class="les" href="l6-2-free-water.html#lesson">Start the guided lesson</a></li>
   </ul>
 
   <h2>Lecture 7 &middot; Transport I: migration and conductivity</h2>
   <ul>
     <li><a href="l7-1-extrapolation.html"><span class="code">L7.1</span>
       <div class="name">Extrapolating to the limiting value</div>
-      <p class="desc">Why the law of independent migration is needed rather than merely available.</p></a></li>
+      <p class="desc">Why the law of independent migration is needed rather than merely available.</p></a>
+      <a class="les" href="l7-1-extrapolation.html#lesson">Start the guided lesson</a></li>
     <li><a href="l7-2-ion-race.html"><span class="code">L7.2</span>
       <div class="name">The ion race</div>
-      <p class="desc">The hydrodynamic radius, the two roles of charge, and the Grotthuss anomaly.</p></a></li>
+      <p class="desc">The hydrodynamic radius, the two roles of charge, and the Grotthuss anomaly.</p></a>
+      <a class="les" href="l7-2-ion-race.html#lesson">Start the guided lesson</a></li>
   </ul>
 
   <h2>Lecture 8 &middot; Transport II: diffusion and thermal gradients</h2>
   <ul>
     <li><a href="l8-1-diffusion-clock.html"><span class="code">L8.1</span>
       <div class="name">The diffusion clock</div>
-      <p class="desc">A thousandfold increase in distance costs a millionfold increase in time.</p></a></li>
+      <p class="desc">A thousandfold increase in distance costs a millionfold increase in time.</p></a>
+      <a class="les" href="l8-1-diffusion-clock.html#lesson">Start the guided lesson</a></li>
     <li><a href="l8-2-thermophoresis-mst.html"><span class="code">L8.2</span>
       <div class="name">Thermophoresis and an MST titration</div>
-      <p class="desc">How a depletion measurement becomes a dissociation constant.</p></a></li>
+      <p class="desc">How a depletion measurement becomes a dissociation constant.</p></a>
+      <a class="les" href="l8-2-thermophoresis-mst.html#lesson">Start the guided lesson</a></li>
   </ul>
 
   <footer>

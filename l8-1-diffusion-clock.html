@@ -410,7 +410,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
   <p class="point">A thousandfold increase in distance costs a millionfold increase in time. That is why cells are small and why nobody waits for a beaker to mix itself.</p>
 
   <div class="lesson-cta" id="lessonCta">
-    <p><b>Guided lesson.</b> Eight short questions on how far and how fast diffusion goes, about ten minutes. Each step asks you to predict first, then shows you the answer in the demo.</p>
+    <p><b>Guided lesson.</b> Nine short questions on how far and how fast diffusion goes, about ten minutes. Each step asks you to predict first, then shows you the answer in the demo.</p>
     <div class="lcta-btns">
       <button type="button" class="btn go" id="lessonStart">Start the guided lesson</button>
       <button type="button" class="lesson-exit" id="lessonRestart" hidden>Start again from step 1</button>
@@ -466,7 +466,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
         <button type="button" class="btn" id="run">Start</button>
         <button type="button" class="btn" id="resetBtn">Reset</button>
       </div>
-      <div class="sub">The picture is always the same. Only the clock changes.</div>
+      <div class="sub">Without convection the picture is the same for every species and distance; only the clock changes.</div>
     </div>
   </section>
 
@@ -637,6 +637,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
   // times to three significant figures, since D is known to two or three
   function fmtT(s){
     if(!isFinite(s)) return "–";
+    if(s === 0) return "0 s";
     function p3(x){ return String(Number(x.toPrecision(3))); }
     if(s < 1e-6) return p3(s*1e9) + " ns";
     if(s < 1e-3) return p3(s*1e6) + " µs";
@@ -741,7 +742,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     g.beginPath(); g.arc(cx, cy, 2.5, 0, 6.2832); g.fill();
     mono(g,11,500);
     if(cx >= 0) tag(g, fmtLen(S.target), cx, cy-rt-4, "center", "bottom", TH.red, TH["panel-2"]);
-    else if(cx + rt < 0) tag(g, "← start, " + fmtLen(pan) + " upstream", 10, H-36, "left", "middle", TH.red, TH["panel-2"]);
+    else if(cx + rt < 0) tag(g, "← start, " + fmtLen(pan) + " upstream", 10, H-50, "left", "middle", TH.red, TH["panel-2"]);
 
     // scale bar
     var barM = S.target/2, barPx = barM*scale;
@@ -830,7 +831,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     $("stopwatch").textContent = fmtT(tCross(S.target));
     crossText();
 
-    $("eq1").textContent = "t = x² / 2D = (" + sci(S.target,0) + " m)² / 2(" + sci(D(),2) +
+    $("eq1").textContent = "t = x² / 2D = (" + sci(S.target,0) + " m)² / 2(" + sci(D(), D() < 1e-12 ? 0 : 2) +
       " m² s⁻¹) = " + sci(tCross(S.target),2) + " s, that is " + fmtT(tCross(S.target));
     var ten = tCross(S.target*10);
     $("eq2").textContent = "ten times the distance: " + fmtT(ten) + ", which is a hundred times longer, not ten";
@@ -845,7 +846,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
 
     $("walkTitle").textContent = S.conv ? "Four hundred particles, carried by the solvent as they spread" : "Four hundred particles, no field, no stirring";
     $("walkCap").innerHTML = "Every particle takes independent random steps. The dashed circle has radius &lang;x<sup>2</sup>&rang;<sup>1/2</sup> = (2<em>Dt</em>)<sup>1/2</sup>, " +
-      "the rms displacement along any one direction, which is the quantity eqn 8.7 uses. It is not the furthest any particle has gone.";
+      "the rms displacement along any one direction, which is the quantity eqn 8.7 uses. It is not the furthest any particle has gone: about six particles in ten lie outside it, because it measures the spread along one direction and the swarm spreads in two.";
     $("miniCap").innerHTML = S.conv
       ? "Both panels measure the spread about the centre of the swarm, so the drift drops out and &lang;x<sup>2</sup>&rang; still follows 2<em>Dt</em>. The straight line is the top one."
       : "Upper panel is the mean square displacement, lower panel its square root. The straight line is the top one.";
@@ -989,7 +990,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
         h += "<span class=\"verdict " + (picked.ok ? "ok" : "no") + "\" tabindex=\"-1\" id=\"lVerdict\">" + (picked.ok ? "Right." : "Not quite.") + "</span>" +
              picked.why + (picked.ok ? "" : "<span class=\"ans\">The right answer was: <b>" + right.t + "</b>. " + right.why + "</span>") +
              "<span class=\"more\">" + s.more + "</span>" +
-             (s.after || s.hide || s.veil ? "<button type=\"button\" class=\"lsee\" id=\"lSee\">See it in the demo &uarr;</button>" : "") +
+             (s.after || s.hide || s.veil ? "<button type=\"button\" class=\"lsee\" id=\"lSee\">See it in the demo <span id=\"lSeeArr\" aria-hidden=\"true\">&uarr;</span></button>" : "") +
              (C.replay && s.after && s.after.run ? "<button type=\"button\" class=\"lsee\" id=\"lAgainRun\">Run it again</button>" : "");
       }
       h += "</div><div class=\"lnav\">" +
@@ -1002,6 +1003,8 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       });
       if($l("lBack")) $l("lBack").addEventListener("click", function(){ LS.i--; go(); });
       $l("lNext").addEventListener("click", function(){ LS.i++; go(); });
+      // the arrow points to where the picture is: above the lesson card, or below it on a phone
+      if($l("lSeeArr")){ var pp = picture(); if(pp && pp.getClientRects().length) $l("lSeeArr").textContent = pp.getBoundingClientRect().top < lessonEl.getBoundingClientRect().top ? "\u2191" : "\u2193"; }
       if($l("lAgainRun")) $l("lAgainRun").addEventListener("click", function(){ C.replay(s); pollChips(s); });
       if($l("lSee")) $l("lSee").addEventListener("click", function(){
         var pic = picture(); if(!pic) return;
@@ -1094,7 +1097,13 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     $l("lExit").addEventListener("click", leave);
     // a link ending in #lesson opens the page straight into the lesson, without scrolling
     // a Canvas page that holds it in an iframe
-    if(location.hash === "#lesson") setTimeout(function(){ start(true, true); }, 0);
+    if(location.hash === "#lesson") setTimeout(function(){
+      start(true, true);
+      // the browser's own jump to #lesson leaves the picture above the screen; this scrolls this
+      // document only (inside a Canvas iframe the Canvas page itself does not move)
+      function toPic(){ var pc = picture(); if(pc && pc.getClientRects().length) window.scrollTo(0, pc.getBoundingClientRect().top + window.pageYOffset); }
+      if(document.readyState === "complete") setTimeout(toPic, 0); else window.addEventListener("load", function(){ setTimeout(toPic, 0); });
+    }, 0);
     // a pause control for the moving picture, since the demo's own controls are hidden
     // sliders announce the value the page prints beside them (with its unit), not the raw slider number
     [].forEach.call(document.querySelectorAll("input[type=range]"), function(r){
@@ -1160,7 +1169,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     steps: [
     { title:"Across one cell",
       setup:{}, show:[], hide:1,
-      text:"A sodium ion in water at 298 K has <em>D</em> = 1.33 × 10<sup>&minus;9</sup> m<sup>2</sup> s<sup>&minus;1</sup> (Table 8.1). The red circle has a radius of 10 µm, about the size of a cell. The time to spread that far is <em>t</em> = <em>x</em><sup>2</sup>/2<em>D</em>, from eqn 8.7.",
+      text:"A sodium ion in water at 298 K has <em>D</em> = 1.33 × 10<sup>&minus;9</sup> m<sup>2</sup> s<sup>&minus;1</sup> (Table 8.1). The red circle is drawn 10 µm from the start, about the width of a cell. The time to spread that far is <em>t</em> = <em>x</em><sup>2</sup>/2<em>D</em>, from eqn 8.7.",
       q:"About how long does Na⁺ take to diffuse 10 µm?",
       opts:[
         {t:"About 40 µs", why:"That would be the time for about 0.3 µm. Square the distance: (10<sup>&minus;5</sup> m)<sup>2</sup> = 10<sup>&minus;10</sup> m<sup>2</sup>."},
@@ -1193,7 +1202,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
         {t:"About ten hours", ok:true, why:"(10<sup>&minus;2</sup>)<sup>2</sup>/(2 × 1.33 × 10<sup>&minus;9</sup>) = 3.76 × 10<sup>4</sup> s = 10.4 h."},
         {t:"About ten days", why:"That is the scale for an <em>E. coli</em> cell over 1 mm, which comes later."}
       ],
-      after:{target:1e-2}, show2:["t"],
+      after:{target:1e-2, run:true}, show2:["t"],
       more:"Nobody waits ten hours for a beaker to mix itself. Over laboratory distances it is stirring and convection that do the work." },
 
     { title:"A protein against a small ion",
@@ -1207,7 +1216,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
         {t:"About 150 times longer, the square of the ratio of <em>D</em>", why:"The time goes as 1/<em>D</em>, not 1/<em>D</em><sup>2</sup>. The square belongs to the distance."}
       ],
       after:{spec:"lysozyme", run:true}, show2:["na","lys"],
-      more:"0.038 s for Na⁺ and 0.45 s for lysozyme. Even a protein crosses a cell in under a second." },
+      more:"38 ms for Na⁺ and 455 ms for lysozyme. Even a protein crosses a cell in under a second." },
 
     { title:"A bacterium",
       setup:{spec:"ecoli", target:1e-3}, show:[], hide:1,
@@ -1219,7 +1228,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
         {t:"About twelve days", ok:true, why:"(10<sup>&minus;3</sup>)<sup>2</sup>/(2 × 5 × 10<sup>&minus;13</sup>) = 1.0 × 10<sup>6</sup> s, which is 11.6 days."},
         {t:"About twelve years", why:"Too long by a factor of 365. Check the units of the final step."}
       ],
-      show2:["t"],
+      after:{run:true}, show2:["t"],
       more:"Real bacteria cover a millimetre in a minute or two because they swim (Section 8.1.5). Once a body is much bigger than a molecule, diffusion stops being a way of getting anywhere." },
 
     { title:"Twice the time",
@@ -1227,12 +1236,23 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       text:"The dashed teal circle has a radius equal to the rms spread, (2<em>Dt</em>)<sup>1/2</sup>. After you answer, watch it as the swarm spreads.",
       q:"When the time doubles, how much larger does the rms spread become?",
       opts:[
-        {t:"Twice as large", why:"That would be steady motion in one direction. Random steps partly cancel."},
+        {t:"Twice as large", why:"That would be steady motion in one direction, like drift in a field. Random steps partly cancel, so the spread grows only as <em>t</em><sup>1/2</sup>."},
         {t:"About 1.4 times as large", ok:true, why:"The spread goes as <em>t</em><sup>1/2</sup>, so doubling the time multiplies it by 2<sup>1/2</sup> = 1.41."},
         {t:"Four times as large", why:"It is the mean <em>square</em> displacement that doubles. Its square root rises by 2<sup>1/2</sup>."}
       ],
       after:{run:true}, show2:["r2"], settle:21000,
       more:"The chip reads the swarm itself: the spread at the end of the run so far, against the spread at half that time. The two small charts under the stopwatch show the same thing: ⟨<em>x</em><sup>2</sup>⟩ grows in a straight line with time, and its square root only as <em>t</em><sup>1/2</sup>." },
+
+    { title:"One hour",
+      setup:{}, show:[], hide:1,
+      text:"So far every question has turned a distance into a time. Turn it round: (2<em>Dt</em>)<sup>1/2</sup> gives the rms spread after a time <em>t</em>. Na⁺ has <em>D</em> = 1.33 × 10<sup>&minus;9</sup> m<sup>2</sup> s<sup>&minus;1</sup>.",
+      q:"How far does Na⁺ spread in one hour?",
+      opts:[
+        {t:"About 10 µm", why:"2<em>Dt</em> = 9.6 × 10<sup>&minus;6</sup> m<sup>2</sup> is the square of the spread; take its square root."},
+        {t:"About 3 mm", ok:true, why:"(2 × 1.33 × 10<sup>&minus;9</sup> × 3600)<sup>1/2</sup> = (9.6 × 10<sup>&minus;6</sup>)<sup>1/2</sup> = 3.1 × 10<sup>&minus;3</sup> m."},
+        {t:"About 3 cm", why:"That would take about 94 hours: ten times further takes a hundred times longer."}
+      ],
+      more:"An hour buys only a few millimetres, the thickness of a coin. That is why a dissolving sugar cube sits in its own sweet layer until the tea is stirred." },
 
     { title:"Add a current",
       setup:{conv:true, vel:50}, show:["v"], hide:1,

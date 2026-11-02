@@ -396,7 +396,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
   <p class="point">Water held in a hydration shell has stopped being solvent. Take enough of it out of service and the effective concentration of the salt climbs above its molality, which is how &gamma;<sub>&plusmn;</sub> gets above 1.</p>
 
   <div class="lesson-cta" id="lessonCta">
-    <p><b>Guided lesson.</b> Eight short questions on why activity coefficients rise in concentrated solutions, about ten minutes. Each step asks you to predict first, then shows you the answer in the demo.</p>
+    <p><b>Guided lesson.</b> Nine short questions on why activity coefficients rise in concentrated solutions, about ten minutes. Each step asks you to predict first, then shows you the answer in the demo.</p>
     <div class="lcta-btns">
       <button type="button" class="btn go" id="lessonStart">Start the guided lesson</button>
       <button type="button" class="lesson-exit" id="lessonRestart" hidden>Start again from step 1</button>
@@ -957,7 +957,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
         h += "<span class=\"verdict " + (picked.ok ? "ok" : "no") + "\" tabindex=\"-1\" id=\"lVerdict\">" + (picked.ok ? "Right." : "Not quite.") + "</span>" +
              picked.why + (picked.ok ? "" : "<span class=\"ans\">The right answer was: <b>" + right.t + "</b>. " + right.why + "</span>") +
              "<span class=\"more\">" + s.more + "</span>" +
-             (s.after || s.hide || s.veil ? "<button type=\"button\" class=\"lsee\" id=\"lSee\">See it in the demo &uarr;</button>" : "") +
+             (s.after || s.hide || s.veil ? "<button type=\"button\" class=\"lsee\" id=\"lSee\">See it in the demo <span id=\"lSeeArr\" aria-hidden=\"true\">&uarr;</span></button>" : "") +
              (C.replay && s.after && s.after.run ? "<button type=\"button\" class=\"lsee\" id=\"lAgainRun\">Run it again</button>" : "");
       }
       h += "</div><div class=\"lnav\">" +
@@ -970,6 +970,8 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       });
       if($l("lBack")) $l("lBack").addEventListener("click", function(){ LS.i--; go(); });
       $l("lNext").addEventListener("click", function(){ LS.i++; go(); });
+      // the arrow points to where the picture is: above the lesson card, or below it on a phone
+      if($l("lSeeArr")){ var pp = picture(); if(pp && pp.getClientRects().length) $l("lSeeArr").textContent = pp.getBoundingClientRect().top < lessonEl.getBoundingClientRect().top ? "\u2191" : "\u2193"; }
       if($l("lAgainRun")) $l("lAgainRun").addEventListener("click", function(){ C.replay(s); pollChips(s); });
       if($l("lSee")) $l("lSee").addEventListener("click", function(){
         var pic = picture(); if(!pic) return;
@@ -1062,7 +1064,13 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     $l("lExit").addEventListener("click", leave);
     // a link ending in #lesson opens the page straight into the lesson, without scrolling
     // a Canvas page that holds it in an iframe
-    if(location.hash === "#lesson") setTimeout(function(){ start(true, true); }, 0);
+    if(location.hash === "#lesson") setTimeout(function(){
+      start(true, true);
+      // the browser's own jump to #lesson leaves the picture above the screen; this scrolls this
+      // document only (inside a Canvas iframe the Canvas page itself does not move)
+      function toPic(){ var pc = picture(); if(pc && pc.getClientRects().length) window.scrollTo(0, pc.getBoundingClientRect().top + window.pageYOffset); }
+      if(document.readyState === "complete") setTimeout(toPic, 0); else window.addEventListener("load", function(){ setTimeout(toPic, 0); });
+    }, 0);
     // a pause control for the moving picture, since the demo's own controls are hidden
     // sliders announce the value the page prints beside them (with its unit), not the raw slider number
     [].forEach.call(document.querySelectorAll("input[type=range]"), function(r){
@@ -1092,6 +1100,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     if(phase === "setup"){ o = {salt:"LiCl", m:100, hc:5, ha:1}; $("crossNote").textContent = ""; }
     if(cfg.salt){ o.salt = cfg.salt; o.hc = SALTS[cfg.salt].hc; o.ha = SALTS[cfg.salt].ha; }
     if(cfg.m !== undefined) o.m = cfg.m;
+    if(cfg.hc !== undefined) o.hc = cfg.hc;
     apply(o);
   }
   function gAt(name, m){ var g = gammaAt(SALTS[name], m); return g === null ? "none" : num(g,3); }
@@ -1132,8 +1141,8 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       q:"How much water is locked up in the shells?",
       opts:[
         {t:"1 mol", why:"That counts one water per formula unit. Each Li⁺ holds five and each Cl⁻ one."},
-        {t:"6 mol", ok:true, why:"(5 + 1) × 1.0 mol = 6.0 mol, which is 11 per cent of the 55.5 mol."},
-        {t:"55.5 mol", why:"That would be all of it. At this molality most of the water is still free."}
+        {t:"5 mol", why:"That counts only the water on Li⁺. Each Cl⁻ holds one as well, so (5 + 1) × 1.0 = 6 mol."},
+        {t:"6 mol", ok:true, why:"(5 + 1) × 1.0 mol = 6.0 mol, which is 11 per cent of the 55.5 mol."}
       ],
       show2:["lock","free"],
       more:"At 1 mol kg<sup>&minus;1</sup> the shells take only a small part of the water, so the correction is modest (Section 6.4)." },
@@ -1164,18 +1173,31 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       show2:["fac","gam","rat"],
       more:"Once the free water is counted properly, the whole rise above 1 has gone: the quotient is 0.93, a little below 1. The hollow points in the γ<sub>±</sub> chart show this quotient at every molality, which is the decomposition the free-water argument implies." },
 
+    { title:"How much rests on the hydration number",
+      picture:"#gamBox",
+      setup:{salt:"LiCl", m:500}, show:["fac","gam"], hide:1,
+      text:"The quotient of 0.93 assumed five waters on each Li⁺. Hydration numbers are not measured directly. Suppose Li⁺ held four instead, with one on Cl⁻ as before.",
+      q:"What is γ<sub>±</sub> divided by the hydration factor now, at 5.0 mol kg<sup>&minus;1</sup>?",
+      opts:[
+        {t:"About 0.78", why:"That moves the wrong way. Fewer locked waters make the factor smaller, so the quotient rises."},
+        {t:"Still about 0.93", why:"One water fewer per formula unit frees 5 mol at this molality, which takes the factor from 2.18 to 1.82."},
+        {t:"About 1.11", ok:true, why:"<em>h</em> = 5, so 25 mol are locked and the factor is 55.5/30.5 = 1.82; 2.02/1.82 = 1.11."}
+      ],
+      after:{hc:4}, show2:["fac","gam","rat"],
+      more:"One water on Li⁺ decides whether the quotient lands above or below 1. The count explains the trend; it does not measure the hydration number. Try other values in the free explorer." },
+
     { title:"Lithium, sodium, potassium",
       picture:"#gamBox",
       setup:{salt:"LiCl", m:300}, show:[], hide:1,
       text:"Li⁺, Na⁺, and K⁺ carry the same charge, so the limiting law cannot tell their chlorides apart.",
       q:"At 3.0 mol kg<sup>&minus;1</sup>, how do their measured γ<sub>±</sub> compare?",
       opts:[
-        {t:"KCl > NaCl > LiCl", why:"That would follow if larger ions behaved less ideally. The order is set by hydration, and Li⁺ is the most hydrated."},
+        {t:"KCl > NaCl > LiCl", why:"That is the order the bare ions would give: K⁺ is the largest, and in the extended Debye–Hückel law a larger ion has the higher γ<sub>±</sub>. In water the order reverses, because Li⁺, the smallest bare ion, carries the largest hydration shell."},
         {t:"LiCl > NaCl > KCl", ok:true, why:"1.156, 0.714, and 0.569 (Fig. 6.2). The smallest cation, with the highest field at its surface, holds the most water."},
         {t:"All three about the same", why:"They would be in the limiting law, but at 3 mol kg<sup>&minus;1</sup> hydration separates them widely."}
       ],
       show2:["three"],
-      more:"The ordering Li⁺ > Na⁺ > K⁺ is a hydration effect, and it is the point of Fig. 6.2." },
+      more:"The order of γ<sub>±</sub>, LiCl > NaCl > KCl, is a hydration effect, and it is the point of Fig. 6.2." },
 
     { title:"Potassium chloride",
       setup:{salt:"LiCl", m:450}, show:[], hide:1,

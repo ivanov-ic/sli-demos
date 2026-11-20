@@ -385,6 +385,45 @@
   .lesson-on #cellCap, .lesson-on #traceCap{display:none}
 
 </style>
+<style id="tipStyle">
+.tipbtn{display:inline-flex; align-items:center; justify-content:center; vertical-align:middle; position:relative;
+  width:18px; height:18px; min-height:0; padding:0; margin:0 0 0 6px; border-radius:50%; cursor:help;
+  font:italic 600 12px/1 "Source Serif 4", Georgia, serif; text-transform:none; letter-spacing:0;
+  background:transparent; color:var(--muted); border:1px solid var(--line); flex:none}
+.tipbtn::before{content:"i"}
+.tipbtn::after{content:""; position:absolute; inset:-11px}
+.tipbtn:hover, .tipbtn[aria-expanded="true"]{color:var(--blue); border-color:var(--blue); background:var(--blue-soft, transparent)}
+.tipbtn:focus-visible{outline:2px solid var(--blue); outline-offset:2px}
+.ctl > .lab > .tipbtn, .ctl > label > .tipbtn, .ctl > .tl + .tipbtn{margin-right:auto}
+.ro .k .tipbtn, .work .k .tipbtn{width:16px; height:16px; font-size:11px}
+.legend .key .tipbtn, .cap .tipbtn{width:16px; height:16px; font-size:11px; margin-left:4px}
+.card h2 .tipbtn{margin-left:8px; position:relative; top:-1px}
+#tipPop{position:fixed; z-index:2147483000; left:0; top:0; max-width:min(330px, calc(100vw - 20px)); box-sizing:border-box;
+  padding:10px 12px 11px; border-radius:8px; background:var(--panel); color:var(--ink); border:1px solid var(--blue);
+  box-shadow:0 8px 28px rgba(0,0,0,.22); font:400 13px/1.45 "IBM Plex Sans", system-ui, sans-serif; text-transform:none; letter-spacing:0;
+  opacity:0; visibility:hidden; pointer-events:none; transition:opacity .1s}
+#tipPop.on{opacity:1; visibility:visible; pointer-events:auto}
+#tipPop b{display:block; font:600 14px/1.3 "Source Serif 4", Georgia, serif; margin-bottom:3px; color:var(--deep, var(--ink))}
+#tipPop .tu{display:block; font:400 11.5px/1.3 "IBM Plex Mono", monospace; color:var(--muted); margin-bottom:5px}
+#tipPop p{margin:0 0 5px} #tipPop p:last-child{margin-bottom:0}
+#tipPop em{font-style:italic} #tipPop code{font-family:"IBM Plex Mono", monospace; font-size:12px}
+#gloss{margin-top:16px; background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:0}
+#gloss > summary{cursor:pointer; padding:12px 15px; font:600 15px/1.3 "Source Serif 4", Georgia, serif; list-style-position:inside; min-height:24px}
+#gloss > summary:focus-visible{outline:2px solid var(--blue); outline-offset:-2px}
+#gloss .gbody{padding:0 15px 14px; columns:300px 2; column-gap:26px}
+#gloss h3, #lSym h3{font:500 11.5px/1.3 "IBM Plex Sans", sans-serif; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); margin:12px 0 4px; break-after:avoid}
+#gloss dl, #lSym dl{margin:0} #gloss dt, #lSym dt{font-weight:600; margin-top:8px; break-after:avoid}
+#gloss dd, #lSym dd{margin:1px 0 0; color:var(--ink-2); font-size:13.5px; break-inside:avoid-column}
+#gloss dd p, #lSym dd p{margin:0 0 4px} #gloss .tu, #lSym .tu{display:block; font:400 11.5px/1.3 "IBM Plex Mono", monospace; color:var(--muted)}
+#lSym{border:1px solid var(--line); border-radius:8px; background:var(--panel-2); margin:8px 0 10px; padding:10px 14px 12px; max-height:min(55vh, 440px); overflow:auto}
+#lSym[hidden]{display:none}
+#lSym input{width:100%; box-sizing:border-box; font:inherit; font-size:14px; padding:8px 10px; min-height:40px; border:1px solid var(--line); border-radius:6px; background:var(--panel); color:var(--ink)}
+#lSym .gbody{padding:0}
+#lSym .lsn{font-size:12px; color:var(--muted); margin:6px 0 0}
+.lesson-on #gloss{display:none}
+@media (prefers-reduced-motion:reduce){#tipPop{transition:none}}
+@media print{.tipbtn, #tipPop{display:none !important} #gloss{break-inside:avoid}}
+</style>
 <body>
 <script>if(window.self!==window.top)document.documentElement.classList.add("in-frame");</script>
 <noscript><div style="max-width:60ch;margin:40px auto;padding:18px 22px;border:1px solid #CF4520;border-radius:8px;background:#fff;color:#0F1E2B;font:15px/1.55 'IBM Plex Sans',system-ui,sans-serif">
@@ -399,7 +438,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       <h1>Thermophoresis and an MST titration</h1>
     </div>
   </header>
-  <p class="point">Thermophoresis does not erase the temperature gradient. It builds a concentration gradient that opposes it, and the steady state between the two is what an instrument measures.</p>
+  <p class="point">Thermophoresis does not erase the temperature gradient. It builds a concentration gradient that opposes the thermophoretic flux, and the steady state between the two is what an instrument measures.</p>
 
   <div class="lesson-cta" id="lessonCta">
     <p><b>Guided lesson.</b> Nine short questions on how a temperature gradient moves molecules, about ten minutes. Each step asks you to predict first, then shows you the answer in the demo.</p>
@@ -482,7 +521,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     <div class="col-right">
       <div class="card">
         <h2>What the instrument records</h2>
-        <p class="cap" id="traceCap">Fluorescence from the hottest part of the heated region, as a fraction of its value before the laser came on. The simulated cell is closed and finite, and the reading averages over the hot core rather than its very centre, so the trace settles a little closer to 1 than the ideal ratio, and further from it as |<em>S</em><sub>T</sub>&Delta;<em>T</em>| grows.</p>
+        <p class="cap" id="traceCap">Fluorescence from the hottest part of the heated region, as a fraction of its value before the laser came on. Instruments report <em>F</em><sub>norm</sub> = <em>F</em><sub>hot</sub>/<em>F</em><sub>cold</sub>, usually in per mille, after allowing for the fast fluorescence drop when the laser switches on. The simulated cell is closed and finite, and the reading averages over the hot core rather than its very centre, so the trace settles a little closer to 1 than the ideal ratio, and further from it as |<em>S</em><sub>T</sub>&Delta;<em>T</em>| grows.</p>
         <div class="canvas-box" id="traceBox"><canvas role="img" id="trace" aria-label="Fluorescence in the heated spot against time"></canvas></div>
         <div class="readouts" style="margin-top:10px; grid-template-columns:repeat(3,minmax(0,1fr))">
           <div class="ro"><div class="k">Now</div><div class="v" id="roNow">&ndash;</div><div class="n">of the starting value</div></div>
@@ -998,7 +1037,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       $("sideTitle").innerHTML = "The titration, and the <em>K</em><sub>d</sub> it gives";
       $("sideCap").innerHTML = "Each point is the plateau depletion at one partner concentration. The curve is the fit, which takes the labelled molecule to be far more dilute than <em>K</em><sub>d</sub>, so the bound fraction is <em>L</em>/(<em>L</em> + <em>K</em><sub>d</sub>). The dashed red line marks the partner concentration now in the cell, set by the slider; the solid teal line is the fitted <em>K</em><sub>d</sub>.";
       $("cellCap").innerHTML = "At this partner concentration the labelled molecule is " + num(f*100,0) +
-        " per cent bound, so its Soret coefficient is " + num(st,4) + " K<sup>&minus;1</sup>.";
+        " per cent bound, so its effective Soret coefficient is " + num(st,4) + " K<sup>&minus;1</sup>.";
       $("workK").textContent = "From a depletion to a dissociation constant";
       $("eq1").textContent = "bound fraction = L/(L+Kd) = " + sig3(ligNm()) + "/(" + sig3(ligNm()) + " + " + sig3(kdNm()) + ") = " + num(f,3);
       $("eq2").textContent = "Sᴛ = " + num(ST_FREE,3) + " + " + num(f,3) + "(" + num(ST_BOUND,3) + " − " + num(ST_FREE,3) +
@@ -1007,7 +1046,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
           ? ".  With this little heating, bound and free give the same reading to within the scatter, so there is nothing to fit"
           : ".  Fitting the twelve points returns Kd = " + sig3(Kfit) + " nmol dm⁻³ against a true " + sig3(kdNm()) +
             ", out by " + num(Math.abs(Kfit-kdNm())/kdNm()*100,1) + " per cent");
-      $("eqNote").innerHTML = "Binding buries surface area, rearranges the hydration water, and usually changes the effective charge. Any of those shifts <em>S</em><sub>T</sub>, and the shift is what the fluorescence reports. The method does not say which of the three did it.";
+      $("eqNote").innerHTML = "Binding buries surface area, rearranges the hydration water, and usually changes the effective charge. Any of those shifts <em>S</em><sub>T</sub>, and the shift is what the fluorescence reports. The method does not say which of the three did it. The effective <em>S</em><sub>T</sub> used here is the bound-fraction-weighted average, a good approximation while <em>S</em><sub>T</sub>&Delta;<em>T</em> is small; strictly, the free and bound molecules deplete separately.";
     } else if(S.mode === "duhr"){
       $("sideTitle").innerHTML = "Steady state against &Delta;<em>T</em>";
       $("sideCap").innerHTML = "The same exponential applies pixel by pixel across the pattern.";
@@ -1493,6 +1532,188 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       next:"Now go back to the free explorer, run the titration with a different <em>K</em><sub>d</sub>, and try writing your own letters."
     }
   });
+})();
+</script>
+<script>
+var TIPS=[
+{group:'Controls', sel:'.ctl > .lab', match:'^Mode', term:'Mode', unit:'one measurement, titration, or Duhr and Braun',
+ text:'One measurement: a laser warms a spot and you watch one steady state form. Titration: the Soret coefficient changes as a partner binds, and a <em>K</em><sub>d</sub> is fitted. Duhr and Braun: the heated region is shaped into letters.'},
+{group:'Controls', sel:'#stVal', up:'label', term:'Soret coefficient, <em>S</em><sub>T</sub>', unit:'K<sup>&minus;1</sup>',
+ text:'<em>S</em><sub>T</sub> = <em>D</em><sub>T</sub>/<em>D</em>, the thermophoretic coefficient divided by the diffusion coefficient. Positive means thermophobic (the solute moves from hot to cold), negative thermophilic. It sets the steady state through e<sup>&minus;<em>S</em><sub>T</sub>&Delta;<em>T</em></sup>.'},
+{group:'Controls', sel:'#dTVal', up:'label', term:'Laser heating, &Delta;<em>T</em>', unit:'K',
+ text:'Peak temperature rise at the centre of the heated region above the surroundings. The temperature profile is Gaussian, so &Delta;<em>T</em> is the largest difference between any two points. Infrared-laser heating in real instruments is a few kelvin.'},
+{group:'Controls', sel:'#dVal', up:'label', term:'Diffusion coefficient, <em>D</em>', unit:'&micro;m<sup>2</sup> s<sup>&minus;1</sup>',
+ text:'Rate of ordinary diffusion of the solute, which opposes the thermophoretic drift. Because <em>S</em><sub>T</sub> is held fixed, <em>D</em> sets how long the system takes to settle, and the time axis of the trace rescales to match.'},
+{group:'Controls', sel:'#kdVal', up:'label', term:'True dissociation constant, <em>K</em><sub>d</sub>', unit:'nmol dm<sup>&minus;3</sup>',
+ text:'The value built into the simulated binding, <em>K</em><sub>d</sub> = [free][partner]/[complex]: the partner concentration at which half of the labelled molecule is bound. The demo then tries to recover it by fitting the titration (slider on a log scale).'},
+{group:'Controls', sel:'#ligVal', up:'label', term:'Unlabelled partner, <em>L</em>', unit:'nmol dm<sup>&minus;3</sup>',
+ text:'Concentration of the binding partner that carries no fluorescent label and is titrated in, while the labelled molecule is held at a low fixed concentration. It sets the bound fraction <em>L</em>/(<em>L</em> + <em>K</em><sub>d</sub>) (slider on a log scale).'},
+{group:'Controls', sel:'.ctl > .lab', match:'^Heated pattern', term:'Heated pattern', unit:'up to five letters',
+ text:'The letters the laser traces. The temperature field takes their shape, softened by a short blur so that gradients are finite, and the solute follows it. Peak heating is the &Delta;<em>T</em> slider.'},
+{group:'Controls', sel:'.ctl > .lab', match:'^Run', term:'Run clock', unit:'s of simulated time',
+ text:'Time elapsed in the simulation. The run stops once the trace has had several diffusion times across the heated spot to settle.'},
+{group:'Readouts', sel:'.ro .k', match:'^Now', term:'Now, <em>F</em> / <em>F</em><sub>0</sub>', unit:'dimensionless',
+ text:'The current fluorescence averaged over the hottest part of the heated region, divided by its value before the laser came on. It stands in for the local concentration there, relative to the start.'},
+{group:'Readouts', sel:'.ro .k', match:'^Steady state', term:'Steady state, e<sup>&minus;<em>S</em><sub>T</sub>&Delta;<em>T</em></sup>', unit:'dimensionless',
+ text:'The ideal ratio <em>c</em>(<em>T</em><sub>2</sub>)/<em>c</em>(<em>T</em><sub>1</sub>) of concentration at the hot point to that at the cold surroundings, eqn 8.11. It is a formula value for the current sliders, not a measurement of the simulation. In titration mode <em>S</em><sub>T</sub> is the effective value for the bound fraction.'},
+{group:'Readouts', sel:'#kDep', term:'Depletion or enrichment', unit:'per cent',
+ text:'The size of the ideal change at the warm point, 100 &times; |1 &minus; e<sup>&minus;<em>S</em><sub>T</sub>&Delta;<em>T</em></sup>|. The label reads Depletion when the ratio is below 1 and Enrichment when it is above 1.'},
+{group:'Chart', sel:'#cellTitle', term:'The cell and its colour bar', unit:'plan view, 50 &micro;m scale bar',
+ text:'A thin closed cell seen from above. Colour shows concentration relative to the starting value, from depleted to enriched. The dashed red circle outlines the laser spot (one standard deviation of the Gaussian temperature profile, 22 &micro;m); in Duhr mode the dashed frame is the whole field.'},
+{group:'Chart', sel:'.card h2', match:'^What the instrument records', term:'Fluorescence trace, <em>F</em> / <em>F</em><sub>0</sub>', unit:'dimensionless against s',
+ text:'Vertical axis: fluorescence in the hot core relative to before heating. Horizontal axis: time in seconds. The dashed teal line is the ideal e<sup>&minus;<em>S</em><sub>T</sub>&Delta;<em>T</em></sup>. Real MST reports the hot-to-cold ratio, <em>F</em><sub>norm</sub> = <em>F</em><sub>hot</sub>/<em>F</em><sub>cold</sub>, usually in per mille.'},
+{group:'Chart', sel:'#sideTitle', match:'^Steady state against', term:'Steady state against &Delta;<em>T</em>', unit:'<em>c</em>(<em>T</em><sub>2</sub>)/<em>c</em>(<em>T</em><sub>1</sub>) against K',
+ text:'Vertical axis: ideal concentration ratio e<sup>&minus;<em>S</em><sub>T</sub>&Delta;<em>T</em></sup>. Horizontal axis: &Delta;<em>T</em> in kelvin. Solid blue is the current <em>S</em><sub>T</sub>, the dashed grey curves are +0.05 and &minus;0.05 K<sup>&minus;1</sup>, and the red dot is the current setting.'},
+{group:'Chart', sel:'#sideTitle', match:'^The titration', term:'Titration chart and fit', unit:'<em>F</em> / <em>F</em><sub>0</sub> against nmol dm<sup>&minus;3</sup> (log axis)',
+ text:'Each dot is the plateau fluorescence at one partner concentration. The blue curve is the fit of the bound fraction <em>L</em>/(<em>L</em> + <em>K</em><sub>d</sub>), the teal line marks the fitted <em>K</em><sub>d</sub>, and the red dashed line marks the partner concentration now set.'},
+{group:'Chart', sel:'.work .k', match:'^The steady state', term:'The steady state, written out', unit:'worked expression',
+ text:'Line 1: eqn 8.11 with the current <em>S</em><sub>T</sub> and &Delta;<em>T</em> substituted. Line 2: the same result as a per cent change, with the drift and Soret relations that lead to it.'},
+{group:'Chart', sel:'.work .k', match:'^From a depletion', term:'From a depletion to a dissociation constant', unit:'worked expression',
+ text:'Line 1: the bound fraction at the current partner concentration. Line 2: the effective <em>S</em><sub>T</sub> that follows, the resulting <em>F</em>/<em>F</em><sub>0</sub>, and the <em>K</em><sub>d</sub> fitted from all twelve points against the true one.'},
+{group:'Chart', sel:'.work .k', match:'^Writing with', term:'Writing with a temperature field', unit:'worked expression',
+ text:'The same eqn 8.11 applied at every point of the pattern, with the local temperature rise in place of &Delta;<em>T</em>. The concentration pattern is the temperature pattern.'},
+{group:'Symbols', term:'Thermophoretic drift, <em>v</em><sub>T</sub> = &minus;<em>D</em><sub>T</sub>&nabla;<em>T</em> (eqn 8.9)', unit:'m s<sup>&minus;1</sup>',
+ text:'The drift velocity a temperature gradient gives a solute. With <em>D</em><sub>T</sub> positive the drift runs down the gradient, from hot to cold.'},
+{group:'Symbols', term:'Thermodiffusion coefficient, <em>D</em><sub>T</sub>', unit:'m<sup>2</sup> s<sup>&minus;1</sup> K<sup>&minus;1</sup>',
+ text:'The drift speed per unit temperature gradient. Dividing by the ordinary diffusion coefficient gives the Soret coefficient, <em>S</em><sub>T</sub> = <em>D</em><sub>T</sub>/<em>D</em>.'},
+{group:'Symbols', term:'Temperature gradient, &nabla;<em>T</em>', unit:'K m<sup>&minus;1</sup>',
+ text:'How steeply the temperature changes in space. The laser creates it, and it is held for as long as the laser stays on.'},
+{group:'Symbols', term:'Total flux (eqn 8.10)', unit:'<em>J</em> = &minus;<em>D</em> d<em>c</em>/d<em>x</em> &minus; <em>cD</em><sub>T</sub> d<em>T</em>/d<em>x</em>',
+ text:'<em>J</em> is the flux of solute, in mol m<sup>&minus;2</sup> s<sup>&minus;1</sup> if <em>c</em> is in mol m<sup>&minus;3</sup>. The first term is ordinary diffusion, the second is thermophoresis. The demo integrates this on a closed grid, with no flux across the walls.'},
+{group:'Symbols', term:'Steady state (eqn 8.11)', unit:'<em>c</em>(<em>T</em><sub>2</sub>)/<em>c</em>(<em>T</em><sub>1</sub>) = e<sup>&minus;<em>S</em><sub>T</sub>(<em>T</em><sub>2</sub> &minus; <em>T</em><sub>1</sub>)</sup>',
+ text:'Setting <em>J</em> = 0 gives a Boltzmann-like distribution between two points at temperatures <em>T</em><sub>1</sub> and <em>T</em><sub>2</sub>. It involves <em>S</em><sub>T</sub> and the temperature difference only, not <em>D</em>.'},
+{group:'Symbols', term:'Concentration, <em>c</em>, and temperatures, <em>T</em><sub>1</sub>, <em>T</em><sub>2</sub>', unit:'mol dm<sup>&minus;3</sup> (relative in the demo), and K',
+ text:'<em>c</em>(<em>T</em><sub>1</sub>) is the concentration at the cold reference and <em>c</em>(<em>T</em><sub>2</sub>) at the warmer point, so <em>T</em><sub>2</sub> &minus; <em>T</em><sub>1</sub> = &Delta;<em>T</em>. The demo plots concentrations relative to the starting value.'},
+{group:'Symbols', term:'Bound fraction, <em>L</em>/(<em>L</em> + <em>K</em><sub>d</sub>)', unit:'dimensionless',
+ text:'Fraction of the labelled molecule carrying a partner, when the labelled molecule is much more dilute than <em>K</em><sub>d</sub>. It rises from 0 to 1 with partner concentration <em>L</em> and is one half at <em>L</em> = <em>K</em><sub>d</sub>.'},
+{group:'Symbols', term:'Free and bound Soret coefficients', unit:'K<sup>&minus;1</sup>',
+ text:'The labelled molecule has one value of <em>S</em><sub>T</sub> alone and another when bound. The demo uses the bound-fraction-weighted average as the effective <em>S</em><sub>T</sub>. Binding shifts it through size, hydration, or charge.'},
+{group:'Symbols', term:'Example 8.3 and Self-test 8.3', unit:'buttons in the Run panel',
+ text:'Example 8.3 sets <em>S</em><sub>T</sub> and &Delta;<em>T</em> to the book&rsquo;s values and starts a run. Self-test 8.3 sets &Delta;<em>T</em> to the value the exercise asks for and starts a run.'},
+{group:'Constants', term:'Typical magnitudes', unit:'<em>S</em><sub>T</sub> &minus;0.1 to +0.1 K<sup>&minus;1</sup>, &Delta;<em>T</em> 0 to 20 K, <em>D</em> 20 to 400 &micro;m<sup>2</sup> s<sup>&minus;1</sup>',
+ text:'The slider ranges. Real MST uses a few kelvin of heating, and proteins and nucleic acids have <em>D</em> of tens to hundreds of &micro;m<sup>2</sup> s<sup>&minus;1</sup>.'}
+];
+
+</script>
+<script>
+(function(){
+"use strict";
+var T = (typeof TIPS !== "undefined") ? TIPS : [];
+if(!T.length) return;
+var pop = document.createElement("div");
+pop.id = "tipPop"; pop.setAttribute("role","tooltip"); document.body.appendChild(pop);
+var cur = null, pinned = false, hideT = 0, showT = 0, uid = 0;
+
+function html(t){ return t.term ? "<b>"+t.term+"</b>" + (t.unit ? '<span class="tu">'+t.unit+"</span>" : "") + "<p>"+[].concat(t.text).join("</p><p>")+"</p>" : ""; }
+function plain(h){ var d=document.createElement("div"); d.innerHTML=h; return d.textContent.replace(/\s+/g," ").trim(); }
+
+function position(btn){
+  var r = btn.getBoundingClientRect(), vw = document.documentElement.clientWidth, vh = window.innerHeight;
+  pop.style.left = "0px"; pop.style.top = "0px";
+  var w = pop.offsetWidth, h = pop.offsetHeight, m = 8;
+  var x = Math.min(Math.max(m, r.left + r.width/2 - w/2), vw - w - m);
+  var y = r.bottom + 8; if(y + h > vh - m && r.top - h - 8 > m) y = r.top - h - 8;
+  y = Math.max(m, Math.min(y, vh - h - m));
+  pop.style.left = x + "px"; pop.style.top = y + "px";
+}
+function show(btn, pin){
+  clearTimeout(hideT); clearTimeout(showT);
+  if(cur && cur !== btn) cur.setAttribute("aria-expanded","false");
+  cur = btn; pinned = !!pin;
+  pop.innerHTML = html(btn._tip);
+  pop.classList.add("on"); btn.setAttribute("aria-expanded","true"); btn.setAttribute("aria-describedby","tipPop");
+  position(btn);
+}
+function hide(){
+  clearTimeout(hideT); clearTimeout(showT);
+  if(cur){ cur.setAttribute("aria-expanded","false"); cur.removeAttribute("aria-describedby"); }
+  pop.classList.remove("on"); cur = null; pinned = false;
+}
+function make(t){
+  var b = document.createElement("button"); b.type = "button"; b.className = "tipbtn"; b._tip = t;
+  b.setAttribute("aria-label", "What is " + plain(t.term) + "?"); b.setAttribute("aria-expanded","false");
+  b.addEventListener("click", function(e){ e.preventDefault(); e.stopPropagation(); (cur === b && pinned) ? hide() : show(b, true); });
+  b.addEventListener("pointerenter", function(e){ if(e.pointerType !== "mouse" || pinned) return; clearTimeout(hideT); showT = setTimeout(function(){ show(b, false); }, 110); });
+  b.addEventListener("pointerleave", function(e){ if(e.pointerType !== "mouse") return; clearTimeout(showT); if(!pinned) hideT = setTimeout(hide, 160); });
+  b.addEventListener("focus", function(){ if(!pinned) show(b, false); });
+  b.addEventListener("blur", function(){ if(!pinned && cur === b) hide(); });
+  return b;
+}
+pop.addEventListener("pointerenter", function(){ clearTimeout(hideT); });
+pop.addEventListener("click", function(){ if(pinned) hide(); });
+pop.addEventListener("pointerleave", function(e){ if(e.pointerType === "mouse" && !pinned) hideT = setTimeout(hide, 160); });
+document.addEventListener("keydown", function(e){ if(e.key === "Escape" && cur){ var b = cur; hide(); if(document.activeElement !== b) try{ b.focus({preventScroll:true}); }catch(x){} } });
+document.addEventListener("pointerdown", function(e){ if(cur && !pop.contains(e.target) && !(e.target.closest && e.target.closest(".tipbtn"))) hide(); }, true);
+function reflow(){ if(!cur) return; if(!document.body.contains(cur)){ hide(); return; } var r = cur.getBoundingClientRect(); if(r.bottom < 0 || r.top > window.innerHeight) hide(); else position(cur); }
+window.addEventListener("scroll", reflow, {passive:true}); window.addEventListener("resize", reflow);
+
+function place(t){
+  var els = [].slice.call(document.querySelectorAll(t.sel)).map(function(e){ return t.up ? e.closest(t.up) : e; }).filter(Boolean), re = t.match ? new RegExp(t.match) : null, n = 0;
+  els.forEach(function(el){
+    if(re && !re.test(el.textContent.replace(/\s+/g," ").trim())) return;
+    if(!t.all && n) return;
+    n++;
+    if(el.querySelector(":scope > .tipbtn[data-tk=\""+t._k+"\"]") || (el.nextElementSibling && el.nextElementSibling.dataset && el.nextElementSibling.dataset.tk === String(t._k))) return;
+    var b = make(t); b.dataset.tk = t._k;
+    if(el.tagName === "LABEL"){
+      var val = el.querySelector(":scope > .val"), sp = document.createElement("span"); sp.className = "tl"; sp.id = "tl" + (++uid);
+      var kids = [].slice.call(el.childNodes), moved = false;
+      for(var i = 0; i < kids.length; i++){
+        var k = kids[i]; if(k === val) break;
+        if(k.nodeType === 1 && /^(INPUT|SELECT|TEXTAREA|BUTTON)$/.test(k.tagName)) continue;
+        sp.appendChild(k); moved = true;
+      }
+      if(!moved) return;
+      var ref = val || null;
+      if(!val){ el.appendChild(sp); el.appendChild(b); } else { el.insertBefore(sp, val); el.insertBefore(b, val); }
+      var inp = el.getAttribute("for") ? document.getElementById(el.getAttribute("for")) : el.querySelector("input,select,textarea");
+      if(inp && !inp.getAttribute("aria-labelledby")) inp.setAttribute("aria-labelledby", sp.id + (val && val.id ? " " + val.id : ""));
+    } else {
+      var v = el.querySelector(":scope > .val"); if(v && (el.classList.contains("lab"))) el.insertBefore(b, v); else el.appendChild(b);
+    }
+  });
+}
+T.forEach(function(t, i){ t._k = i; });
+var busy = false;
+function placeAll(){ busy = true; try{ T.forEach(function(t){ if(t.sel) place(t); }); }catch(e){} busy = false; }
+
+function glossary(){
+  if(document.getElementById("gloss")) return;
+  var d = document.createElement("details"); d.id = "gloss";
+  var s = document.createElement("summary"); s.textContent = "Symbols and parameters: what every quantity means"; d.appendChild(s);
+  var body = document.createElement("div"); body.className = "gbody"; var g = null, dl = null;
+  T.forEach(function(t){
+    if(!t.term) return;
+    if(t.group !== g){ g = t.group; if(g){ var h = document.createElement("h3"); h.textContent = g; body.appendChild(h); } dl = document.createElement("dl"); body.appendChild(dl); }
+    if(!dl){ dl = document.createElement("dl"); body.appendChild(dl); }
+    var dt = document.createElement("dt"); dt.innerHTML = t.term;
+    var dd = document.createElement("dd"); dd.innerHTML = (t.unit ? '<span class="tu">'+t.unit+"</span>" : "") + "<p>"+[].concat(t.text).join("</p><p>")+"</p>";
+    dl.appendChild(dt); dl.appendChild(dd);
+  });
+  d.appendChild(body);
+  var wrap = document.querySelector(".wrap") || document.body; wrap.appendChild(d);
+}
+function lessonSymbols(){
+  var top = document.querySelector("#lesson .ltop-btns"), bar = document.querySelector("#lesson .lesson-bar"), g = document.getElementById("gloss");
+  if(!top || !bar || !g || document.getElementById("lSym")) return;
+  var btn = document.createElement("button"); btn.type = "button"; btn.className = "lesson-exit"; btn.textContent = "Symbols";
+  btn.setAttribute("aria-expanded","false"); btn.setAttribute("aria-controls","lSym"); top.insertBefore(btn, top.firstChild);
+  var pn = document.createElement("div"); pn.id = "lSym"; pn.hidden = true; pn.setAttribute("role","region"); pn.setAttribute("aria-label","Symbols and parameters");
+  var inp = document.createElement("input"); inp.type = "search"; inp.placeholder = "Filter symbols, for example ST or diffusion"; inp.setAttribute("aria-label","Filter symbols");
+  var body = g.querySelector(".gbody").cloneNode(true); pn.appendChild(inp); pn.appendChild(body);
+  bar.parentNode.insertBefore(pn, bar.nextSibling);
+  btn.addEventListener("click", function(){ var open = pn.hidden; pn.hidden = !open; btn.setAttribute("aria-expanded", open ? "true" : "false"); if(open) inp.focus({preventScroll:true}); });
+  inp.addEventListener("input", function(){
+    var q = inp.value.trim().toLowerCase();
+    [].forEach.call(body.querySelectorAll("dt"), function(dt){ var dd = dt.nextElementSibling, ok = !q || (dt.textContent + " " + dd.textContent).toLowerCase().indexOf(q) >= 0; dt.hidden = !ok; dd.hidden = !ok; });
+    [].forEach.call(body.querySelectorAll("h3"), function(h){ h.hidden = !!q; });
+  });
+  pn.addEventListener("keydown", function(e){ if(e.key === "Escape"){ pn.hidden = true; btn.setAttribute("aria-expanded","false"); btn.focus(); e.stopPropagation(); } });
+}
+glossary(); placeAll(); lessonSymbols();
+var q = 0;
+try{ new MutationObserver(function(){ if(busy || q) return; q = requestAnimationFrame(function(){ q = 0; placeAll(); }); })
+  .observe(document.body, {childList:true, subtree:true}); }catch(e){}
 })();
 </script>
 </body>

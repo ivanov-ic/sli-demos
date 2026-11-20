@@ -389,6 +389,45 @@
   .veil-charts #shellKey{display:none}
 
 </style>
+<style id="tipStyle">
+.tipbtn{display:inline-flex; align-items:center; justify-content:center; vertical-align:middle; position:relative;
+  width:18px; height:18px; min-height:0; padding:0; margin:0 0 0 6px; border-radius:50%; cursor:help;
+  font:italic 600 12px/1 "Source Serif 4", Georgia, serif; text-transform:none; letter-spacing:0;
+  background:transparent; color:var(--muted); border:1px solid var(--line); flex:none}
+.tipbtn::before{content:"i"}
+.tipbtn::after{content:""; position:absolute; inset:-11px}
+.tipbtn:hover, .tipbtn[aria-expanded="true"]{color:var(--blue); border-color:var(--blue); background:var(--blue-soft, transparent)}
+.tipbtn:focus-visible{outline:2px solid var(--blue); outline-offset:2px}
+.ctl > .lab > .tipbtn, .ctl > label > .tipbtn, .ctl > .tl + .tipbtn{margin-right:auto}
+.ro .k .tipbtn, .work .k .tipbtn{width:16px; height:16px; font-size:11px}
+.legend .key .tipbtn, .cap .tipbtn{width:16px; height:16px; font-size:11px; margin-left:4px}
+.card h2 .tipbtn{margin-left:8px; position:relative; top:-1px}
+#tipPop{position:fixed; z-index:2147483000; left:0; top:0; max-width:min(330px, calc(100vw - 20px)); box-sizing:border-box;
+  padding:10px 12px 11px; border-radius:8px; background:var(--panel); color:var(--ink); border:1px solid var(--blue);
+  box-shadow:0 8px 28px rgba(0,0,0,.22); font:400 13px/1.45 "IBM Plex Sans", system-ui, sans-serif; text-transform:none; letter-spacing:0;
+  opacity:0; visibility:hidden; pointer-events:none; transition:opacity .1s}
+#tipPop.on{opacity:1; visibility:visible; pointer-events:auto}
+#tipPop b{display:block; font:600 14px/1.3 "Source Serif 4", Georgia, serif; margin-bottom:3px; color:var(--deep, var(--ink))}
+#tipPop .tu{display:block; font:400 11.5px/1.3 "IBM Plex Mono", monospace; color:var(--muted); margin-bottom:5px}
+#tipPop p{margin:0 0 5px} #tipPop p:last-child{margin-bottom:0}
+#tipPop em{font-style:italic} #tipPop code{font-family:"IBM Plex Mono", monospace; font-size:12px}
+#gloss{margin-top:16px; background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:0}
+#gloss > summary{cursor:pointer; padding:12px 15px; font:600 15px/1.3 "Source Serif 4", Georgia, serif; list-style-position:inside; min-height:24px}
+#gloss > summary:focus-visible{outline:2px solid var(--blue); outline-offset:-2px}
+#gloss .gbody{padding:0 15px 14px; columns:300px 2; column-gap:26px}
+#gloss h3, #lSym h3{font:500 11.5px/1.3 "IBM Plex Sans", sans-serif; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); margin:12px 0 4px; break-after:avoid}
+#gloss dl, #lSym dl{margin:0} #gloss dt, #lSym dt{font-weight:600; margin-top:8px; break-after:avoid}
+#gloss dd, #lSym dd{margin:1px 0 0; color:var(--ink-2); font-size:13.5px; break-inside:avoid-column}
+#gloss dd p, #lSym dd p{margin:0 0 4px} #gloss .tu, #lSym .tu{display:block; font:400 11.5px/1.3 "IBM Plex Mono", monospace; color:var(--muted)}
+#lSym{border:1px solid var(--line); border-radius:8px; background:var(--panel-2); margin:8px 0 10px; padding:10px 14px 12px; max-height:min(55vh, 440px); overflow:auto}
+#lSym[hidden]{display:none}
+#lSym input{width:100%; box-sizing:border-box; font:inherit; font-size:14px; padding:8px 10px; min-height:40px; border:1px solid var(--line); border-radius:6px; background:var(--panel); color:var(--ink)}
+#lSym .gbody{padding:0}
+#lSym .lsn{font-size:12px; color:var(--muted); margin:6px 0 0}
+.lesson-on #gloss{display:none}
+@media (prefers-reduced-motion:reduce){#tipPop{transition:none}}
+@media print{.tipbtn, #tipPop{display:none !important} #gloss{break-inside:avoid}}
+</style>
 <body>
 <script>if(window.self!==window.top)document.documentElement.classList.add("in-frame");</script>
 <noscript><div style="max-width:60ch;margin:40px auto;padding:18px 22px;border:1px solid #CF4520;border-radius:8px;background:#fff;color:#0F1E2B;font:15px/1.55 'IBM Plex Sans',system-ui,sans-serif">
@@ -403,7 +442,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       <h1>The ion race</h1>
     </div>
   </header>
-  <p class="point">The smallest bare ion is the largest moving entity, and the ion that moves slowest can still carry the most current, because charge enters the problem twice.</p>
+  <p class="point">Among the alkali metal ions the smallest bare ion moves as the largest, and a doubly charged ion can move more slowly than a singly charged one yet carry more current, because charge enters the problem twice.</p>
 
   <div class="lesson-cta" id="lessonCta">
     <p><b>Guided lesson.</b> Nine short questions on how ions move in an electric field, about ten minutes. Each step asks you to predict first, then shows you the answer in the demo.</p>
@@ -491,7 +530,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
 
       <div class="card">
         <h2>Two orderings, same ions</h2>
-        <p class="cap">Mobility says how fast an ion goes. Ionic conductivity says how much current it delivers.</p>
+        <p class="cap">Mobility says how fast an ion goes. Ionic conductivity says how much current each mole of the ion carries.</p>
         <div class="canvas-box" id="barsBox"><canvas role="img" id="bars" aria-label="Bar charts of ionic mobility and limiting ionic conductivity, showing that the orderings differ"></canvas></div>
       </div>
     </div>
@@ -816,14 +855,14 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
 
     $("raceCap").innerHTML = S.bare
       ? "With the shells removed each ion is a bare sphere, so the alkali metal ions finish in order of size: Li<sup>+</sup>, the smallest, is now the fastest of them and Rb<sup>+</sup> the slowest. Put the shells back and the order reverses, which is the inversion of Fig. 7.3."
-      : "Lanes are ordered by mobility. Li<sup>+</sup>, the smallest bare alkali metal ion, carries the most water, moves as the largest and comes last. K<sup>+</sup> and Rb<sup>+</sup> move as spheres smaller than the bare ions, so they carry almost no firmly bound water. Sizes are to a common scale for the ions, not to the scale of the track.";
+      : "Lanes are ordered by mobility. Li<sup>+</sup>, the smallest bare alkali metal ion, carries the most water, moves as the largest of the alkali metal ions, and comes last. K<sup>+</sup> and Rb<sup>+</sup> move as spheres no larger than the bare ions, so they carry little or no firmly bound water. Sizes are to a common scale for the ions, not to the scale of the track.";
 
     var K = IONS.filter(function(I){ return I.id==="K"; })[0];
     var Zn = IONS.filter(function(I){ return I.id==="Zn"; })[0];
     $("eq1").textContent = "u = |z|e / 6πηa :  K⁺  " + num(K.u*1e8,2) + "   Zn²⁺  " + num(Zn.u*1e8,2) +
       "  × 10⁻⁸ m² s⁻¹ V⁻¹,  so zinc is the slower ion";
     $("eq2").textContent = "λ° = |z|uF  :  K⁺  " + num(K.lam,1) + "   Zn²⁺  " + num(Zn.lam,1) +
-      "   × 10⁻⁴ S m² mol⁻¹,  so zinc delivers the larger current";
+      "   × 10⁻⁴ S m² mol⁻¹,  so zinc carries more current per mole";
 
     var note;
     if(!S.grot){
@@ -832,7 +871,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
         ", the proton's mobility falls to " + num(uH*1e8,2) + " × 10⁻⁸ m² s⁻¹ V⁻¹, about " +
         (uH/H.u > 0.2 ? "a quarter" : "a ninth") + " of what is measured" + (S.bare ? "" : ", and it finishes with the slowest ions, as the Stokes picture of Section 7.6.4 predicts") +
         ". Running the Stokes calculation backwards on the real value gives a radius of " +
-        num(H.rs,0) + " pm, which is smaller than an atom and therefore not a radius at all. That is the evidence for Grotthuss hopping.";
+        num(H.rs,0) + " pm, which is no bigger than a hydrogen atom and far smaller than the hydronium ion itself, so it is not a real radius. That is the evidence for Grotthuss hopping.";
     } else if(S.bare){
       note = "Without their shells the ions sort by size and charge alone, so Zn²⁺ and Ca²⁺, small and doubly charged, lead the metal ions, and among the alkali metals Li⁺ comes first. The real race is the other way round because the smallest ion, with the highest field at its surface, holds the most water.";
     } else {
@@ -1232,7 +1271,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
         {t:"In the middle, next to K⁺", why:"K⁺ is fast because it carries little water. A strongly hydrated proton would not be."}
       ],
       after:{grot:false, run:true}, show2:["all"],
-      more:"With as much water as Li⁺, the swimming proton finishes level with it, in about 25 s instead of 2.8 s. Its measured mobility would need a Stokes radius of 26 pm, smaller than any atom, which is not a radius at all. That is the evidence for the relay." },
+      more:"With as much water as Li⁺, the swimming proton finishes level with it, in about 25 s instead of 2.8 s. Its measured mobility would need a Stokes radius of 26 pm, no bigger than a hydrogen atom, which is not a real radius. That is the evidence for the relay." },
 
     { title:"Double the field",
       setup:{}, show:["field","tLi"],
@@ -1257,7 +1296,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
         {t:"1.25 nm", why:"That is ten times too large; check the powers of ten."}
       ],
       show2:["rsK"],
-      more:"The Stokes radius of K⁺ is smaller than its bare radius, a sign that it carries almost no firmly bound water. Rb⁺ (118 pm against 152 pm) is the same, which is Problem 7.4." },
+      more:"The Stokes radius of K⁺ is smaller than its bare radius, a sign that it carries little or no firmly bound water, though Stokes' law is being stretched at this size. Rb⁺ (118 pm against 152 pm) is the same, which is Problem 7.4." },
 
     { title:"Which solution conducts better?",
       setup:{}, show:[],
@@ -1281,6 +1320,188 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       next:"Now try Problems 7.4, 7.5, and 7.7 in the free explorer."
     }
   });
+})();
+</script>
+<script>
+var TIPS=[
+{group:'Controls', sel:'#fieldVal', up:'label', term:'Field, <em>E</em>', unit:'V cm<sup>&minus;1</sup>',
+ text:'The electric field applied across the solution, the voltage per unit length. It exerts a force <em>ze</em><em>E</em> on an ion and sets the drift speed through <em>s</em> = <em>uE</em> (eqn 7.9). It enters the clock and the speed column, not the ions&rsquo; own properties.'},
+{group:'Controls', sel:'#distVal', up:'label', term:'Race distance, <em>d</em>', unit:'&micro;m (1 &micro;m = 10<sup>&minus;6</sup> m)',
+ text:'Length of the track from the start to the finish line. An ion&rsquo;s finishing time is <em>t</em> = <em>d</em>/<em>s</em>, so a longer track lengthens every time by the same factor. A cell is taken as 10 &micro;m across.'},
+{group:'Controls', sel:'.ctl > .lab', match:'^Playback', term:'Playback', unit:'elapsed time in seconds',
+ text:'Start runs the race and Pause stops it, Reset returns the ions to the start line and the controls to their defaults. The &frac14;&times;, 1&times;, and 5&times; buttons scale the animation clock. The readout is the time elapsed in the race.'},
+{group:'Controls', sel:'.ctl > .lab', match:'^What to draw', term:'What to draw', unit:'two switches',
+ text:'Remove the hydration shells draws and moves each ion as a bare sphere of its crystallographic radius. Let H<sup>+</sup> hop switches the proton&rsquo;s charge relay on or off. Both leave the measured data in the bar charts alone.'},
+{group:'Controls', sel:'#bare', up:'label', term:'Remove the hydration shells', unit:'switch',
+ text:'Replaces each Stokes radius (ion plus the water it carries) by the crystallographic radius of the bare ion in <em>u</em> = |<em>z</em>|<em>e</em>/6&pi;&eta;<em>a</em>. It is a thought experiment, not something an ion in water can do.'},
+{group:'Controls', sel:'#grot', up:'label', term:'Let H<sup>+</sup> hop', unit:'switch',
+ text:'On: the proton moves by the Grotthuss relay, its charge passing along hydrogen-bonded water molecules, so its measured mobility is used. Off: it is made to swim as an ordinary hydrated H<sub>3</sub>O<sup>+</sup> sphere obeying Stokes&rsquo; law.'},
+{group:'Chart', sel:'.card h2', match:'^Seven ions', term:'The race track', unit:'drift in a field, left to right',
+ text:'Each lane is one cation drifting along the field <em>E</em> (arrow below the track) at its own speed. The dot is the moving ion, the dashed disc its Stokes radius. Ion sizes share one scale; the track length is the race distance.'},
+{group:'Chart', sel:'#shellKey', up:'.key', term:'Hydration shell', unit:'Stokes radius, to scale',
+ text:'The shaded disc has the Stokes radius, the size of the ion together with the water that moves with it. The solid dot inside is the ion itself, at its crystallographic radius (or at the Stokes radius where that is smaller).'},
+{group:'Chart', sel:'.legend .key', match:'^finish line', term:'Finish line', unit:'at the race distance',
+ text:'The ion has completed the race when it reaches this line, a distance <em>d</em> from the start. The label &ldquo;home in&rdquo; gives its finishing time, <em>d</em> divided by its drift speed.'},
+{group:'Chart', sel:'.card h2', match:'^The numbers behind', term:'Table of race quantities', unit:'one row per ion',
+ text:'For each ion: the two radii, the mobility <em>u</em>, the limiting ionic conductivity &lambda;&deg;, and the speed and finishing time at the chosen field and distance. Rows are sorted by the mobility being used.'},
+{group:'Chart', sel:'.card h2', match:'^Two orderings', term:'Mobility and conductivity bar charts', unit:'<em>u</em> and &lambda;&deg;, measured values',
+ text:'Left: the mobility <em>u</em> in 10<sup>&minus;8</sup> m<sup>2</sup> s<sup>&minus;1</sup> V<sup>&minus;1</sup>. Right: the limiting ionic conductivity &lambda;&deg; in 10<sup>&minus;4</sup> S m<sup>2</sup> mol<sup>&minus;1</sup>. Each is sorted from largest to smallest, and they are always the measured values, whatever the switches say.'},
+{group:'Worked expressions', sel:'.work .k', term:'Worked expressions', unit:'two equations from the table',
+ text:'The first line applies <em>u</em> = |<em>z</em>|<em>e</em>/6&pi;&eta;<em>a</em> to K<sup>+</sup> and Zn<sup>2+</sup>, the second &lambda;&deg; = |<em>z</em>|<em>uF</em> to the same pair. The note beneath explains how the two results relate for the current settings.'},
+{group:'Table columns', sel:'th', match:'^Ion$', term:'Ion', unit:'cation in water',
+ text:'The ion in aqueous solution. The colour swatch matches the lane label and the bars in the charts. All seven are cations, so they drift in the direction of the field.'},
+{group:'Table columns', sel:'th', match:'^rcryst', term:'<em>r</em><sub>cryst</sub>', unit:'pm (1 pm = 10<sup>&minus;12</sup> m)',
+ text:'Crystallographic (bare ion) radius, taken from the structures of ionic solids. It is the size of the ion without any water. The proton has no entry because it is not treated as a bare sphere.'},
+{group:'Table columns', sel:'th', match:'^rStokes', term:'<em>r</em><sub>Stokes</sub>', unit:'pm',
+ text:'Hydrodynamic radius <em>a</em> = |<em>z</em>|<em>e</em>/6&pi;&eta;<em>u</em>, the radius of the sphere that Stokes&rsquo; law says would move at the ion&rsquo;s measured mobility. It includes the water the ion drags along, and is not a true size.'},
+{group:'Table columns', sel:'th', match:'^u10', term:'Mobility, <em>u</em>', unit:'10<sup>&minus;8</sup> m<sup>2</sup> s<sup>&minus;1</sup> V<sup>&minus;1</sup>',
+ text:'Drift speed per unit field, <em>u</em> = <em>s</em>/<em>E</em> = &lambda;&deg;/(|<em>z</em>|<em>F</em>) (eqn 7.10). Stokes&rsquo; law gives <em>u</em> = |<em>z</em>|<em>e</em>/6&pi;&eta;<em>a</em>. It is a property of the ion and solvent, not of the field.'},
+{group:'Table columns', sel:'th', match:'^104', term:'10<sup>4</sup>&lambda;&deg;', unit:'S m<sup>2</sup> mol<sup>&minus;1</sup> (numerically &lambda;&deg; in S cm<sup>2</sup> mol<sup>&minus;1</sup>)',
+ text:'Limiting ionic conductivity, &lambda;&deg; = |<em>z</em>|<em>uF</em> (eqn 7.11), the ion&rsquo;s contribution to the molar conductivity at infinite dilution. Values are from Table 7.1, except Rb<sup>+</sup>, which is computed from its mobility.'},
+{group:'Table columns', sel:'th', match:'^speed', term:'Drift speed, <em>s</em>', unit:'&micro;m s<sup>&minus;1</sup>',
+ text:'The steady speed of the ion, <em>s</em> = <em>uE</em> (eqn 7.9), at the chosen field. It is reached almost instantly and is the average speed, because collisions with the solvent keep the ion from accelerating.'},
+{group:'Table columns', sel:'th', match:'^finish', term:'Finishing time, <em>t</em>', unit:'s',
+ text:'Time to cross the race distance, <em>t</em> = <em>d</em>/<em>s</em>. It is the real time for the ion at the chosen field, whatever the playback speed.'},
+{group:'Symbols', term:'Mobility, <em>u</em> (bar chart)', unit:'10<sup>&minus;8</sup> m<sup>2</sup> s<sup>&minus;1</sup> V<sup>&minus;1</sup>',
+ text:'Left bar chart: the measured mobility of each ion, <em>u</em> = &lambda;&deg;/(|<em>z</em>|<em>F</em>). To convert, 1 cm<sup>2</sup> V<sup>&minus;1</sup> s<sup>&minus;1</sup> = 10<sup>&minus;4</sup> m<sup>2</sup> V<sup>&minus;1</sup> s<sup>&minus;1</sup>.'},
+{group:'Symbols', term:'Ionic conductivity, &lambda;&deg; (bar chart)', unit:'10<sup>&minus;4</sup> S m<sup>2</sup> mol<sup>&minus;1</sup>',
+ text:'Right bar chart: limiting ionic conductivity, the current carried per mole of the ion per unit concentration and field, &lambda;&deg; = |<em>z</em>|<em>uF</em>. The charge enters twice, once in the force and once in the charge per mole.'},
+{group:'Symbols', term:'Charge number, <em>z</em>', unit:'dimensionless',
+ text:'Signed charge of the ion in units of <em>e</em>: +1 for H<sup>+</sup>, Li<sup>+</sup>, Na<sup>+</sup>, K<sup>+</sup>, and Rb<sup>+</sup>, and +2 for Ca<sup>2+</sup> and Zn<sup>2+</sup>. The force on the ion is <em>ze</em><em>E</em>.'},
+{group:'Symbols', term:'Stokes radius, <em>a</em>', unit:'pm',
+ text:'Radius in Stokes&rsquo; law, <em>u</em> = |<em>z</em>|<em>e</em>/6&pi;&eta;<em>a</em>. The drag force on a sphere moving at speed <em>s</em> is 6&pi;&eta;<em>as</em>, so for the same charge a larger <em>a</em> means a smaller mobility.'},
+{group:'Symbols', term:'Drift speed and mobility, <em>s</em> = <em>uE</em>', unit:'m s<sup>&minus;1</sup> (shown in &micro;m s<sup>&minus;1</sup>)',
+ text:'The speed at which the electric force |<em>z</em>|<em>eE</em> balances the viscous drag 6&pi;&eta;<em>as</em>. Equating them gives <em>s</em> = <em>uE</em> with <em>u</em> = |<em>z</em>|<em>e</em>/6&pi;&eta;<em>a</em>.'},
+{group:'Symbols', term:'Grotthuss relay', unit:'charge transfer along hydrogen bonds',
+ text:'The proton&rsquo;s charge is passed from one H<sub>3</sub>O<sup>+</sup> to a neighbouring water molecule by making and breaking hydrogen bonds, so the charge moves farther than any one molecule does. The beaded lane shows the idea schematically.'},
+{group:'Symbols', term:'Hypothetical swimming proton', unit:'radius assumed',
+ text:'With the relay off, the proton is treated as an H<sub>3</sub>O<sup>+</sup> sphere in Stokes&rsquo; law: a radius of 100 pm when bare, or the Stokes radius of Li<sup>+</sup> when it is given the same water as Li<sup>+</sup>.'},
+{group:'Constants', term:'Viscosity of water, &eta;', unit:'8.90 &times; 10<sup>&minus;4</sup> Pa s at 298 K',
+ text:'The resistance of water to flow, which sets the drag 6&pi;&eta;<em>as</em> on a moving ion. It is used in every Stokes radius shown.'},
+{group:'Constants', term:'<em>e</em> and <em>F</em>', unit:'1.602 &times; 10<sup>&minus;19</sup> C, 96485 C mol<sup>&minus;1</sup>',
+ text:'<em>e</em> is the elementary charge and <em>F</em> = <em>N</em><sub>A</sub><em>e</em> the Faraday constant, the charge of one mole of unit charges. They convert between mobility per ion and conductivity per mole: &lambda;&deg; = |<em>z</em>|<em>uF</em>.'}
+];
+
+</script>
+<script>
+(function(){
+"use strict";
+var T = (typeof TIPS !== "undefined") ? TIPS : [];
+if(!T.length) return;
+var pop = document.createElement("div");
+pop.id = "tipPop"; pop.setAttribute("role","tooltip"); document.body.appendChild(pop);
+var cur = null, pinned = false, hideT = 0, showT = 0, uid = 0;
+
+function html(t){ return t.term ? "<b>"+t.term+"</b>" + (t.unit ? '<span class="tu">'+t.unit+"</span>" : "") + "<p>"+[].concat(t.text).join("</p><p>")+"</p>" : ""; }
+function plain(h){ var d=document.createElement("div"); d.innerHTML=h; return d.textContent.replace(/\s+/g," ").trim(); }
+
+function position(btn){
+  var r = btn.getBoundingClientRect(), vw = document.documentElement.clientWidth, vh = window.innerHeight;
+  pop.style.left = "0px"; pop.style.top = "0px";
+  var w = pop.offsetWidth, h = pop.offsetHeight, m = 8;
+  var x = Math.min(Math.max(m, r.left + r.width/2 - w/2), vw - w - m);
+  var y = r.bottom + 8; if(y + h > vh - m && r.top - h - 8 > m) y = r.top - h - 8;
+  y = Math.max(m, Math.min(y, vh - h - m));
+  pop.style.left = x + "px"; pop.style.top = y + "px";
+}
+function show(btn, pin){
+  clearTimeout(hideT); clearTimeout(showT);
+  if(cur && cur !== btn) cur.setAttribute("aria-expanded","false");
+  cur = btn; pinned = !!pin;
+  pop.innerHTML = html(btn._tip);
+  pop.classList.add("on"); btn.setAttribute("aria-expanded","true"); btn.setAttribute("aria-describedby","tipPop");
+  position(btn);
+}
+function hide(){
+  clearTimeout(hideT); clearTimeout(showT);
+  if(cur){ cur.setAttribute("aria-expanded","false"); cur.removeAttribute("aria-describedby"); }
+  pop.classList.remove("on"); cur = null; pinned = false;
+}
+function make(t){
+  var b = document.createElement("button"); b.type = "button"; b.className = "tipbtn"; b._tip = t;
+  b.setAttribute("aria-label", "What is " + plain(t.term) + "?"); b.setAttribute("aria-expanded","false");
+  b.addEventListener("click", function(e){ e.preventDefault(); e.stopPropagation(); (cur === b && pinned) ? hide() : show(b, true); });
+  b.addEventListener("pointerenter", function(e){ if(e.pointerType !== "mouse" || pinned) return; clearTimeout(hideT); showT = setTimeout(function(){ show(b, false); }, 110); });
+  b.addEventListener("pointerleave", function(e){ if(e.pointerType !== "mouse") return; clearTimeout(showT); if(!pinned) hideT = setTimeout(hide, 160); });
+  b.addEventListener("focus", function(){ if(!pinned) show(b, false); });
+  b.addEventListener("blur", function(){ if(!pinned && cur === b) hide(); });
+  return b;
+}
+pop.addEventListener("pointerenter", function(){ clearTimeout(hideT); });
+pop.addEventListener("click", function(){ if(pinned) hide(); });
+pop.addEventListener("pointerleave", function(e){ if(e.pointerType === "mouse" && !pinned) hideT = setTimeout(hide, 160); });
+document.addEventListener("keydown", function(e){ if(e.key === "Escape" && cur){ var b = cur; hide(); if(document.activeElement !== b) try{ b.focus({preventScroll:true}); }catch(x){} } });
+document.addEventListener("pointerdown", function(e){ if(cur && !pop.contains(e.target) && !(e.target.closest && e.target.closest(".tipbtn"))) hide(); }, true);
+function reflow(){ if(!cur) return; if(!document.body.contains(cur)){ hide(); return; } var r = cur.getBoundingClientRect(); if(r.bottom < 0 || r.top > window.innerHeight) hide(); else position(cur); }
+window.addEventListener("scroll", reflow, {passive:true}); window.addEventListener("resize", reflow);
+
+function place(t){
+  var els = [].slice.call(document.querySelectorAll(t.sel)).map(function(e){ return t.up ? e.closest(t.up) : e; }).filter(Boolean), re = t.match ? new RegExp(t.match) : null, n = 0;
+  els.forEach(function(el){
+    if(re && !re.test(el.textContent.replace(/\s+/g," ").trim())) return;
+    if(!t.all && n) return;
+    n++;
+    if(el.querySelector(":scope > .tipbtn[data-tk=\""+t._k+"\"]") || (el.nextElementSibling && el.nextElementSibling.dataset && el.nextElementSibling.dataset.tk === String(t._k))) return;
+    var b = make(t); b.dataset.tk = t._k;
+    if(el.tagName === "LABEL"){
+      var val = el.querySelector(":scope > .val"), sp = document.createElement("span"); sp.className = "tl"; sp.id = "tl" + (++uid);
+      var kids = [].slice.call(el.childNodes), moved = false;
+      for(var i = 0; i < kids.length; i++){
+        var k = kids[i]; if(k === val) break;
+        if(k.nodeType === 1 && /^(INPUT|SELECT|TEXTAREA|BUTTON)$/.test(k.tagName)) continue;
+        sp.appendChild(k); moved = true;
+      }
+      if(!moved) return;
+      var ref = val || null;
+      if(!val){ el.appendChild(sp); el.appendChild(b); } else { el.insertBefore(sp, val); el.insertBefore(b, val); }
+      var inp = el.getAttribute("for") ? document.getElementById(el.getAttribute("for")) : el.querySelector("input,select,textarea");
+      if(inp && !inp.getAttribute("aria-labelledby")) inp.setAttribute("aria-labelledby", sp.id + (val && val.id ? " " + val.id : ""));
+    } else {
+      var v = el.querySelector(":scope > .val"); if(v && (el.classList.contains("lab"))) el.insertBefore(b, v); else el.appendChild(b);
+    }
+  });
+}
+T.forEach(function(t, i){ t._k = i; });
+var busy = false;
+function placeAll(){ busy = true; try{ T.forEach(function(t){ if(t.sel) place(t); }); }catch(e){} busy = false; }
+
+function glossary(){
+  if(document.getElementById("gloss")) return;
+  var d = document.createElement("details"); d.id = "gloss";
+  var s = document.createElement("summary"); s.textContent = "Symbols and parameters: what every quantity means"; d.appendChild(s);
+  var body = document.createElement("div"); body.className = "gbody"; var g = null, dl = null;
+  T.forEach(function(t){
+    if(!t.term) return;
+    if(t.group !== g){ g = t.group; if(g){ var h = document.createElement("h3"); h.textContent = g; body.appendChild(h); } dl = document.createElement("dl"); body.appendChild(dl); }
+    if(!dl){ dl = document.createElement("dl"); body.appendChild(dl); }
+    var dt = document.createElement("dt"); dt.innerHTML = t.term;
+    var dd = document.createElement("dd"); dd.innerHTML = (t.unit ? '<span class="tu">'+t.unit+"</span>" : "") + "<p>"+[].concat(t.text).join("</p><p>")+"</p>";
+    dl.appendChild(dt); dl.appendChild(dd);
+  });
+  d.appendChild(body);
+  var wrap = document.querySelector(".wrap") || document.body; wrap.appendChild(d);
+}
+function lessonSymbols(){
+  var top = document.querySelector("#lesson .ltop-btns"), bar = document.querySelector("#lesson .lesson-bar"), g = document.getElementById("gloss");
+  if(!top || !bar || !g || document.getElementById("lSym")) return;
+  var btn = document.createElement("button"); btn.type = "button"; btn.className = "lesson-exit"; btn.textContent = "Symbols";
+  btn.setAttribute("aria-expanded","false"); btn.setAttribute("aria-controls","lSym"); top.insertBefore(btn, top.firstChild);
+  var pn = document.createElement("div"); pn.id = "lSym"; pn.hidden = true; pn.setAttribute("role","region"); pn.setAttribute("aria-label","Symbols and parameters");
+  var inp = document.createElement("input"); inp.type = "search"; inp.placeholder = "Filter symbols, for example ST or diffusion"; inp.setAttribute("aria-label","Filter symbols");
+  var body = g.querySelector(".gbody").cloneNode(true); pn.appendChild(inp); pn.appendChild(body);
+  bar.parentNode.insertBefore(pn, bar.nextSibling);
+  btn.addEventListener("click", function(){ var open = pn.hidden; pn.hidden = !open; btn.setAttribute("aria-expanded", open ? "true" : "false"); if(open) inp.focus({preventScroll:true}); });
+  inp.addEventListener("input", function(){
+    var q = inp.value.trim().toLowerCase();
+    [].forEach.call(body.querySelectorAll("dt"), function(dt){ var dd = dt.nextElementSibling, ok = !q || (dt.textContent + " " + dd.textContent).toLowerCase().indexOf(q) >= 0; dt.hidden = !ok; dd.hidden = !ok; });
+    [].forEach.call(body.querySelectorAll("h3"), function(h){ h.hidden = !!q; });
+  });
+  pn.addEventListener("keydown", function(e){ if(e.key === "Escape"){ pn.hidden = true; btn.setAttribute("aria-expanded","false"); btn.focus(); e.stopPropagation(); } });
+}
+glossary(); placeAll(); lessonSymbols();
+var q = 0;
+try{ new MutationObserver(function(){ if(busy || q) return; q = requestAnimationFrame(function(){ q = 0; placeAll(); }); })
+  .observe(document.body, {childList:true, subtree:true}); }catch(e){}
 })();
 </script>
 </body>

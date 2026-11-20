@@ -367,6 +367,45 @@
   @media (max-width:1040px){ .lesson-on #cloudBox{height:clamp(240px, 38vh, 330px)} }
 
 </style>
+<style id="tipStyle">
+.tipbtn{display:inline-flex; align-items:center; justify-content:center; vertical-align:middle; position:relative;
+  width:18px; height:18px; min-height:0; padding:0; margin:0 0 0 6px; border-radius:50%; cursor:help;
+  font:italic 600 12px/1 "Source Serif 4", Georgia, serif; text-transform:none; letter-spacing:0;
+  background:transparent; color:var(--muted); border:1px solid var(--line); flex:none}
+.tipbtn::before{content:"i"}
+.tipbtn::after{content:""; position:absolute; inset:-11px}
+.tipbtn:hover, .tipbtn[aria-expanded="true"]{color:var(--blue); border-color:var(--blue); background:var(--blue-soft, transparent)}
+.tipbtn:focus-visible{outline:2px solid var(--blue); outline-offset:2px}
+.ctl > .lab > .tipbtn, .ctl > label > .tipbtn, .ctl > .tl + .tipbtn{margin-right:auto}
+.ro .k .tipbtn, .work .k .tipbtn{width:16px; height:16px; font-size:11px}
+.legend .key .tipbtn, .cap .tipbtn{width:16px; height:16px; font-size:11px; margin-left:4px}
+.card h2 .tipbtn{margin-left:8px; position:relative; top:-1px}
+#tipPop{position:fixed; z-index:2147483000; left:0; top:0; max-width:min(330px, calc(100vw - 20px)); box-sizing:border-box;
+  padding:10px 12px 11px; border-radius:8px; background:var(--panel); color:var(--ink); border:1px solid var(--blue);
+  box-shadow:0 8px 28px rgba(0,0,0,.22); font:400 13px/1.45 "IBM Plex Sans", system-ui, sans-serif; text-transform:none; letter-spacing:0;
+  opacity:0; visibility:hidden; pointer-events:none; transition:opacity .1s}
+#tipPop.on{opacity:1; visibility:visible; pointer-events:auto}
+#tipPop b{display:block; font:600 14px/1.3 "Source Serif 4", Georgia, serif; margin-bottom:3px; color:var(--deep, var(--ink))}
+#tipPop .tu{display:block; font:400 11.5px/1.3 "IBM Plex Mono", monospace; color:var(--muted); margin-bottom:5px}
+#tipPop p{margin:0 0 5px} #tipPop p:last-child{margin-bottom:0}
+#tipPop em{font-style:italic} #tipPop code{font-family:"IBM Plex Mono", monospace; font-size:12px}
+#gloss{margin-top:16px; background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:0}
+#gloss > summary{cursor:pointer; padding:12px 15px; font:600 15px/1.3 "Source Serif 4", Georgia, serif; list-style-position:inside; min-height:24px}
+#gloss > summary:focus-visible{outline:2px solid var(--blue); outline-offset:-2px}
+#gloss .gbody{padding:0 15px 14px; columns:300px 2; column-gap:26px}
+#gloss h3, #lSym h3{font:500 11.5px/1.3 "IBM Plex Sans", sans-serif; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); margin:12px 0 4px; break-after:avoid}
+#gloss dl, #lSym dl{margin:0} #gloss dt, #lSym dt{font-weight:600; margin-top:8px; break-after:avoid}
+#gloss dd, #lSym dd{margin:1px 0 0; color:var(--ink-2); font-size:13.5px; break-inside:avoid-column}
+#gloss dd p, #lSym dd p{margin:0 0 4px} #gloss .tu, #lSym .tu{display:block; font:400 11.5px/1.3 "IBM Plex Mono", monospace; color:var(--muted)}
+#lSym{border:1px solid var(--line); border-radius:8px; background:var(--panel-2); margin:8px 0 10px; padding:10px 14px 12px; max-height:min(55vh, 440px); overflow:auto}
+#lSym[hidden]{display:none}
+#lSym input{width:100%; box-sizing:border-box; font:inherit; font-size:14px; padding:8px 10px; min-height:40px; border:1px solid var(--line); border-radius:6px; background:var(--panel); color:var(--ink)}
+#lSym .gbody{padding:0}
+#lSym .lsn{font-size:12px; color:var(--muted); margin:6px 0 0}
+.lesson-on #gloss{display:none}
+@media (prefers-reduced-motion:reduce){#tipPop{transition:none}}
+@media print{.tipbtn, #tipPop{display:none !important} #gloss{break-inside:avoid}}
+</style>
 <body>
 <script>if(window.self!==window.top)document.documentElement.classList.add("in-frame");</script>
 <noscript><div style="max-width:60ch;margin:40px auto;padding:18px 22px;border:1px solid #CF4520;border-radius:8px;background:#fff;color:#0F1E2B;font:15px/1.55 'IBM Plex Sans',system-ui,sans-serif">
@@ -479,7 +518,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     <div class="col-right">
       <div class="card">
         <h2>Potential around the central ion</h2>
-        <p class="cap">Screening multiplies the bare 1/<em>r</em> by e<sup>&minus;r/&lambda;<sub>D</sub></sup>. The shaded gap is what the atmosphere removes.</p>
+        <p class="cap">Screening multiplies the bare 1/<em>r</em> by e<sup>&minus;r/&lambda;<sub>D</sub></sup>. The shaded gap is what the atmosphere removes. The potential axis is logarithmic.</p>
         <div class="canvas-box chart-box"><canvas role="img" id="phi" aria-label="Electrostatic potential against distance, bare Coulomb compared with the screened potential"></canvas></div>
       </div>
       <div class="card">
@@ -494,7 +533,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
     <div class="ro"><div class="k">Ionic strength <em>I</em></div><div class="v" id="roI">&ndash;</div><div class="n">no unit, from <em>c</em><sub><em>i</em></sub>/<em>c</em><sup>&#8854;</sup> with <em>c</em><sup>&#8854;</sup> = 1 mol dm<sup>&minus;3</sup></div></div>
     <div class="ro hi"><div class="k">Debye length <span class="lc">&lambda;<sub>D</sub></span></div><div class="v" id="roL">&ndash;</div><div class="n" id="roLn">nm</div></div>
     <div class="ro"><div class="k">Bjerrum length <span class="lc"><em>l</em><sub>B</sub></span></div><div class="v" id="roB">&ndash;</div><div class="n">nm<span class="lesson-hide">. Set by solvent and temperature only, never by concentration.</span></div></div>
-    <div class="ro"><div class="k">Mean ion separation</div><div class="v" id="roS">&ndash;</div><div class="n">nm, from the total number density of ions</div></div>
+    <div class="ro"><div class="k">Mean ion separation</div><div class="v" id="roS">&ndash;</div><div class="n">nm, roughly <em>n</em><sup>&minus;1/3</sup>, from the total number density of ions</div></div>
     <div class="ro"><div class="k"><span class="lc">&lambda;<sub>D</sub></span> over a protein's radius, <span class="lc">2&nbsp;nm</span></div><div class="v" id="roP">&ndash;</div><div class="n" id="roPn">&nbsp;</div></div>
     <div class="ro pin" id="pinCard"><div class="k">Against the pinned state</div><div class="v" id="roPin">&ndash;</div><div class="n" id="roPinN">Pin a state, then move the concentration slider.</div></div>
   </section>
@@ -506,7 +545,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
   </section>
 
   <footer>
-    <span>&lambda;<sub>D</sub> = (&epsilon;<sub>r</sub>&epsilon;<sub>0</sub><em>k</em><sub>B</sub><em>T</em> / 2<em>N</em><sub>A</sub><em>e</em><sup>2</sup><em>c</em><sup>&#8854;</sup><em>I</em>)<sup>1/2</sup>, eqn 5.7</span>
+    <span>&lambda;<sub>D</sub> = (&epsilon;<sub>r</sub>&epsilon;<sub>0</sub><em>k</em><sub>B</sub><em>T</em> / 2<em>N</em><sub>A</sub><em>e</em><sup>2</sup><em>c</em><sup>&#8854;</sup><em>I</em>)<sup>1/2</sup>, eqn 5.7, with <em>c</em><sup>&#8854;</sup> = 1 mol dm<sup>&minus;3</sup> = 10<sup>3</sup> mol m<sup>&minus;3</sup></span>
     <span>In water at 298 K this is 0.304 nm / <em>I</em><sup>1/2</sup>, eqn 5.8</span>
     <span>Ionic strength here is built from amount concentrations, <em>I</em> = &frac12;&Sigma;<em>z</em><sub><em>i</em></sub><sup>2</sup><em>c</em><sub><em>i</em></sub>/<em>c</em><sup>&#8854;</sup>, as Section 5.2.4 requires.</span>
   <span>© 2026 A. P. Ivanov. <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" rel="license" target="_blank">CC BY-NC-ND 4.0</a></span>
@@ -1013,7 +1052,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       g.strokeStyle = TH.muted; g.setLineDash([2,3]); g.lineWidth = 1;
       g.beginPath(); g.moveTo(L,y2); g.lineTo(L+pw,y2); g.stroke(); g.setLineDash([]);
       mono(g,11,500);
-      tag(g, "2 nm protein", L+6, y2-3, "left", "bottom", TH.muted);
+      tag(g, "2 nm protein radius", L+6, y2-3, "left", "bottom", TH.muted);
     }
 
     // the curve
@@ -1627,6 +1666,198 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       next:"Now try Problems 5.2 and 5.5 in the free explorer, using the pin to check your factors."
     }
   });
+})();
+</script>
+<script>
+var TIPS=[
+{group:'Controls', sel:'#concVal', up:'label', term:'Salt concentration, <em>c</em>', unit:'mol dm<sup>&minus;3</sup>',
+ text:'Amount of dissolved salt per cubic decimetre, counted in formula units. Each formula unit supplies the cations and anions of the charge type chosen, and together with that type it fixes the ionic strength. The slider is logarithmic, from 10<sup>&minus;5</sup> to 1 mol dm<sup>&minus;3</sup>.'},
+{group:'Controls', sel:'.ctl > .lab', match:'^Charge type', term:'Charge type, <em>z</em><sub>+</sub>:<em>z</em><sub>&minus;</sub>', unit:'charge numbers of cation and anion',
+ text:'The two numbers are the sizes of the cation and anion charges in units of <em>e</em>, cation first. The type fixes how many of each ion one formula unit supplies and how large their charges are, and so how <em>I</em> is built from <em>c</em>.'},
+{group:'Controls', sel:'#tempVal', up:'label', term:'Temperature, <em>T</em>', unit:'kelvin (K)',
+ text:'Sets the thermal energy <em>k</em><sub>B</sub><em>T</em>, which enters both the Debye length and the Bjerrum length. In the demo &epsilon;<sub>r</sub> is held fixed as <em>T</em> changes; in real water it falls on warming. <em>T</em> also sets the speed of the drawn thermal motion.'},
+{group:'Controls', sel:'#epsVal', up:'label', term:'Relative permittivity, &epsilon;<sub>r</sub>', unit:'dimensionless',
+ text:['How strongly the solvent weakens electric fields compared with vacuum (&epsilon;<sub>r</sub> = 1). It appears in both the Debye length and the Bjerrum length.','The buttons give water and ethanol at 298 K, and the much lower value of water in an ion&rsquo;s primary hydration shell, where it cannot rotate to follow a field.']},
+{group:'Controls', sel:'#fovVal', up:'.lab', term:'Field of view', unit:'nm',
+ text:'Length of the shorter side of the picture, which is also the depth of the box of solution whose ions are drawn. &ldquo;Follow &lambda;<sub>D</sub>&rdquo; sets the box to six Debye lengths, down to a floor of 0.9 nm, so the atmosphere always fills the view.'},
+{group:'Controls', sel:'#motion', up:'label', term:'Thermal motion', unit:'on or off',
+ text:'Switches on the random thermal motion of the ions. They keep crossing the dashed circle in both directions while the time-averaged atmosphere stays the same. The speed scales with <em>k</em><sub>B</sub><em>T</em>/&eta;, using the viscosity of water at the chosen temperature.'},
+{group:'Controls', sel:'#scaleObj', up:'label', term:'Scale objects', unit:'on or off',
+ text:'Draws a protein of radius 2 nm and a colloidal particle of radius 50 nm as dashed grey circles, to the same scale as the ions and the Debye length. Each appears only when it fits in the view.'},
+{group:'Controls', sel:'.ctl > .lab', match:'^Lecture controls', term:'Lecture controls', unit:'presets',
+ text:'The two preset buttons load physiological saline (0.15 mol dm<sup>&minus;3</sup>) or 1 mmol dm<sup>&minus;3</sup>, both 1:1 in water at 298 K. &ldquo;Pin this state&rdquo; stores the present <em>I</em> and &lambda;<sub>D</sub> for comparison. Reset restores the opening state.'},
+{group:'Readouts', sel:'.ro .k', match:'^Ionic strength', term:'Ionic strength, <em>I</em>', unit:'dimensionless',
+ text:'Defined here by <em>I</em> = &frac12; &Sigma; <em>z</em><sub><em>i</em></sub><sup>2</sup> <em>c</em><sub><em>i</em></sub>/<em>c</em><sup>&#8854;</sup>, summed over every kind of ion, with <em>c</em><sup>&#8854;</sup> = 1 mol dm<sup>&minus;3</sup>. Each concentration is divided by <em>c</em><sup>&#8854;</sup>, so <em>I</em> is a pure number. It weights each ion by the square of its charge.'},
+{group:'Readouts', sel:'.ro .k', match:'^Debye length', term:'Debye length, &lambda;<sub>D</sub>', unit:'nm',
+ text:'The size of the ionic atmosphere: the distance over which an ion&rsquo;s potential is screened, and where the atmosphere&rsquo;s charge peaks. &lambda;<sub>D</sub> = (&epsilon;<sub>r</sub>&epsilon;<sub>0</sub><em>k</em><sub>B</sub><em>T</em> / 2<em>N</em><sub>A</sub><em>e</em><sup>2</sup><em>c</em><sup>&#8854;</sup><em>I</em>)<sup>1/2</sup>, eqn 5.7.'},
+{group:'Readouts', sel:'.ro .k', match:'^Bjerrum length', term:'Bjerrum length, <em>l</em><sub>B</sub>', unit:'nm',
+ text:'The separation at which two singly charged ions have a Coulomb energy of <em>k</em><sub>B</sub><em>T</em>: <em>l</em><sub>B</sub> = <em>e</em><sup>2</sup> / 4&pi;&epsilon;<sub>0</sub>&epsilon;<sub>r</sub><em>k</em><sub>B</sub><em>T</em>, eqn 5.6. It is the length scale of the ion&ndash;ion Coulomb energy in the snapshot.'},
+{group:'Readouts', sel:'.ro .k', match:'^Mean ion separation', term:'Mean ion separation', unit:'nm',
+ text:'A typical spacing between neighbouring ions, taken as <em>n</em><sup>&minus;1/3</sup>, where <em>n</em> is the number of ions of all kinds per unit volume. It describes the bulk solution and ignores the atmosphere round any one ion.'},
+{group:'Readouts', sel:'.ro .k', match:'over a protein', term:'&lambda;<sub>D</sub> over a protein&rsquo;s radius', unit:'dimensionless',
+ text:'The Debye length divided by 2 nm, a typical protein radius (the dashed grey circle). A value below 1 means the atmosphere is thinner than the protein&rsquo;s radius, and above 1 that it reaches further out than that.'},
+{group:'Readouts', sel:'.ro .k', match:'^Against the pinned', term:'Against the pinned state', unit:'multiplying factors, dimensionless',
+ text:'After &ldquo;Pin this state&rdquo;, the first number is <em>I</em> now divided by <em>I</em> at the pin, and the second is &lambda;<sub>D</sub> now divided by &lambda;<sub>D</sub> at the pin. A change of solvent or temperature since the pin also shows up in the second.'},
+{group:'Chart', sel:'.card h2', match:'^A snapshot', term:'Snapshot of the solution', unit:'nm, to scale',
+ text:'One instant of a box of the solution seen face on. Red dots are cations and blue dots are anions, and the larger red ion at the centre is the cation under study. The dashed teal circle marks &lambda;<sub>D</sub>, and the haze is the time-averaged counter-charge.'},
+{group:'Chart', sel:'.card h2', match:'^Potential around', term:'Potential around the central ion', unit:'&phi; in mV against <em>r</em> in nm',
+ text:'Dashed grey: the bare Coulomb potential in the solvent, falling as 1/<em>r</em>. Solid blue: the screened potential, the bare one times e<sup>&minus;<em>r</em>/&lambda;<sub>D</sub></sup>. The shaded gap is what the atmosphere removes. The potential axis is logarithmic.'},
+{group:'Chart', sel:'.card h2', match:'^How .*depends on ionic', term:'Debye length against ionic strength', unit:'&lambda;<sub>D</sub> in nm against <em>I</em>',
+ text:'Both axes are logarithmic, for the present solvent and temperature. The teal dot is the present state, the red ring the pinned state, the grey dot physiological saline, and the dotted line the 2 nm protein radius.'},
+{group:'Chart', sel:'.legend .key', match:'^.D, where', term:'Debye length marker, &lambda;<sub>D</sub>', unit:'nm',
+ text:'The dashed teal circle has radius &lambda;<sub>D</sub>. It is where the charge of the atmosphere, counted in a thin shell at each radius, is greatest. It is not a wall: ions cross it in both directions.'},
+{group:'Chart', sel:'.legend .key', match:'^scale objects', term:'Scale objects', unit:'drawn to scale',
+ text:'Dashed grey circles for a protein of radius 2 nm and a colloidal particle of radius 50 nm, drawn on the same scale as the ions. They give the Debye length a size to compare with.'},
+{group:'Worked expression', sel:'.work .k', term:'Ionic strength, worked out', unit:'dimensionless',
+ text:'The sum <em>I</em> = &frac12; &Sigma; <em>z</em><sub><em>i</em></sub><sup>2</sup> <em>c</em><sub><em>i</em></sub>/<em>c</em><sup>&#8854;</sup> written out term by term for the chosen salt, with its concentration in place. Each kind of ion is one term.'},
+{group:'Worked expression', term:'<em>z</em><sub><em>i</em></sub>, <em>c</em><sub><em>i</em></sub>, &Sigma;', unit:'<em>z</em><sub><em>i</em></sub> dimensionless; <em>c</em><sub><em>i</em></sub> in mol dm<sup>&minus;3</sup>',
+ text:'<em>z</em><sub><em>i</em></sub> is the charge number of ion species <em>i</em> and <em>c</em><sub><em>i</em></sub> its concentration. &Sigma; adds one term for every species present, cations and anions alike.'},
+{group:'Worked expression', term:'<em>c</em><sup>&#8854;</sup>', unit:'1 mol dm<sup>&minus;3</sup> = 1000 mol m<sup>&minus;3</sup>',
+ text:'Standard concentration. Dividing each <em>c</em><sub><em>i</em></sub> by it makes <em>I</em> dimensionless. In eqn 5.7 it must be in SI units, 1000 mol m<sup>&minus;3</sup>, when the other constants are in SI.'},
+{group:'Chart symbols', term:'<em>r</em>, &phi;', unit:'<em>r</em> in nm; &phi; in mV',
+ text:'<em>r</em> is the distance from the centre of the central ion. &phi; is the electrostatic potential there, which for the bare ion is <em>z</em><sub>c</sub><em>e</em> / 4&pi;&epsilon;<sub>0</sub>&epsilon;<sub>r</sub><em>r</em>, with <em>z</em><sub>c</sub> the central charge number.'},
+{group:'Chart symbols', term:'<em>k</em><sub>B</sub><em>T</em>/<em>e</em>', unit:'mV',
+ text:'The thermal voltage: the potential at which one elementary charge has an energy of <em>k</em><sub>B</sub><em>T</em>. The dotted line marks it on the potential chart, as a scale against which &phi; is small or large.'},
+{group:'Chart symbols', term:'Bare 1/<em>r</em> and screened', unit:'curves on the potential chart',
+ text:'&ldquo;Bare&rdquo; is the potential of the central ion alone in the solvent. &ldquo;Screened&rdquo; is the same potential multiplied by e<sup>&minus;<em>r</em>/&lambda;<sub>D</sub></sup> to include the ionic atmosphere.'},
+{group:'Chart symbols', term:'Slope on the &lambda;<sub>D</sub> chart', unit:'dimensionless',
+ text:'On logarithmic axes a power law <em>y</em> &prop; <em>x</em><sup><em>m</em></sup> is a straight line whose slope is the exponent <em>m</em>. The label gives that exponent for &lambda;<sub>D</sub> against <em>I</em>.'},
+{group:'Chart symbols', term:'Saline, 0.15', unit:'<em>I</em> dimensionless',
+ text:'Marker at <em>I</em> = 0.15, the ionic strength of physiological saline (0.15 mol dm<sup>&minus;3</sup> of a 1:1 salt). It sits on the curve for the present solvent and temperature.'},
+{group:'Terms in the captions', term:'Ionic atmosphere, counter-ion, co-ion', unit:'',
+ text:'The ionic atmosphere is the time-averaged excess of counter-ions, ions of opposite charge to the central one, with co-ions (same charge) thinned out. Its total charge is equal and opposite to that of the central ion.'},
+{group:'Terms in the captions', term:'Ion pair', unit:'',
+ text:'Two ions of opposite charge close enough that their attraction outweighs <em>k</em><sub>B</sub><em>T</em>, so they move as one unit for a while. The smooth atmosphere in the picture does not include them.'},
+{group:'Terms in the captions', term:'<em>D</em>, &eta;, <em>a</em>', unit:'<em>D</em> in m<sup>2</sup> s<sup>&minus;1</sup>; &eta; in Pa s; <em>a</em> in m',
+ text:'The Stokes&ndash;Einstein relation <em>D</em> = <em>k</em><sub>B</sub><em>T</em>/6&pi;&eta;<em>a</em> gives the diffusion coefficient <em>D</em> of a sphere of radius <em>a</em> in a liquid of viscosity &eta;. The demo uses it only to scale the speed of the drawn motion with temperature.'},
+{group:'Terms in the captions', term:'<em>n</em>', unit:'ions per nm<sup>3</sup>',
+ text:'Number density of ions of all kinds. For a salt of concentration <em>c</em> it is the number of ions per formula unit times <em>cN</em><sub>A</sub>. It sets the mean ion separation and how many ions the drawn box holds.'},
+{group:'Constants', term:'<em>k</em><sub>B</sub>, &epsilon;<sub>0</sub>, <em>e</em>', unit:'1.381 &times; 10<sup>&minus;23</sup> J K<sup>&minus;1</sup>, 8.854 &times; 10<sup>&minus;12</sup> F m<sup>&minus;1</sup>, 1.602 &times; 10<sup>&minus;19</sup> C',
+ text:'Boltzmann constant, vacuum permittivity, and elementary charge. The charge on an ion is <em>z</em><sub><em>i</em></sub><em>e</em>.'},
+{group:'Constants', term:'<em>N</em><sub>A</sub>', unit:'6.022 &times; 10<sup>23</sup> mol<sup>&minus;1</sup>',
+ text:'Avogadro constant. It turns a concentration in mol m<sup>&minus;3</sup> into a number of ions per cubic metre, which is what appears in the Debye length.'}
+];
+
+</script>
+<script>
+(function(){
+"use strict";
+var T = (typeof TIPS !== "undefined") ? TIPS : [];
+if(!T.length) return;
+var pop = document.createElement("div");
+pop.id = "tipPop"; pop.setAttribute("role","tooltip"); document.body.appendChild(pop);
+var cur = null, pinned = false, hideT = 0, showT = 0, uid = 0;
+
+function html(t){ return t.term ? "<b>"+t.term+"</b>" + (t.unit ? '<span class="tu">'+t.unit+"</span>" : "") + "<p>"+[].concat(t.text).join("</p><p>")+"</p>" : ""; }
+function plain(h){ var d=document.createElement("div"); d.innerHTML=h; return d.textContent.replace(/\s+/g," ").trim(); }
+
+function position(btn){
+  var r = btn.getBoundingClientRect(), vw = document.documentElement.clientWidth, vh = window.innerHeight;
+  pop.style.left = "0px"; pop.style.top = "0px";
+  var w = pop.offsetWidth, h = pop.offsetHeight, m = 8;
+  var x = Math.min(Math.max(m, r.left + r.width/2 - w/2), vw - w - m);
+  var y = r.bottom + 8; if(y + h > vh - m && r.top - h - 8 > m) y = r.top - h - 8;
+  y = Math.max(m, Math.min(y, vh - h - m));
+  pop.style.left = x + "px"; pop.style.top = y + "px";
+}
+function show(btn, pin){
+  clearTimeout(hideT); clearTimeout(showT);
+  if(cur && cur !== btn) cur.setAttribute("aria-expanded","false");
+  cur = btn; pinned = !!pin;
+  pop.innerHTML = html(btn._tip);
+  pop.classList.add("on"); btn.setAttribute("aria-expanded","true"); btn.setAttribute("aria-describedby","tipPop");
+  position(btn);
+}
+function hide(){
+  clearTimeout(hideT); clearTimeout(showT);
+  if(cur){ cur.setAttribute("aria-expanded","false"); cur.removeAttribute("aria-describedby"); }
+  pop.classList.remove("on"); cur = null; pinned = false;
+}
+function make(t){
+  var b = document.createElement("button"); b.type = "button"; b.className = "tipbtn"; b._tip = t;
+  b.setAttribute("aria-label", "What is " + plain(t.term) + "?"); b.setAttribute("aria-expanded","false");
+  b.addEventListener("click", function(e){ e.preventDefault(); e.stopPropagation(); (cur === b && pinned) ? hide() : show(b, true); });
+  b.addEventListener("pointerenter", function(e){ if(e.pointerType !== "mouse" || pinned) return; clearTimeout(hideT); showT = setTimeout(function(){ show(b, false); }, 110); });
+  b.addEventListener("pointerleave", function(e){ if(e.pointerType !== "mouse") return; clearTimeout(showT); if(!pinned) hideT = setTimeout(hide, 160); });
+  b.addEventListener("focus", function(){ if(!pinned) show(b, false); });
+  b.addEventListener("blur", function(){ if(!pinned && cur === b) hide(); });
+  return b;
+}
+pop.addEventListener("pointerenter", function(){ clearTimeout(hideT); });
+pop.addEventListener("click", function(){ if(pinned) hide(); });
+pop.addEventListener("pointerleave", function(e){ if(e.pointerType === "mouse" && !pinned) hideT = setTimeout(hide, 160); });
+document.addEventListener("keydown", function(e){ if(e.key === "Escape" && cur){ var b = cur; hide(); if(document.activeElement !== b) try{ b.focus({preventScroll:true}); }catch(x){} } });
+document.addEventListener("pointerdown", function(e){ if(cur && !pop.contains(e.target) && !(e.target.closest && e.target.closest(".tipbtn"))) hide(); }, true);
+function reflow(){ if(!cur) return; if(!document.body.contains(cur)){ hide(); return; } var r = cur.getBoundingClientRect(); if(r.bottom < 0 || r.top > window.innerHeight) hide(); else position(cur); }
+window.addEventListener("scroll", reflow, {passive:true}); window.addEventListener("resize", reflow);
+
+function place(t){
+  var els = [].slice.call(document.querySelectorAll(t.sel)).map(function(e){ return t.up ? e.closest(t.up) : e; }).filter(Boolean), re = t.match ? new RegExp(t.match) : null, n = 0;
+  els.forEach(function(el){
+    if(re && !re.test(el.textContent.replace(/\s+/g," ").trim())) return;
+    if(!t.all && n) return;
+    n++;
+    if(el.querySelector(":scope > .tipbtn[data-tk=\""+t._k+"\"]") || (el.nextElementSibling && el.nextElementSibling.dataset && el.nextElementSibling.dataset.tk === String(t._k))) return;
+    var b = make(t); b.dataset.tk = t._k;
+    if(el.tagName === "LABEL"){
+      var val = el.querySelector(":scope > .val"), sp = document.createElement("span"); sp.className = "tl"; sp.id = "tl" + (++uid);
+      var kids = [].slice.call(el.childNodes), moved = false;
+      for(var i = 0; i < kids.length; i++){
+        var k = kids[i]; if(k === val) break;
+        if(k.nodeType === 1 && /^(INPUT|SELECT|TEXTAREA|BUTTON)$/.test(k.tagName)) continue;
+        sp.appendChild(k); moved = true;
+      }
+      if(!moved) return;
+      var ref = val || null;
+      if(!val){ el.appendChild(sp); el.appendChild(b); } else { el.insertBefore(sp, val); el.insertBefore(b, val); }
+      var inp = el.getAttribute("for") ? document.getElementById(el.getAttribute("for")) : el.querySelector("input,select,textarea");
+      if(inp && !inp.getAttribute("aria-labelledby")) inp.setAttribute("aria-labelledby", sp.id + (val && val.id ? " " + val.id : ""));
+    } else {
+      var v = el.querySelector(":scope > .val"); if(v && (el.classList.contains("lab"))) el.insertBefore(b, v); else el.appendChild(b);
+    }
+  });
+}
+T.forEach(function(t, i){ t._k = i; });
+var busy = false;
+function placeAll(){ busy = true; try{ T.forEach(function(t){ if(t.sel) place(t); }); }catch(e){} busy = false; }
+
+function glossary(){
+  if(document.getElementById("gloss")) return;
+  var d = document.createElement("details"); d.id = "gloss";
+  var s = document.createElement("summary"); s.textContent = "Symbols and parameters: what every quantity means"; d.appendChild(s);
+  var body = document.createElement("div"); body.className = "gbody"; var g = null, dl = null;
+  T.forEach(function(t){
+    if(!t.term) return;
+    if(t.group !== g){ g = t.group; if(g){ var h = document.createElement("h3"); h.textContent = g; body.appendChild(h); } dl = document.createElement("dl"); body.appendChild(dl); }
+    if(!dl){ dl = document.createElement("dl"); body.appendChild(dl); }
+    var dt = document.createElement("dt"); dt.innerHTML = t.term;
+    var dd = document.createElement("dd"); dd.innerHTML = (t.unit ? '<span class="tu">'+t.unit+"</span>" : "") + "<p>"+[].concat(t.text).join("</p><p>")+"</p>";
+    dl.appendChild(dt); dl.appendChild(dd);
+  });
+  d.appendChild(body);
+  var wrap = document.querySelector(".wrap") || document.body; wrap.appendChild(d);
+}
+function lessonSymbols(){
+  var top = document.querySelector("#lesson .ltop-btns"), bar = document.querySelector("#lesson .lesson-bar"), g = document.getElementById("gloss");
+  if(!top || !bar || !g || document.getElementById("lSym")) return;
+  var btn = document.createElement("button"); btn.type = "button"; btn.className = "lesson-exit"; btn.textContent = "Symbols";
+  btn.setAttribute("aria-expanded","false"); btn.setAttribute("aria-controls","lSym"); top.insertBefore(btn, top.firstChild);
+  var pn = document.createElement("div"); pn.id = "lSym"; pn.hidden = true; pn.setAttribute("role","region"); pn.setAttribute("aria-label","Symbols and parameters");
+  var inp = document.createElement("input"); inp.type = "search"; inp.placeholder = "Filter symbols, for example ST or diffusion"; inp.setAttribute("aria-label","Filter symbols");
+  var body = g.querySelector(".gbody").cloneNode(true); pn.appendChild(inp); pn.appendChild(body);
+  bar.parentNode.insertBefore(pn, bar.nextSibling);
+  btn.addEventListener("click", function(){ var open = pn.hidden; pn.hidden = !open; btn.setAttribute("aria-expanded", open ? "true" : "false"); if(open) inp.focus({preventScroll:true}); });
+  inp.addEventListener("input", function(){
+    var q = inp.value.trim().toLowerCase();
+    [].forEach.call(body.querySelectorAll("dt"), function(dt){ var dd = dt.nextElementSibling, ok = !q || (dt.textContent + " " + dd.textContent).toLowerCase().indexOf(q) >= 0; dt.hidden = !ok; dd.hidden = !ok; });
+    [].forEach.call(body.querySelectorAll("h3"), function(h){ h.hidden = !!q; });
+  });
+  pn.addEventListener("keydown", function(e){ if(e.key === "Escape"){ pn.hidden = true; btn.setAttribute("aria-expanded","false"); btn.focus(); e.stopPropagation(); } });
+}
+glossary(); placeAll(); lessonSymbols();
+var q = 0;
+try{ new MutationObserver(function(){ if(busy || q) return; q = requestAnimationFrame(function(){ q = 0; placeAll(); }); })
+  .observe(document.body, {childList:true, subtree:true}); }catch(e){}
 })();
 </script>
 </body>

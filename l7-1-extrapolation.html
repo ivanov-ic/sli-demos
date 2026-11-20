@@ -408,6 +408,45 @@
   .veil-lam0 #cardPlot .legend .key:last-child{display:none}
 
 </style>
+<style id="tipStyle">
+.tipbtn{display:inline-flex; align-items:center; justify-content:center; vertical-align:middle; position:relative;
+  width:18px; height:18px; min-height:0; padding:0; margin:0 0 0 6px; border-radius:50%; cursor:help;
+  font:italic 600 12px/1 "Source Serif 4", Georgia, serif; text-transform:none; letter-spacing:0;
+  background:transparent; color:var(--muted); border:1px solid var(--line); flex:none}
+.tipbtn::before{content:"i"}
+.tipbtn::after{content:""; position:absolute; inset:-11px}
+.tipbtn:hover, .tipbtn[aria-expanded="true"]{color:var(--blue); border-color:var(--blue); background:var(--blue-soft, transparent)}
+.tipbtn:focus-visible{outline:2px solid var(--blue); outline-offset:2px}
+.ctl > .lab > .tipbtn, .ctl > label > .tipbtn, .ctl > .tl + .tipbtn{margin-right:auto}
+.ro .k .tipbtn, .work .k .tipbtn{width:16px; height:16px; font-size:11px}
+.legend .key .tipbtn, .cap .tipbtn{width:16px; height:16px; font-size:11px; margin-left:4px}
+.card h2 .tipbtn{margin-left:8px; position:relative; top:-1px}
+#tipPop{position:fixed; z-index:2147483000; left:0; top:0; max-width:min(330px, calc(100vw - 20px)); box-sizing:border-box;
+  padding:10px 12px 11px; border-radius:8px; background:var(--panel); color:var(--ink); border:1px solid var(--blue);
+  box-shadow:0 8px 28px rgba(0,0,0,.22); font:400 13px/1.45 "IBM Plex Sans", system-ui, sans-serif; text-transform:none; letter-spacing:0;
+  opacity:0; visibility:hidden; pointer-events:none; transition:opacity .1s}
+#tipPop.on{opacity:1; visibility:visible; pointer-events:auto}
+#tipPop b{display:block; font:600 14px/1.3 "Source Serif 4", Georgia, serif; margin-bottom:3px; color:var(--deep, var(--ink))}
+#tipPop .tu{display:block; font:400 11.5px/1.3 "IBM Plex Mono", monospace; color:var(--muted); margin-bottom:5px}
+#tipPop p{margin:0 0 5px} #tipPop p:last-child{margin-bottom:0}
+#tipPop em{font-style:italic} #tipPop code{font-family:"IBM Plex Mono", monospace; font-size:12px}
+#gloss{margin-top:16px; background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:0}
+#gloss > summary{cursor:pointer; padding:12px 15px; font:600 15px/1.3 "Source Serif 4", Georgia, serif; list-style-position:inside; min-height:24px}
+#gloss > summary:focus-visible{outline:2px solid var(--blue); outline-offset:-2px}
+#gloss .gbody{padding:0 15px 14px; columns:300px 2; column-gap:26px}
+#gloss h3, #lSym h3{font:500 11.5px/1.3 "IBM Plex Sans", sans-serif; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); margin:12px 0 4px; break-after:avoid}
+#gloss dl, #lSym dl{margin:0} #gloss dt, #lSym dt{font-weight:600; margin-top:8px; break-after:avoid}
+#gloss dd, #lSym dd{margin:1px 0 0; color:var(--ink-2); font-size:13.5px; break-inside:avoid-column}
+#gloss dd p, #lSym dd p{margin:0 0 4px} #gloss .tu, #lSym .tu{display:block; font:400 11.5px/1.3 "IBM Plex Mono", monospace; color:var(--muted)}
+#lSym{border:1px solid var(--line); border-radius:8px; background:var(--panel-2); margin:8px 0 10px; padding:10px 14px 12px; max-height:min(55vh, 440px); overflow:auto}
+#lSym[hidden]{display:none}
+#lSym input{width:100%; box-sizing:border-box; font:inherit; font-size:14px; padding:8px 10px; min-height:40px; border:1px solid var(--line); border-radius:6px; background:var(--panel); color:var(--ink)}
+#lSym .gbody{padding:0}
+#lSym .lsn{font-size:12px; color:var(--muted); margin:6px 0 0}
+.lesson-on #gloss{display:none}
+@media (prefers-reduced-motion:reduce){#tipPop{transition:none}}
+@media print{.tipbtn, #tipPop{display:none !important} #gloss{break-inside:avoid}}
+</style>
 <body>
 <script>if(window.self!==window.top)document.documentElement.classList.add("in-frame");</script>
 <noscript><div style="max-width:60ch;margin:40px auto;padding:18px 22px;border:1px solid #CF4520;border-radius:8px;background:#fff;color:#0F1E2B;font:15px/1.55 'IBM Plex Sans',system-ui,sans-serif">
@@ -980,16 +1019,16 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       $("workK").textContent = "Reading the line";
       $("eq1").textContent = "Λm = Λ°m − K c¹ᐟ²   with " + (S.fit ? "the best line" : "your line") + ":  Λm = " + num(inter,1) + (Math.round(K) >= 0 ? " − " : " + ") + Math.abs(Math.round(K)) + " c¹ᐟ²";
       $("eq2").textContent = "accepted Λ°m(KCl) = 149.8 S cm² mol⁻¹ = 1.498 × 10⁻² S m² mol⁻¹";
-      $("eqNote").textContent = "At 0.01 mol dm⁻³ the measured value is already 6 per cent below the limit, which is where the three retardation effects of Section 7.5 show up.";
+      $("eqNote").textContent = "At 0.01 mol dm⁻³ the measured value is already 6 per cent below the limit, which is where the three effects of Section 7.5 show up: relaxation, the electrophoretic effect, and ion pairing.";
     } else {
       v.className = "verdict bad";
-      v.textContent = "There is nothing here to extrapolate. The points plunge towards the axis instead of meeting it, because the degree of dissociation is collapsing, not because the ions are being retarded.";
+      v.textContent = "There is nothing here to extrapolate. As the concentration falls the points climb almost vertically and never settle on a straight line, because the degree of dissociation is rising towards 1, not because the ions are being retarded less.";
       $("scoreTitle").textContent = "The same attempt on a weak acid";
       $("scoreCap").innerHTML = "The best straight line through the lowest points meets the axis far below 390.7. The failure is not in your drawing.";
       $("plotTitle").innerHTML = "CH<sub>3</sub>COOH: &Lambda;<sub>m</sub> against <em>c</em><sup>1/2</sup>";
       $("plotCap").innerHTML = "Measurements on aqueous acetic acid at 298 K up to 0.01 mol dm<sup>&minus;3</sup>, with the Ostwald dilution law dashed through them. By 0.01 mol dm<sup>&minus;3</sup> the acid has given up 96 per cent of its limiting value. The teal point is where the answer actually is.";
       $("workK").textContent = "Why it fails";
-      $("eq1").textContent = "α = Λm/Λ°m :  at 0.0100 mol dm⁻³, Λm = 16.2 (Example 7.3), so α = 16.2/390.7 = 0.0415 and only 4.1 per cent of the acid is dissociated";
+      $("eq1").textContent = "α ≈ Λm/Λ°m :  at 0.0100 mol dm⁻³, Λm = 16.2 (Example 7.3), so α = 16.2/390.7 = 0.0415 and only 4.1 per cent of the acid is dissociated";
       $("eq2").textContent = "Ka = cα²/(1−α) = 1.79 × 10⁻⁵ (Example 7.3),  and Λ°m must come from elsewhere";
       $("eqNote").textContent = "For a strong electrolyte all the ions are present at every concentration and each one moves a little more slowly. For a weak one the ions are not there at all. Mode 3 assembles the missing number out of electrolytes that can be extrapolated.";
     }
@@ -1352,7 +1391,7 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
         {t:"About 6 per cent", ok:true, why:"(149.8 &minus; 141.3)/149.8 = 5.7 per cent."},
         {t:"About 8.5 per cent", why:"8.5 is the gap in S cm<sup>2</sup> mol<sup>&minus;1</sup>, not a percentage. As a fraction of 149.8 it is 0.057."}
       ],
-      more:"Every ion is present at every concentration, so this shortfall is not lost ions. It comes from the retardation effects of Section 7.5, which slow every ion more as the concentration rises." },
+      more:"Every ion is present at every concentration, so this shortfall is not lost ions. It comes from the effects of Section 7.5 (relaxation, electrophoretic drag, and ion pairing), which cut the current carried more as the concentration rises." },
 
     { title:"Now a weak acid",
       setup:{mode:"weak"}, show:[], hide:2, hideAfter:2,
@@ -1434,6 +1473,190 @@ This page is driven entirely by JavaScript: the controls and every chart are dra
       next:"Now go back to the free explorer and try drawing the lines by hand, and building other combinations."
     }
   });
+})();
+</script>
+<script>
+var TIPS=[
+{group:'Controls', sel:'.ctl > .lab', match:'^Mode', term:'Mode', unit:'three views',
+ text:'Strong: KCl plots seven measurements of &Lambda;<sub>m</sub> against <em>c</em><sup>1/2</sup>. Weak: the same for acetic acid. Build: assemble &Lambda;&deg;<sub>m</sub> of a weak electrolyte by adding and subtracting strong electrolytes, using the law of independent migration.'},
+{group:'Controls', sel:'#interVal', up:'label', term:'Line at <em>c</em> = 0 (intercept)', unit:'S cm<sup>2</sup> mol<sup>&minus;1</sup>',
+ text:'Height of the red line where it meets the <em>c</em> = 0 axis. This is your estimate of &Lambda;&deg;<sub>m</sub>, and the first readout reports it. Moving it while the other end stays put changes the slope <em>K</em>.'},
+{group:'Controls', sel:'#slopeVal', up:'label', term:'Line at the right-hand edge', unit:'S cm<sup>2</sup> mol<sup>&minus;1</sup>',
+ text:'Height of the red line at the right-hand edge of the chart. The slope readout is <em>K</em> = (intercept &minus; this height) / (<em>c</em><sup>1/2</sup> at the edge). Fixing the intercept and moving this end tilts the line.'},
+{group:'Controls', sel:'.ctl > .lab', match:'^Target', term:'Target electrolyte', unit:'CH<sub>3</sub>COOH or NH<sub>3</sub>',
+ text:'The weak electrolyte whose &Lambda;&deg;<sub>m</sub> is to be built. Acetic acid conducts as H<sup>+</sup> and CH<sub>3</sub>COO<sup>&minus;</sup>, ammonia as NH<sub>4</sub><sup>+</sup> and OH<sup>&minus;</sup>. Only those two ions may remain in the combination.'},
+{group:'Controls', sel:'.ctl > .lab', match:'^Lecture controls', term:'Lecture controls', unit:'two buttons',
+ text:'Show the answer fits a least-squares line through the four lowest points (modes 1 and 2), or fills in the model combination (mode 3). Reset returns the demo to its starting state.'},
+{group:'Readouts', sel:'#k1', term:'Intercept, or running total', unit:'S cm<sup>2</sup> mol<sup>&minus;1</sup>',
+ text:'Modes 1 and 2: where the red line meets the <em>c</em> = 0 axis, which estimates &Lambda;&deg;<sub>m</sub>. After Show the answer it is the least-squares line instead of yours. Mode 3: the sum of the electrolyte values you have added and subtracted.'},
+{group:'Readouts', sel:'#k2', term:'Accepted value, or target &Lambda;&deg;<sub>m</sub>', unit:'S cm<sup>2</sup> mol<sup>&minus;1</sup>',
+ text:'The tabulated limiting molar conductivity, the sum of the Table 7.1 ionic values: &Lambda;&deg;<sub>m</sub> = &nu;<sub>+</sub>&lambda;&deg;<sub>+</sub> + &nu;<sub>&minus;</sub>&lambda;&deg;<sub>&minus;</sub>. It is what the intercept or running total is compared against.'},
+{group:'Readouts', sel:'#k3', term:'Out by', unit:'per cent',
+ text:'Percentage difference of your result from the accepted value: 100 &times; (result &minus; accepted) / accepted. Positive means too high, negative means too low.'},
+{group:'Readouts', sel:'#k4', term:'Slope <em>K</em>, or electrolytes used', unit:'S cm<sup>2</sup> mol<sup>&minus;1</sup> / (mol dm<sup>&minus;3</sup>)<sup>1/2</sup>',
+ text:'Modes 1 and 2: the Kohlrausch coefficient of your line, <em>K</em> = (intercept &minus; edge height) / <em>c</em><sup>1/2</sup> at the edge, so a line that falls to the right gives a positive <em>K</em>. Mode 3: how many different electrolytes are in the combination.'},
+{group:'Chart', sel:'#plotTitle', term:'Conductivity chart', unit:'&Lambda;<sub>m</sub> against (<em>c</em> / mol dm<sup>&minus;3</sup>)<sup>1/2</sup>',
+ text:'Vertical axis: molar conductivity in S cm<sup>2</sup> mol<sup>&minus;1</sup>. Horizontal axis: square root of the concentration, which is dimensionless here. The <em>c</em> = 0 axis on the left is where the limiting value is read off.'},
+{group:'Chart', sel:'#ptsKey', up:'.key', term:'Measured points', unit:'298 K, aqueous',
+ text:'Experimental &Lambda;<sub>m</sub> at each concentration: Shedlovsky (1932) for KCl, MacInnes and Shedlovsky (1932) for acetic acid. They are listed in Table D3 of the coursebook.'},
+{group:'Chart', sel:'#ostKey', up:'.key', term:'Ostwald dilution law curve', unit:'dashed line',
+ text:'The &Lambda;<sub>m</sub> predicted for a weak acid from its degree of dissociation, &Lambda;<sub>m</sub> = &alpha;&Lambda;&deg;<sub>m</sub>, with &alpha; found from <em>K</em><sub>a</sub> and <em>c</em>. It is drawn with the concentration-based <em>K</em><sub>a</sub> quoted in the key.'},
+{group:'Chart', sel:'#lineKey', up:'.key', term:'Your line, or best line', unit:'S cm<sup>2</sup> mol<sup>&minus;1</sup> against <em>c</em><sup>1/2</sup>',
+ text:'The red straight line you position with the sliders or by dragging. After Show the answer it is replaced by the least-squares line through the four lowest-concentration points.'},
+{group:'Chart', sel:'.legend .key', match:'^the accepted limiting value', term:'Accepted limiting value', unit:'S cm<sup>2</sup> mol<sup>&minus;1</sup>',
+ text:'The teal dot on the <em>c</em> = 0 axis marks the tabulated &Lambda;&deg;<sub>m</sub>, obtained by summing the ionic values of Table 7.1. A correct extrapolation ends on it.'},
+{group:'Chart', sel:'.card h2', match:'^Where (your|the best) line|^The running total|^The same attempt', term:'Score card', unit:'the result of the extrapolation or the sum',
+ text:'Collects your intercept, the accepted value, the percentage error, and the slope (or, in mode 3, the running total and its target). The text beneath says whether the result is acceptable.'},
+{group:'Chart', sel:'.card h2', match:'^Ionic contributions', term:'Ionic contributions, Table 7.1', unit:'10<sup>4</sup>&lambda;&deg; / (S m<sup>2</sup> mol<sup>&minus;1</sup>)',
+ text:'Bar chart of limiting ionic conductivities &lambda;&deg;, the contribution each ion makes to &Lambda;&deg;<sub>m</sub>. Because 1 S m<sup>2</sup> = 10<sup>4</sup> S cm<sup>2</sup>, 10<sup>4</sup>&lambda;&deg; in S m<sup>2</sup> mol<sup>&minus;1</sup> is the same number as &lambda;&deg; in S cm<sup>2</sup> mol<sup>&minus;1</sup>. In mode 3 the ions in use are highlighted.'},
+{group:'Chart', sel:'.card h2', match:'^Adding and subtracting', term:'Whole electrolytes and ion tally', unit:'coefficient of each electrolyte',
+ text:'Each row is a strong electrolyte with its measurable &Lambda;&deg;<sub>m</sub>. The + and &minus; buttons set its coefficient. The chips below tally the net number of each ion; a spectator ion must end at zero and each wanted ion at one.'},
+{group:'Worked expressions', sel:'#workK', term:'Worked expression panel', unit:'changes with the mode',
+ text:'Shows the algebra that goes with what is on screen: Kohlrausch&rsquo;s law with your line in mode 1, the degree of dissociation and <em>K</em><sub>a</sub> in mode 2, and the combination written out term by term in mode 3.'},
+{group:'Symbols', term:'Molar conductivity, &Lambda;<sub>m</sub>', unit:'S cm<sup>2</sup> mol<sup>&minus;1</sup>',
+ text:'The conductivity of the solution, &kappa;, divided by the concentration, &Lambda;<sub>m</sub> = &kappa;/<em>c</em>: the conducting power per mole of electrolyte. It lets solutions of different concentration be compared. 1 S cm<sup>2</sup> mol<sup>&minus;1</sup> = 10<sup>&minus;4</sup> S m<sup>2</sup> mol<sup>&minus;1</sup>.'},
+{group:'Symbols', term:'Limiting molar conductivity, &Lambda;&deg;<sub>m</sub>', unit:'S cm<sup>2</sup> mol<sup>&minus;1</sup>',
+ text:'The value of &Lambda;<sub>m</sub> as <em>c</em> &rarr; 0, when the ions no longer influence one another. It is the intercept of the &Lambda;<sub>m</sub> against <em>c</em><sup>1/2</sup> line for a strong electrolyte. The law of independent migration builds it from ionic values.'},
+{group:'Symbols', term:'Concentration, <em>c</em>', unit:'mol dm<sup>&minus;3</sup>',
+ text:'Amount of electrolyte per volume of solution. The chart plots (<em>c</em> / mol dm<sup>&minus;3</sup>)<sup>1/2</sup>, so zero is the infinitely dilute limit.'},
+{group:'Symbols', term:'Kohlrausch coefficient, <em>K</em>', unit:'S cm<sup>2</sup> mol<sup>&minus;1</sup> / (mol dm<sup>&minus;3</sup>)<sup>1/2</sup>',
+ text:'The slope of the fall of &Lambda;<sub>m</sub> with <em>c</em><sup>1/2</sup> for a strong electrolyte. It reflects the drag of the ionic atmosphere, through the relaxation (asymmetry) and electrophoretic effects, and depends on the ion charges, solvent, and temperature.'},
+{group:'Symbols', term:'Degree of dissociation, &alpha;', unit:'dimensionless',
+ text:'The fraction of dissolved weak electrolyte that is present as ions. Because only dissociated molecules carry current, &Lambda;<sub>m</sub> &asymp; &alpha;&Lambda;&deg;<sub>m</sub>, so &alpha; &asymp; &Lambda;<sub>m</sub>/&Lambda;&deg;<sub>m</sub>.'},
+{group:'Symbols', term:'Acid dissociation constant, <em>K</em><sub>a</sub>', unit:'mol dm<sup>&minus;3</sup> (concentration form)',
+ text:'For HA &rlarr; H<sup>+</sup> + A<sup>&minus;</sup>, <em>K</em><sub>a</sub> = <em>c</em>&alpha;<sup>2</sup>/(1 &minus; &alpha;), ignoring activity coefficients. The Ostwald dilution law is this expression solved for &alpha; at each concentration.'},
+{group:'Symbols', term:'Limiting ionic conductivity, &lambda;&deg;', unit:'10<sup>4</sup>&lambda;&deg; / (S m<sup>2</sup> mol<sup>&minus;1</sup>), numerically &lambda;&deg; in S cm<sup>2</sup> mol<sup>&minus;1</sup>',
+ text:'The contribution of one kind of ion to &Lambda;&deg;<sub>m</sub> at infinite dilution, from Table 7.1. It is the same in every salt the ion belongs to, which is what the law of independent migration states.'},
+{group:'Symbols', term:'Spectator ions', unit:'ions that cancel',
+ text:'Ions present in the strong electrolytes used but not in the target, such as Na<sup>+</sup> and Cl<sup>&minus;</sup> for acetic acid. They are added once and subtracted once, so their contributions cancel exactly.'},
+{group:'Laws', term:'Kohlrausch&rsquo;s law (eqn 7.5)', unit:'&Lambda;<sub>m</sub> = &Lambda;&deg;<sub>m</sub> &minus; <em>Kc</em><sup>1/2</sup>',
+ text:'The empirical fall of molar conductivity with the square root of concentration for a strong electrolyte at low <em>c</em>. A straight line of &Lambda;<sub>m</sub> against <em>c</em><sup>1/2</sup> therefore meets the axis at &Lambda;&deg;<sub>m</sub>.'},
+{group:'Laws', term:'Law of independent migration (eqn 7.6)', unit:'&Lambda;&deg;<sub>m</sub> = &nu;<sub>+</sub>&lambda;&deg;<sub>+</sub> + &nu;<sub>&minus;</sub>&lambda;&deg;<sub>&minus;</sub>',
+ text:'At infinite dilution each ion moves independently and contributes its own &lambda;&deg;. Whole strong electrolytes can therefore be added and subtracted to obtain &Lambda;&deg;<sub>m</sub> for a weak electrolyte that cannot be extrapolated.'},
+{group:'Laws', term:'Ostwald dilution law (eqn 7.8)', unit:'<em>K</em><sub>a</sub> = <em>c</em>&alpha;<sup>2</sup>/(1 &minus; &alpha;)',
+ text:'Applies the equilibrium constant of a weak acid to its degree of dissociation. Combined with &Lambda;<sub>m</sub> = &alpha;&Lambda;&deg;<sub>m</sub> it gives the dashed curve, and from a measured &Lambda;<sub>m</sub> it gives <em>K</em><sub>a</sub>.'}
+];
+
+</script>
+<script>
+(function(){
+"use strict";
+var T = (typeof TIPS !== "undefined") ? TIPS : [];
+if(!T.length) return;
+var pop = document.createElement("div");
+pop.id = "tipPop"; pop.setAttribute("role","tooltip"); document.body.appendChild(pop);
+var cur = null, pinned = false, hideT = 0, showT = 0, uid = 0;
+
+function html(t){ return t.term ? "<b>"+t.term+"</b>" + (t.unit ? '<span class="tu">'+t.unit+"</span>" : "") + "<p>"+[].concat(t.text).join("</p><p>")+"</p>" : ""; }
+function plain(h){ var d=document.createElement("div"); d.innerHTML=h; return d.textContent.replace(/\s+/g," ").trim(); }
+
+function position(btn){
+  var r = btn.getBoundingClientRect(), vw = document.documentElement.clientWidth, vh = window.innerHeight;
+  pop.style.left = "0px"; pop.style.top = "0px";
+  var w = pop.offsetWidth, h = pop.offsetHeight, m = 8;
+  var x = Math.min(Math.max(m, r.left + r.width/2 - w/2), vw - w - m);
+  var y = r.bottom + 8; if(y + h > vh - m && r.top - h - 8 > m) y = r.top - h - 8;
+  y = Math.max(m, Math.min(y, vh - h - m));
+  pop.style.left = x + "px"; pop.style.top = y + "px";
+}
+function show(btn, pin){
+  clearTimeout(hideT); clearTimeout(showT);
+  if(cur && cur !== btn) cur.setAttribute("aria-expanded","false");
+  cur = btn; pinned = !!pin;
+  pop.innerHTML = html(btn._tip);
+  pop.classList.add("on"); btn.setAttribute("aria-expanded","true"); btn.setAttribute("aria-describedby","tipPop");
+  position(btn);
+}
+function hide(){
+  clearTimeout(hideT); clearTimeout(showT);
+  if(cur){ cur.setAttribute("aria-expanded","false"); cur.removeAttribute("aria-describedby"); }
+  pop.classList.remove("on"); cur = null; pinned = false;
+}
+function make(t){
+  var b = document.createElement("button"); b.type = "button"; b.className = "tipbtn"; b._tip = t;
+  b.setAttribute("aria-label", "What is " + plain(t.term) + "?"); b.setAttribute("aria-expanded","false");
+  b.addEventListener("click", function(e){ e.preventDefault(); e.stopPropagation(); (cur === b && pinned) ? hide() : show(b, true); });
+  b.addEventListener("pointerenter", function(e){ if(e.pointerType !== "mouse" || pinned) return; clearTimeout(hideT); showT = setTimeout(function(){ show(b, false); }, 110); });
+  b.addEventListener("pointerleave", function(e){ if(e.pointerType !== "mouse") return; clearTimeout(showT); if(!pinned) hideT = setTimeout(hide, 160); });
+  b.addEventListener("focus", function(){ if(!pinned) show(b, false); });
+  b.addEventListener("blur", function(){ if(!pinned && cur === b) hide(); });
+  return b;
+}
+pop.addEventListener("pointerenter", function(){ clearTimeout(hideT); });
+pop.addEventListener("click", function(){ if(pinned) hide(); });
+pop.addEventListener("pointerleave", function(e){ if(e.pointerType === "mouse" && !pinned) hideT = setTimeout(hide, 160); });
+document.addEventListener("keydown", function(e){ if(e.key === "Escape" && cur){ var b = cur; hide(); if(document.activeElement !== b) try{ b.focus({preventScroll:true}); }catch(x){} } });
+document.addEventListener("pointerdown", function(e){ if(cur && !pop.contains(e.target) && !(e.target.closest && e.target.closest(".tipbtn"))) hide(); }, true);
+function reflow(){ if(!cur) return; if(!document.body.contains(cur)){ hide(); return; } var r = cur.getBoundingClientRect(); if(r.bottom < 0 || r.top > window.innerHeight) hide(); else position(cur); }
+window.addEventListener("scroll", reflow, {passive:true}); window.addEventListener("resize", reflow);
+
+function place(t){
+  var els = [].slice.call(document.querySelectorAll(t.sel)).map(function(e){ return t.up ? e.closest(t.up) : e; }).filter(Boolean), re = t.match ? new RegExp(t.match) : null, n = 0;
+  els.forEach(function(el){
+    if(re && !re.test(el.textContent.replace(/\s+/g," ").trim())) return;
+    if(!t.all && n) return;
+    n++;
+    if(el.querySelector(":scope > .tipbtn[data-tk=\""+t._k+"\"]") || (el.nextElementSibling && el.nextElementSibling.dataset && el.nextElementSibling.dataset.tk === String(t._k))) return;
+    var b = make(t); b.dataset.tk = t._k;
+    if(el.tagName === "LABEL"){
+      var val = el.querySelector(":scope > .val"), sp = document.createElement("span"); sp.className = "tl"; sp.id = "tl" + (++uid);
+      var kids = [].slice.call(el.childNodes), moved = false;
+      for(var i = 0; i < kids.length; i++){
+        var k = kids[i]; if(k === val) break;
+        if(k.nodeType === 1 && /^(INPUT|SELECT|TEXTAREA|BUTTON)$/.test(k.tagName)) continue;
+        sp.appendChild(k); moved = true;
+      }
+      if(!moved) return;
+      var ref = val || null;
+      if(!val){ el.appendChild(sp); el.appendChild(b); } else { el.insertBefore(sp, val); el.insertBefore(b, val); }
+      var inp = el.getAttribute("for") ? document.getElementById(el.getAttribute("for")) : el.querySelector("input,select,textarea");
+      if(inp && !inp.getAttribute("aria-labelledby")) inp.setAttribute("aria-labelledby", sp.id + (val && val.id ? " " + val.id : ""));
+    } else {
+      var v = el.querySelector(":scope > .val"); if(v && (el.classList.contains("lab"))) el.insertBefore(b, v); else el.appendChild(b);
+    }
+  });
+}
+T.forEach(function(t, i){ t._k = i; });
+var busy = false;
+function placeAll(){ busy = true; try{ T.forEach(function(t){ if(t.sel) place(t); }); }catch(e){} busy = false; }
+
+function glossary(){
+  if(document.getElementById("gloss")) return;
+  var d = document.createElement("details"); d.id = "gloss";
+  var s = document.createElement("summary"); s.textContent = "Symbols and parameters: what every quantity means"; d.appendChild(s);
+  var body = document.createElement("div"); body.className = "gbody"; var g = null, dl = null;
+  T.forEach(function(t){
+    if(!t.term) return;
+    if(t.group !== g){ g = t.group; if(g){ var h = document.createElement("h3"); h.textContent = g; body.appendChild(h); } dl = document.createElement("dl"); body.appendChild(dl); }
+    if(!dl){ dl = document.createElement("dl"); body.appendChild(dl); }
+    var dt = document.createElement("dt"); dt.innerHTML = t.term;
+    var dd = document.createElement("dd"); dd.innerHTML = (t.unit ? '<span class="tu">'+t.unit+"</span>" : "") + "<p>"+[].concat(t.text).join("</p><p>")+"</p>";
+    dl.appendChild(dt); dl.appendChild(dd);
+  });
+  d.appendChild(body);
+  var wrap = document.querySelector(".wrap") || document.body; wrap.appendChild(d);
+}
+function lessonSymbols(){
+  var top = document.querySelector("#lesson .ltop-btns"), bar = document.querySelector("#lesson .lesson-bar"), g = document.getElementById("gloss");
+  if(!top || !bar || !g || document.getElementById("lSym")) return;
+  var btn = document.createElement("button"); btn.type = "button"; btn.className = "lesson-exit"; btn.textContent = "Symbols";
+  btn.setAttribute("aria-expanded","false"); btn.setAttribute("aria-controls","lSym"); top.insertBefore(btn, top.firstChild);
+  var pn = document.createElement("div"); pn.id = "lSym"; pn.hidden = true; pn.setAttribute("role","region"); pn.setAttribute("aria-label","Symbols and parameters");
+  var inp = document.createElement("input"); inp.type = "search"; inp.placeholder = "Filter symbols, for example ST or diffusion"; inp.setAttribute("aria-label","Filter symbols");
+  var body = g.querySelector(".gbody").cloneNode(true); pn.appendChild(inp); pn.appendChild(body);
+  bar.parentNode.insertBefore(pn, bar.nextSibling);
+  btn.addEventListener("click", function(){ var open = pn.hidden; pn.hidden = !open; btn.setAttribute("aria-expanded", open ? "true" : "false"); if(open) inp.focus({preventScroll:true}); });
+  inp.addEventListener("input", function(){
+    var q = inp.value.trim().toLowerCase();
+    [].forEach.call(body.querySelectorAll("dt"), function(dt){ var dd = dt.nextElementSibling, ok = !q || (dt.textContent + " " + dd.textContent).toLowerCase().indexOf(q) >= 0; dt.hidden = !ok; dd.hidden = !ok; });
+    [].forEach.call(body.querySelectorAll("h3"), function(h){ h.hidden = !!q; });
+  });
+  pn.addEventListener("keydown", function(e){ if(e.key === "Escape"){ pn.hidden = true; btn.setAttribute("aria-expanded","false"); btn.focus(); e.stopPropagation(); } });
+}
+glossary(); placeAll(); lessonSymbols();
+var q = 0;
+try{ new MutationObserver(function(){ if(busy || q) return; q = requestAnimationFrame(function(){ q = 0; placeAll(); }); })
+  .observe(document.body, {childList:true, subtree:true}); }catch(e){}
 })();
 </script>
 </body>
